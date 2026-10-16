@@ -23,7 +23,7 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-96.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-122.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -51,9 +51,11 @@ Candidate tagged (`v0.3.4-rc.1`): frozen.
 - T-22 · Release v0.3.4 and promote v0.3.3 (S)
 
 ### v0.3.5 · Releases that run themselves
-Shipping is a dozen manual steps; after this, `kiln version` drives the plan and the promotions.
+Shipping is a dozen manual steps; after this, `kiln version` drives the plan and the promotions,
+and each promotion is announced.
 - T-29 · GitHub Release at each promotion, `kiln version` does the mechanical steps (M)
 - T-44 · `/kiln:backlog plan`, read by `kiln version` and `/kiln:release` (M)
+- T-118 · Each promoted release announced on Bluesky and dev.to (S)
 - T-14 · Promote v0.3.1, the first release on PyPI (XS) (blocked: antoine, old token)
 - T-05 · Check the first real run of the workflows on GitHub (XS) (blocked: GitHub billing)
 - T-04 · Decide whether annski quotes kiln's workflows at a tag (XS) (blocked: antoine)
@@ -67,27 +69,34 @@ The milestone decided by antoine: every rename at once, converted by `kiln updat
 - T-27 · The edit hook checks only the edited file (S)
 
 ### v0.4.1 · Nothing to trip on for a beginner
-A first project without a question to answer, a flow to learn or a French default to undo.
+A first project without a question to answer, a flow to learn, a French default to undo or a
+missing tool to hunt for.
 ⚠ breaking: the size question goes away.
 - T-39 · Start light, grow with the repo (M)
 - T-42 · The git flow grows with the size (M)
 - T-36 · `kiln new` recommends the stack, the user decides (S)
 - T-31 · Neutral defaults instead of AnnSki's (S)
 - T-28 · Quiet session hook outside kiln repos (S)
+- T-98 · Tab completion for zsh and fish (S)
+- T-99 · `kiln doctor --fix` (S)
 
 ### v0.4.2 · Everything settable, and you find it
-The other half of T-41: the expert sets anything in one command, the newcomer is told when it matters.
+The other half of T-41: the expert sets anything in one command, the newcomer is told when it
+matters and why.
 - T-41 · Beginner with nothing to set, expert with everything settable (M)
 - T-40 · kiln tells you what is possible, once, at the right moment (M)
+- T-95 · `kiln why` and `/kiln:onboard` (M)
 - T-10 · Interface polish (S)
 - T-45 · Update reminders at the pace you choose (S)
-- T-95 · `kiln why` and `/kiln:onboard` (M)
+- T-116 · An accessible CLI: `NO_COLOR`, `--plain` (S)
 
 ### v0.4.3 · Instructions that fit the repo, for any agent
-A script stops carrying a service's 400-line charter; rules load by path and by size, and other coding agents read them too.
+A script stops carrying a service's 400-line charter; rules load by path and by size, other
+coding agents read them too, and Claude hears when they change.
 ⚠ breaking: generated tree (`.claude/rules/kiln/`).
 - T-24 · Generated instructions in `.claude/rules/kiln/`, by path and by size (L)
 - T-52 · `AGENTS.md` too: ready for every coding agent (M)
+- T-107 · After `kiln update`, Claude is told what changed in its rules (S)
 
 ### v0.4.4 · From idea to live app
 Every project type deploys from `kiln new`, on docker or podman, with a live example to prove it.
@@ -104,31 +113,35 @@ The second door: adopt a repo as it is, say what kiln does not know, give it a f
 
 ### v0.4.6 · Try kiln with nothing installed
 A visitor gets from the README to a running project in minutes: one install line, a container
-in the browser, no database to set up, a fast first run.
+in the browser, the project described in a sentence, no database to set up.
 - T-49 · `kiln bootstrap`: from a bare machine to the first repo (M)
 - T-48 · A devcontainer in every repo, kiln in Codespaces (M)
+- T-96 · `kiln new "…"`: the project described in a sentence (M)
 - T-51 · SQLite first, PostgreSQL when the project grows (M)
 
 ### v0.4.7 · Any repo scored, any repo free to leave
 The launch hook: useful on any repo in one command, and the answer to "what if I want out?".
 - T-46 · `kiln score`: any repo graded out of 100, with a badge (L)
 - T-47 · `kiln eject`: leave kiln cleanly in one command (M)
+- T-121 · `kiln uninstall`: the machine left as it was (S)
 
-### v0.4.8 · Every release proven on real repos, and fast
+### v0.4.8 · Every release proven on real repos
 Reliability a team can rely on before the launch brings strangers in.
 - T-54 · Upgrade paths, full end-to-end, Claude Code versions (L)
-- T-50 · `kiln new` in under 30 seconds, and offline (M)
 
 ### v0.4.9 · Proof in numbers
-The benchmark the launch post stands on.
+The benchmark and the speed the launch post stands on.
 - T-53 · kiln vs Claude Code alone, measured and published (L)
+- T-50 · `kiln new` in under 30 seconds, and offline (M)
 
 ### v0.4.10 · Public launch
 Proposed as **v0.5.0**: the public stability promise starts here (antoine decides).
 - T-33 · One promise everywhere: tagline, About, PyPI, social preview (S)
 - T-30 · README, English reference in `docs/`, demo of `kiln new` (M)
-- T-55 · README in Chinese, Japanese, Spanish and Portuguese (S)
 - T-56 · A configurator on kiln's site, and a gallery (M)
+- T-55 · README in Chinese, Japanese, Spanish and Portuguese (S)
+- T-100 · Every error message links to its page in the docs (S)
+- T-119 · GitHub Sponsors and `FUNDING.yml` (XS)
 - T-03 · Launch kiln publicly, then list it in the Claude Code directories (S)
 - T-12 · Homebrew formula in a tap (S) (blocked: demand)
 
@@ -137,9 +150,10 @@ The repo stays current while nobody looks, and every change can be previewed and
 - T-59 · kiln-bot: `kiln update` as a scheduled pull request (L)
 - T-60 · `kiln update --dry-run` and `--undo` (M)
 
-### v0.4.12 · Major upgrades done for you
-Where repos really rot: the framework major that breaks the code.
+### v0.4.12 · Upgrades and vulnerabilities fixed for you
+Where repos really rot: the framework major that breaks the code, the advisory nobody fixes.
 - T-61 · `kiln migrate`: framework major upgrades done by Claude Code (L)
+- T-113 · `kiln audit --fix` (M)
 
 ### v0.4.13 · Add a feature, not a pile of files
 Features that `kiln update` keeps current, starting with the one every app needs.
@@ -152,54 +166,73 @@ Mail, payments, then the project type that bundles them.
 - T-65 · Add-on `payments` (M)
 - T-66 · Project type `saas` (L)
 
-### v0.4.15 · Claude closes the loop on a ticket
+### v0.4.15 · Features every product grows into
+- T-109 · Add-on `storage` (M)
+- T-110 · Add-on `realtime` (M)
+- T-111 · Add-on `search` (M)
+- T-68 · Add-on `i18n` (M)
+
+### v0.4.16 · Claude closes the loop on a ticket
 From a ticket to a reviewed merge, with fast feedback at each edit.
 - T-72 · `/kiln:feature` and `/kiln:fix` (L)
 - T-73 · Subagents per stack (M)
 - T-77 · Tests in seconds after each edit (M)
 
-### v0.4.16 · Red to green without a human, on a lean context
+### v0.4.17 · Red to green without a human, on a budget
+CI fixed by Claude, pull requests reviewed by it, and what that costs in context and tokens.
 - T-76 · `kiln ci --fix` (M)
 - T-75 · `@claude` in pull requests and issues of generated repos (M)
 - T-78 · Context budget, measured and capped (M)
+- T-106 · What a feature cost: tokens per ticket and per repo (M)
 
-### v0.4.17 · kiln as a tool for agents
+### v0.4.18 · kiln as a tool for agents
 - T-71 · `kiln mcp`, with `--json` everywhere (M)
 - T-74 · `kiln autopilot` (L)
 
-### v0.4.18 · Build for AI
+### v0.4.19 · Build for AI
 The projects Claude Code users build most, with tests and evals as a matter of course.
 - T-79 · Project type `mcp` (M)
 - T-80 · Project type `agent` with evals in CI (L)
 
-### v0.4.19 · More kinds of projects
-JavaScript developers get a backend, two more fronts, and Python authors a library type.
+### v0.4.20 · More kinds of projects
+JavaScript developers get a backend and two more fronts; Python authors a library type, analysts
+notebooks that cannot rot.
 - T-82 · A TypeScript backend: Hono and Drizzle (M)
 - T-83 · SvelteKit and React (Vite) fronts (M)
 - T-81 · Project type `library` (M)
+- T-115 · Analysis projects: DuckDB, notebooks run in CI (M)
+- T-108 · An API reference page served by every backend (S)
 
-### v0.4.20 · Know what production is doing
+### v0.4.21 · Production you can see, reach and restore
 - T-67 · Add-on `observability` (M)
 - T-93 · Database safety: migration linting, seed data, anonymised dumps (M)
+- T-105 · Backups of the hosted database, with a tested restore (M)
+- T-104 · A custom domain in one command (M)
 
-### v0.4.21 · Ship every pull request with confidence
+### v0.4.22 · Ship every pull request with confidence
+A preview to click, a front tested like a user, secrets in one place, release notes written.
 - T-88 · A preview environment for each pull request (M)
+- T-92 · End-to-end, accessibility, performance budgets (M)
 - T-89 · `kiln secrets` (M)
+- T-103 · Changelog and release notes written from the commits (M)
+- T-97 · `kiln dev --share` (S)
 
-### v0.4.22 · Secure supply chain, a charter that fixes
+### v0.4.23 · Secure and compliant, provably
 - T-90 · Pinned actions, signed releases, OpenSSF Scorecard (M)
 - T-91 · The charter fixes, annotates and accepts custom rules (L)
+- T-112 · GDPR kit (M)
+- T-102 · A licence chosen at `kiln new`, dependency licences checked (S)
 
-### v0.4.23 · Fronts tested like a user, in every language
-- T-92 · End-to-end, accessibility, performance budgets (M)
-- T-68 · Add-on `i18n` (M)
-
-### v0.4.24 · Huge repos, and many of them
+### v0.4.24 · Huge repos, many repos, heavy traffic
 - T-86 · Monorepos: several services in one repo (L)
 - T-87 · Fleet dashboard for an organisation (M)
+- T-114 · Load tests for big services (M)
 
 ### v0.4.25 · Your company's kiln
+A team bends kiln to its ways without forking it.
 - T-70 · Org profiles (L)
+- T-101 · Repo hygiene by size: templates, labels, CODEOWNERS, CONTRIBUTING (M)
+- T-120 · `kiln new --like <repo>` (S)
 
 ### v0.4.26 · An ecosystem around kiln
 Others build on kiln, see where it goes, and learn it from tutorials.
@@ -207,14 +240,13 @@ Others build on kiln, see where it goes, and learn it from tutorials.
 - T-58 · A public roadmap on GitHub Projects, Discussions open (M)
 - T-57 · A tutorial series: from idea to a live SaaS in an afternoon (M)
 
-### v0.4.27 · Go and Rust
+### v0.4.27 · Beyond Python and JavaScript
 - T-84 · Go and Rust backends (L)
-
-### v0.4.28 · Mobile apps
 - T-85 · Mobile apps with Expo (L)
 
-### v0.4.29 · Windows without WSL
+### v0.4.28 · kiln where you work: Windows and VS Code
 - T-94 · Windows without WSL (L)
+- T-117 · A VS Code extension (L)
 
 ---
 
@@ -488,7 +520,7 @@ sessions), never something the human has to learn.
 ### T-03 · Launch kiln publicly, then list it in the Claude Code directories
 - **Type**: task
 - **Status**: blocked — waiting for T-23 to T-25, T-27, T-30, T-32 to T-37 and T-39 to T-42,
-  T-46 to T-54
+  T-46 to T-54 and T-96
 - **Opened**: 2026-10-15
 - **Effort**: S · **Owner**: antoine · **Due**: —
 - **Origin**: GitHub showcase, 15 October 2026; "Claude Code's workshop" positioning,
@@ -715,6 +747,20 @@ from any old release.
   (`kiln version` reads the result).
 - [ ] The hooks, skills and status line run against the current and the previous Claude Code
   release; `claude plugin eval` suites for the main skills.
+
+### T-96 · `kiln new "a booking site for my yoga class"`: the project described in a sentence
+- **Type**: idea
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+A newcomer knows what they want, not what an "API only" is. One sentence is the most natural
+first question, and the most striking demo.
+- [ ] Headless Claude Code reads the sentence, proposes the type and stack (T-36 rules), says
+  why in two lines, the user confirms; without Claude Code, the three questions as today.
+- [ ] The sentence becomes the north star of `docs/backlog/` and its first three tickets, so
+  the first prompt of `kiln new` starts on real work.
 
 ## 🟡 Normal
 
@@ -1320,6 +1366,257 @@ The newcomer kiln targets learns by asking why. Opinions explained become a reas
 - [ ] `/kiln:onboard`: a guided tour of the repo for a new teammate (stack, commands, where
   things live, open tickets), written from the repo itself.
 
+### T-97 · `kiln dev --share`: a public URL to show the app running on your machine
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] A temporary tunnel (cloudflared quick tunnel, no account) to the front or the API, URL
+  printed and closed with `kiln dev`; a warning when the dev server exposes debug pages.
+
+### T-98 · Tab completion for zsh and fish
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude, or a contributor (good first issue candidate) · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; follows T-20 (bash)
+
+zsh is the default shell on macOS: most newcomers there get no completion today.
+- [ ] `kiln completion zsh` and `kiln completion fish`, built from the parser like bash; the
+  README line for each.
+
+### T-99 · `kiln doctor --fix`: the fixes applied, not just printed
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] Each problem `kiln doctor` finds and can fix safely (pre-commit missing, plugin not
+  installed, outdated kiln) is fixed after one confirmation; the others keep their command and
+  direct link.
+
+### T-100 · Every error message links to its page in the docs
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; needs T-30
+
+- [ ] Errors of the CLI, the charter and the hooks carry a stable code and a short link
+  (`kiln.dev/e/K012`, whatever the domain of T-35); a test that every code has its page.
+
+### T-101 · Repo hygiene by size: templates, labels, CODEOWNERS, CONTRIBUTING
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] From `ember`: issue and pull request templates, labels matching the ticket types; from
+  `flame`: CODEOWNERS from `team`, CONTRIBUTING, required reviewers (T-24); set by
+  `kiln publish` and kept by `kiln update`.
+
+### T-102 · A licence chosen at `kiln new`, dependency licences checked
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] `license=mit|apache-2.0|agpl-3.0|proprietary` (default: proprietary for a private repo,
+  MIT for a public one), `LICENSE` generated; CI fails on a dependency whose licence conflicts.
+
+### T-103 · Changelog and release notes written from the commits, in generated repos
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] The release skill of a generated repo drafts the `CHANGELOG.md` entry and the GitHub
+  Release from conventional commits and closed tickets, breaking changes first, for a human
+  to read once.
+
+### T-104 · A custom domain in one command: DNS, HTTPS, checked
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; needs T-32
+
+The step where newcomers give up after a first deployment.
+- [ ] `kiln deploy domain example.com`: sets it on the host, prints the exact DNS records with
+  the direct link to the registrar's DNS page when it is known, waits for HTTPS, checks.
+
+### T-105 · Backups of the hosted database, with a tested restore
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; the VPS has it, T-32's hosts do not
+
+- [ ] Daily dump to object storage by a scheduled workflow, kept by size; a monthly restore
+  into a throwaway database, red when it fails; `kiln restore <date>`.
+
+### T-106 · What a feature cost: Claude Code tokens per ticket and per repo
+- **Type**: idea
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+Teams adopting Claude Code ask what it costs; nobody can answer per piece of work.
+- [ ] Session costs read from Claude Code's local transcripts, attributed to the branch and its
+  ticket; written in the "Done" line of the ticket, totals in `kiln status`.
+
+### T-107 · After `kiln update`, Claude is told what changed in its rules
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+A session opened before an update keeps working by the old rules.
+- [ ] The session-start hook says, once, the rules added or changed by the last update (from
+  the release notes), in three lines at most.
+
+### T-108 · An API reference page served by every backend
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] `/docs` serves the OpenAPI schema with Scalar in dev (and in production by setting), for
+  Django Ninja, FastAPI and Hono (T-82).
+
+### T-109 · Add-on `storage`: file uploads to S3-compatible storage
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; needs T-62
+
+- [ ] Signed uploads straight from the browser, size and type checked, MinIO in
+  `compose.yaml`, any S3-compatible host in production; image resizing optional.
+
+### T-110 · Add-on `realtime`: live updates over WebSocket or SSE
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; needs T-62
+
+- [ ] Django Channels or FastAPI WebSockets, a typed client in the front, reconnection, an
+  example (notifications), tests.
+
+### T-111 · Add-on `search`: PostgreSQL full-text first, Meilisearch when it grows
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; needs T-62
+
+- [ ] Full-text search on chosen models with ranking, a search box component; switching to
+  Meilisearch by setting, index kept in sync by background tasks.
+
+### T-112 · GDPR kit: consent, data export and deletion, privacy page
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; built on the personal-data
+  patterns of the charter
+
+- [ ] Consent only when a tracker is present, "export my data" and "delete my account"
+  endpoints covering every model holding personal data (checked by the charter), a privacy
+  page to fill, a register of processing in `docs/`.
+
+### T-113 · `kiln audit --fix`: vulnerable dependencies fixed on a branch
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] `uv audit`, `pnpm audit` and Maven advisories gathered; the smallest upgrade that fixes
+  each one applied on a work branch, checks run, a commit per advisory; what cannot be fixed is
+  listed with why.
+
+### T-114 · Load tests for big services: scenarios and a budget in CI
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] At `blaze`: k6 scenarios for the main endpoints, run against a preview (T-88), p95
+  latency and error budgets that fail the release candidate.
+
+### T-115 · Analysis projects: DuckDB, notebooks run in CI
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] DuckDB next to polars, marimo notebooks executed in CI so a broken notebook fails, data
+  files versioned by size (Git LFS or a data folder outside git), figures exported to `docs/`.
+
+### T-116 · An accessible CLI: `NO_COLOR`, `--plain`, screen readers, CI logs
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] `NO_COLOR` and `--plain` respected everywhere (no spinner, no box drawing, words instead
+  of symbols); tested like the output outside a terminal.
+
+### T-118 · Each promoted release announced on Bluesky and dev.to
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; accounts ready in T-03
+
+Every release is a reason to be seen again.
+- [ ] At promotion, a short post written from the release notes (what a user notices, one
+  link), posted from `.bluesky/` and `.devto/`; skipped for a release with nothing visible.
+
+### T-119 · GitHub Sponsors and `FUNDING.yml`
+- **Type**: task
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: XS · **Owner**: antoine for the Sponsors profile, Claude for the file · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] Sponsors profile: https://github.com/sponsors/accounts ; `.github/FUNDING.yml` and a
+  line in the README.
+
+### T-120 · `kiln new --like <repo>`: start from the choices of another repo
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] The answers of an existing kiln repo (local path or GitHub) as defaults, name and
+  description asked again; the team's usual stack in one flag.
+
+### T-121 · `kiln uninstall`: the machine left as it was
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026; pairs with T-47
+
+- [ ] Removes the plugins, the status line setting, `~/.config/kiln/` and the tool itself,
+  after listing them; repos are left untouched (`kiln eject` is for them).
+
 ## ⚪ Background — long-running work, debt and ideas
 
 ### T-08 · Copier migrations for breaking releases
@@ -1414,6 +1711,17 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 - [ ] `kiln` and the generated repos on native Windows (PowerShell, paths, line endings,
   hooks in Python only), a Windows job in kiln's CI; until then `kiln doctor` says WSL clearly.
+
+### T-117 · A VS Code extension: charter findings in the editor, kiln commands in the palette
+- **Type**: idea
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: L · **Owner**: Claude · **Due**: —
+- **Origin**: growth review, second batch, 16 October 2026
+
+- [ ] Charter findings as diagnostics on save (from `--json`, T-71), `kiln` commands in the
+  palette, the backlog's next tickets in a side view; published on the VS Code Marketplace
+  and Open VSX.
 
 ## ✅ Done
 

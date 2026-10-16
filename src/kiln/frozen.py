@@ -8,12 +8,16 @@ from pathlib import Path
 
 import copier
 from copier.errors import CopierError
+from packaging.version import Version
 
-from kiln import ui
+from kiln import renames, ui
 from kiln.charter.waivers import WAIVERS_FILE, load
 from kiln.stack import read_answers
+from kiln.versions import release_version
 
 DIFF_LINES = 40
+# First release whose template speaks English (answer keys included).
+ENGLISH_TEMPLATE = Version("0.4.0")
 
 
 def frozen_files(root: Path) -> list[str]:
@@ -29,8 +33,8 @@ def report_frozen_drift(root: Path, source: str, previous: str, current: str) ->
     answers = {k: v for k, v in read_answers(root).items() if not k.startswith("_")}
     try:
         with tempfile.TemporaryDirectory() as tmp:
-            before = _render(source, previous, answers, Path(tmp) / "avant")
-            after = _render(source, current, answers, Path(tmp) / "apres")
+            before = _render(source, previous, answers_for(previous, answers), Path(tmp) / "before")
+            after = _render(source, current, answers_for(current, answers), Path(tmp) / "after")
             diffs = {f: _diff(before / f, after / f, f) for f in frozen}
     except (CopierError, OSError) as error:  # OSError : révision introuvable (git)
         ui.note(f"Fichiers figés : comparaison des versions de kiln impossible ({error}).")
@@ -47,6 +51,14 @@ def report_frozen_drift(root: Path, source: str, previous: str, current: str) ->
         print("\n".join(diff[:DIFF_LINES]))
         if len(diff) > DIFF_LINES:
             print(f"… et {len(diff) - DIFF_LINES} ligne(s) de plus")
+
+
+def answers_for(ref: str, answers: dict[str, object]) -> dict[str, object]:
+    """The answers as the template at `ref` names them: French before kiln 0.4.0."""
+    version = release_version(ref)
+    if version is not None and version < ENGLISH_TEMPLATE:
+        return renames.legacy_answers(answers)
+    return answers
 
 
 def _render(source: str, ref: str, answers: dict[str, object], destination: Path) -> Path:

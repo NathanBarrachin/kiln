@@ -19,9 +19,10 @@ if TYPE_CHECKING:
 EXIT_FAILURE = 1
 PROJECT_NAME = re.compile(r"[a-z][a-z0-9-]*")
 SIZES = ("spark", "ember", "flame", "blaze")
-PROJECT_TYPES = ("app", "api", "site", "tableau", "analyse", "outil")
-BACKENDS = ("django", "fastapi", "data", "cli", "java", "aucun")
-FRONTENDS = ("nuxt", "next", "astro", "streamlit", "dash", "aucun")
+PROJECT_TYPES = ("app", "api", "site", "dashboard", "analysis", "cli")
+BACKENDS = ("django", "fastapi", "data", "cli", "java", "none")
+FRONTENDS = ("nuxt", "next", "astro", "streamlit", "dash", "none")
+LANGUAGES = ("en", "fr")
 
 
 # Écran d'accueil : commandes par section ; le rôle de chacune vient de son aide argparse.
@@ -169,6 +170,7 @@ def _add_new_command(commands: argparse._SubParsersAction[argparse.ArgumentParse
         "--vps", metavar="UTILISATEUR@ADRESSE", help="déploiement sur ce serveur (Django + podman)"
     )
     new_parser.add_argument("--goal", help="boussole (north star) du suivi docs/backlog/")
+    new_parser.add_argument("--language", choices=LANGUAGES, help="langue de l'équipe (en, fr)")
     new_parser.add_argument("--prod-url", help="sonde de santé de la production (status line)")
     new_parser.add_argument(
         "--no-github", action="store_true", help="ne pas créer le dépôt GitHub (créé par défaut)"
@@ -202,14 +204,14 @@ def _new_project_request(arguments: argparse.Namespace) -> new.NewProjectRequest
     from kiln import new
 
     directory = arguments.directory or Path(arguments.name or _ask_project_name())
-    answers: dict[str, object] = {"nom": arguments.name or directory.name}
+    answers: dict[str, object] = {"name": arguments.name or directory.name}
     if arguments.title:
-        answers["titre"] = arguments.title
+        answers["title"] = arguments.title
     if arguments.description:
         answers["description"] = arguments.description
     for key, value in (
-        ("envergure", arguments.size),
-        ("type_projet", arguments.project_type),
+        ("size", arguments.size),
+        ("project_type", arguments.project_type),
         ("backend", arguments.backend),
         ("frontend", arguments.frontend),
     ):
@@ -218,15 +220,17 @@ def _new_project_request(arguments: argparse.Namespace) -> new.NewProjectRequest
     if arguments.podman:
         answers["podman"] = True
     if arguments.vps:
-        answers.update(deploiement="vps", vps_hote=arguments.vps)
+        answers.update(deploy="vps", vps_host=arguments.vps)
     if arguments.goal:
-        answers["boussole"] = arguments.goal
+        answers["north_star"] = arguments.goal
+    if arguments.language:
+        answers["language"] = arguments.language
     if arguments.prod_url:
-        answers["url_sante_prod"] = arguments.prod_url
+        answers["prod_health_url"] = arguments.prod_url
     if arguments.owner:
-        answers["proprietaire"] = arguments.owner
+        answers["owner"] = arguments.owner
     if arguments.team:
-        answers["equipe"] = [login.strip() for login in arguments.team.split(",")]
+        answers["team"] = [login.strip() for login in arguments.team.split(",")]
     return new.NewProjectRequest(
         destination=directory,
         answers=answers,

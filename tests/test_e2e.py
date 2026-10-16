@@ -5,7 +5,9 @@
   and still passes its checks.
 
 Slow and networked (PyPI, npm, Maven Central): left out of the default run, played by
-`uv run pytest -m e2e` and by kiln's CI on release branches and every night.
+`uv run pytest -m e2e` and by kiln's CI on release branches and every night. The generated
+projects take a few gigabytes: where `/tmp` is a RAM disk (WSL), add
+`--basetemp ~/.cache/kiln-e2e`.
 """
 
 import os

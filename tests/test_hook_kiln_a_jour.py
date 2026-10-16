@@ -224,6 +224,10 @@ def test_the_old_kiln_tool_is_still_found_and_removed_on_update(
     assert hook.installed_kiln() == ("git", "c0")
     command = hook.tool_update_command(("git", "c0"), "v0.4.0")
     assert command.startswith('uv tool uninstall kiln && uv tool install --force "git+')
+    assert hook.tool_update_command(("dossier", "/src/kiln"), "v0.4.0") == (
+        'git -C "/src/kiln" pull --ff-only && uv tool uninstall kiln && '
+        'uv tool install --reinstall "/src/kiln"'
+    )
 
 
 def test_promoted_versions_come_from_pypi_and_candidates_from_github(

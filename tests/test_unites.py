@@ -3,6 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import copier
 import pytest
 from packaging.version import Version
 from plumbum import ProcessExecutionError
@@ -19,7 +20,11 @@ from kiln.rules import charter_rules, verified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
 from kiln.shell import KilnError
 from kiln.stack import Stack, answers_if_any, load_stack, stack_from_answers
-from kiln.update import apply_template, git_failure, replace_legacy_source
+from kiln.update import (
+    apply_template,
+    git_failure,
+    replace_legacy_source,
+)
 from kiln.versions import installed_version, notes_between, release_version
 
 
@@ -290,3 +295,52 @@ def test_other_git_failure_keeps_its_last_line() -> None:
     assert (
         git_failure(error) == "git a échoué pendant la mise à jour du modèle : fatal: ref inconnue"
     )
+
+
+@pytest.mark.parametrize("local_edit", ["", "  local: true\n"])
+def test_promoted_candidate_does_not_conflict_on_kiln_workflow_refs(
+    tmp_path: Path, local_edit: str
+) -> None:
+    """Le tag promu pose sur le commit de sa candidate : Copier rend l'ancienne version sous le
+    nom promu, et seul le `@<tag>` des workflows de kiln différerait du projet (T-18). Une
+    vraie modification locale au même endroit reste un conflit à arbitrer."""
+    template, project = tmp_path / "modele", tmp_path / "projet"
+
+    def git(root: Path, *args: str) -> None:
+        subprocess.run(["git", *args], cwd=root, check=True, capture_output=True)
+
+    def release(tag: str, steps: str) -> None:
+        (template / "ci.yml.jinja").write_text(
+            "# version de kiln ({{ _copier_answers._commit }})\n"
+            "jobs:\n  python:\n    uses: antoine-tena/kiln/.github/workflows/python.yml"
+            "@{{ _copier_answers._commit }}\n" + steps
+        )
+        git(template, "add", "-A")
+        git(template, "commit", "-qm", tag)
+        git(template, "tag", "-a", tag, "-m", tag)
+
+    template.mkdir()
+    git(template, "init", "-q")
+    (template / "copier.yml").write_text("_answers_file: .copier-answers.yml\n")
+    (template / "{{_copier_conf.answers_file}}.jinja").write_text(
+        "{{ _copier_answers | to_nice_yaml }}"
+    )
+    release("v1.0.0-rc.1", "")
+    copier.run_copy(str(template), project, vcs_ref="v1.0.0-rc.1", defaults=True, quiet=True)
+    with (project / "ci.yml").open("a") as ci_file:
+        ci_file.write(local_edit)
+    git(project, "init", "-q")
+    git(project, "add", "-A")
+    git(project, "commit", "-qm", "init")
+    git(template, "tag", "-a", "v1.0.0", "-m", "v1.0.0")
+    release("v1.0.1", "  charte: true\n")
+
+    apply_template(project)
+
+    ci = (project / "ci.yml").read_text()
+    assert ("<<<<<<<" in ci) == bool(local_edit)
+    if not local_edit:
+        assert ci.endswith("python.yml@v1.0.1\n  charte: true\n")
+        assert "ci.yml" not in subprocess.check_output(
+            ["git", "diff", "--name-only", "--diff-filter=U"], cwd=project, text=True
+        )

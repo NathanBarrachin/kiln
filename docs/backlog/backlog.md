@@ -22,7 +22,7 @@ North star: **kiln v0.3.0 public, adopted by every generated repo**.
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-18.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-22.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -36,6 +36,8 @@ North star: **kiln v0.3.0 public, adopted by every generated repo**.
   log: `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.
 - **Locations quoted are hints, not addresses.**
 - Overview: `grep -E '^(## |### T-|- \*\*Status)' docs/backlog/backlog.md`.
+- **Good first issues**: keep 3 open on GitHub, reserved for outside contributors (skill
+  `base:good-first-issues`); their tickets have **Owner**: `contributor — #NN`.
 
 ---
 
@@ -43,20 +45,21 @@ North star: **kiln v0.3.0 public, adopted by every generated repo**.
 
 ### T-14 · Promote v0.3.1, the first release on PyPI
 - **Type**: task
-- **Status**: blocked — waiting for `v0.3.2-rc.1`
+- **Status**: blocked — waiting for antoine (delete the old token)
 - **Opened**: 2026-10-16
-- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Effort**: XS · **Owner**: antoine, then Claude · **Due**: —
 - **Origin**: promotion of v0.3.0, 16 October 2026
 
-`v0.3.0` has no PyPI workflow: `kiln-cli` is first published when `v0.3.1` is promoted. The
-`PYPI_TOKEN` secret (environment `pypi`, account-wide token in `.pypi/token`) is set.
-- [ ] Cut `v0.3.2-rc.1` from `develop`; its `CHANGELOG.md` entry credits the first outside
-  contribution: `kiln --version` (#39, thanks @SakarPaisen). Then `kiln update --all`.
-- [ ] Promote `v0.3.1` (tag on the commit of `v0.3.1-rc.1`, merge into `main`, back into
-  `develop`), check the `pypi` run, then `uv tool install kiln-cli` on a clean machine.
-- [ ] Replace the account-wide token with one scoped to `kiln-cli`
-  (https://pypi.org/manage/project/kiln-cli/settings/), update the secret, delete the old one.
-- [ ] README (English and French): `uv tool install kiln-cli` as the main install.
+`v0.3.1` is promoted and `kiln-cli 0.3.1` is on PyPI (16 October 2026); `v0.3.2-rc.2` is the
+candidate followed by annway, sweep and vision.
+- [x] Cut `v0.3.2-rc.1`, then `-rc.2` (tests independent of the machine's git config); the
+  `CHANGELOG.md` entry credits #39 (@SakarPaisen). `kiln update --all` done.
+- [x] Promote `v0.3.1`, `pypi` run green, `uvx --from kiln-cli==0.3.1 kiln` works on an empty
+  uv cache.
+- [x] README (English and French): `uv tool install kiln-cli` as the main install.
+- [x] Token scoped to `kiln-cli` in `.pypi/token`, `PYPI_TOKEN` secret updated (16 October
+  2026); it is first used by the promotion of `v0.3.2`.
+- [ ] antoine deletes the old account-wide token on https://pypi.org/manage/account/token/
 
 ## 🟠 Important
 
@@ -69,7 +72,14 @@ North star: **kiln v0.3.0 public, adopted by every generated repo**.
   16 October 2026
 
 antoine's goal: lots of stars. Directories take projects that already have users: the launch
-comes first. Posts are made by antoine, never without them; Claude drafts the texts.
+comes first. Hacker News and Reddit: posted by antoine (no API for HN, Reddit vets new apps),
+Claude drafts the texts. Elsewhere, Claude posts directly on antoine's accounts, with no review
+(antoine's call, 16 October 2026), saying the text is written with Claude where the platform
+asks, then gives the links.
+- [x] Accounts with an API key, ready (16 October 2026): dev.to (`.devto/`, user
+  `antoine-tena`) and Bluesky (`.bluesky/`, `antoine-tena.bsky.social`, app password).
+- [ ] On launch day: article on dev.to, post on Bluesky (Mastodon dropped, antoine's call,
+  16 October 2026).
 - [ ] A demo of `kiln new` at the top of the README (GIF or asciinema, issue #38).
 - [ ] Show HN (https://news.ycombinator.com/submit), suggested title "Show HN: Kiln – make
   Claude Code build production-grade repos, and keep them that way".
@@ -207,12 +217,16 @@ takes the nested worktrees as gitlinks; `.claude/worktrees/` is only ignored in
 - **Effort**: S · **Owner**: Claude · **Due**: —
 - **Origin**: interface redesign, 15 October 2026
 - [ ] `kiln check`: the step title and the `✓` line say the same thing (one command per step).
-- [ ] Bash completion (`kiln <Tab>`).
+- Bash completion moved to T-20.
 
 ---
 
 ## ✅ Done
 
+- **2026-10-16** · T-21 · Credit #41 in the notes of the next release — line in the `v0.3.3` entry of `CHANGELOG.md` (release/v0.3.3) · opened 2026-10-16
+- **2026-10-16** · T-20 · Bash completion (`kiln completion bash`) — PR #41 by @HarshRajSinghania, fixed up and merged, issue #40 closed · opened 2026-10-16
+- **2026-10-16** · T-18 · Promoting a release makes `kiln update` conflict on `ci.yml` — cause confirmed (Copier's old render takes the promoted tag from `git describe`); the three-way merge is redone with the project's tag, reproduced in a test (fix/conflit-promotion) · opened 2026-10-16
+- **2026-10-16** · T-19 · kiln has no pre-push hook — `.pre-commit-config.yaml` (ruff at commit, mypy before push), set by `kiln install` (chore/pre-push-kiln) · opened 2026-10-16
 - **2026-10-16** · T-16 · A failed `kiln update --all` leaves a worktree that blocks the next
   run — a worktree with no change and no commit of its own is removed after the failure and
   before the next run; one with work in it is kept and named (`fix/update-reseau`) · opened 2026-10-16

@@ -27,7 +27,8 @@ un dossier ou un module.
   (skills `worktree`, `fusion`, `version`, `nettoyage`, `relecture` (commits et diff d'une branche avant la fusion, dépôt entier avant une version), `backlog`, `maj-kiln`, `adoption`,
   `report-to-kiln` (défaut de kiln remonté en issue ou PR), `token` (jeton d'un service dans
   `.<service>/`), `contribution` (PR d'un contributeur extérieur : sécurité, tri, revue,
-  fusion créditée) ; `hooks/` (dont `relances.py`, politique commune des questions de kiln) ; `scripts/statusline.py`),
+  fusion créditée), `good-first-issues` (quelques issues pour débutants tirées du backlog,
+  réservées aux contributeurs extérieurs) ; `hooks/` (dont `relances.py`, politique commune des questions de kiln) ; `scripts/statusline.py`),
   `pile-django/`, `pile-nuxt/`, `vps-podman/`, `stripe/`, `serena/`.
 - `.github/workflows/` : workflows réutilisables appelés par les repos générés, plus ceux de
   kiln (`kiln.yml` contrôles, `pypi.yml` publication du paquet `kiln-cli` au tag promu) ;
@@ -98,5 +99,6 @@ l'outil), `release.py` (`kiln version`).
 
 `uv run pytest -q` (réparti sur tous les cœurs par pytest-xdist : une vingtaine de secondes ;
 `-n 0` pour un seul processus, au débogage), `uv run ruff check`
-et `uv run ruff format --check`. Un hook ou un script de plugin est lu en direct par Claude Code
+et `uv run ruff format --check`. Le crochet pre-commit de kiln (`.pre-commit-config.yaml`, posé par
+`kiln install`) lance ruff à chaque commit et mypy avant chaque push. Un hook ou un script de plugin est lu en direct par Claude Code
 (catalogue déclaré en dossier local) : il agit dès la fusion dans `develop`.

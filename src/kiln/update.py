@@ -1,5 +1,8 @@
 """`kiln update` : rapporte les évolutions du modèle, puis met à jour les dépendances."""
 
+import re
+import subprocess
+import tempfile
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -20,6 +23,10 @@ from kiln.template import DEFAULT_TEMPLATE_SOURCE, template_revision
 from kiln.versions import follows_candidates, notes_between, read_changelog
 
 PROTECTED_BRANCHES = ("main", "develop")
+# Début d'un conflit laissé par Copier (`git merge-file`).
+CONFLICT_MARKER = "<<<<<<< before updating"
+# Un workflow réutilisable de kiln cité à un tag : `antoine-tena/kiln/….yml@v0.3.1`.
+KILN_WORKFLOW_REF = re.compile(r"(antoine-tena/kiln/\S+?)@(\S+)")
 # Ancienne adresse du modèle (init-repo, renommé kiln) : GitHub redirige, mais on la remplace.
 LEGACY_TEMPLATE_SOURCES = ("https://github.com/antoine-tena/init-repo.git",)
 
@@ -75,9 +82,76 @@ def apply_template(root: Path, answers: Mapping[str, object] | None = None) -> N
     except ProcessExecutionError as error:
         raise KilnError(git_failure(error)) from error
     # Après Copier, qui exige un arbre propre et réécrit le fichier de réponses.
+    resolve_kiln_ref_conflicts(root)
     replace_legacy_source(root)
     if migrate_legacy_backlog(root):
         ui.note("Suivi déplacé de docs/a-faire/ vers docs/backlog/ (tickets T-NN, en anglais).")
+
+
+def resolve_kiln_ref_conflicts(root: Path) -> None:
+    """Conflits nés du seul `@<tag>` des workflows de kiln : refusionnés sans lui.
+
+    Un tag promu pose sur le commit de sa dernière candidate (`v0.3.1` = `v0.3.1-rc.1`) ; Copier
+    rend l'ancienne version sous le nom que lui donne `git describe`, le promu, et ne retrouve
+    plus le `@v0.3.1-rc.1` du projet : conflit à chaque promotion, sans rien à arbitrer. Copier
+    laisse les trois versions dans l'index (1 : ancien rendu, 2 : projet, 3 : nouveau rendu) ;
+    la fusion est refaite avec l'ancien rendu au tag du projet, et gardée si elle passe."""
+    for name in conflicted_files(root):
+        stages = [_index_stage(root, stage, name) for stage in (1, 2, 3)]
+        if None in stages:
+            continue
+        base, ours, theirs = (str(text) for text in stages)
+        project_refs = _kiln_refs(ours)
+        rendered_refs = _kiln_refs(base)
+        if len(project_refs) != 1 or len(rendered_refs) != 1 or project_refs == rendered_refs:
+            continue
+        # Le tag revient ailleurs que dans les `uses:` (commentaire de tête de ci.yml) : il est
+        # remplacé partout, sans toucher un tag plus long qui le prolonge.
+        rendered_tag = re.escape(rendered_refs.pop())
+        aligned_base = re.sub(rf"{rendered_tag}(?![\w.-])", project_refs.pop(), base)
+        merged = _merge_cleanly(aligned_base, ours, theirs)
+        if merged is not None:
+            (root / name).write_text(merged)
+            # Plus de conflit dans l'index : une modification du modèle comme les autres.
+            run(["git", "reset", "-q", "--", name], root)
+
+
+def _kiln_refs(text: str) -> set[str]:
+    return {match.group(2) for match in KILN_WORKFLOW_REF.finditer(text)}
+
+
+def _index_stage(root: Path, stage: int, name: str) -> str | None:
+    shown = subprocess.run(
+        ["git", "show", f":{stage}:{name}"], cwd=root, capture_output=True, text=True, check=False
+    )
+    return shown.stdout if shown.returncode == 0 else None
+
+
+def _merge_cleanly(base: str, ours: str, theirs: str) -> str | None:
+    """Fusion à trois de `git merge-file`, ou None si elle laisse un conflit."""
+    with tempfile.TemporaryDirectory() as directory:
+        paths = [Path(directory) / name for name in ("ours", "base", "theirs")]
+        for path, text in zip(paths, (ours, base, theirs), strict=True):
+            path.write_text(text)
+        merged = subprocess.run(
+            ["git", "merge-file", "-p", *map(str, paths)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    return merged.stdout if merged.returncode == 0 else None
+
+
+def conflicted_files(root: Path) -> list[str]:
+    """Fichiers où Copier a laissé un conflit à résoudre à la main."""
+    found = subprocess.run(
+        ["git", "grep", "-l", "--untracked", CONFLICT_MARKER],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return found.stdout.split()
 
 
 # Ce que git écrit quand le réseau ou GitHub ne répond pas.

@@ -32,7 +32,7 @@ Les plugins Claude Code vivent dans [`plugins/`](plugins/), catalogue `kiln`
 - `base`, pour tous les projets, installé au niveau utilisateur : skills `worktree`, `fusion`,
   `version` (release/vN, contrôle complet, annonce, main tagué, déploiement), `nettoyage`,
   `relecture` (commits et diff d'une branche relus et rangés avant la fusion, dépôt entier avant une version), `backlog`,
-  `maj-kiln` (l'outil kiln et ses plugins, puis le repo ouvert), `adoption` (`kiln adopt` dans un repo existant, passif de la charte trié avec l'utilisateur), `report-to-kiln` (un défaut de kiln remonté en issue ou en PR, avec l'accord de l'utilisateur), `contribution` (la PR d'un contributeur extérieur : code relu avant d'en rien lancer, tri, revue, fusion qui le crédite, rien publié sans accord) ; hooks garde de branche (et refus d'un message de commit signé Claude), fichiers protégés, contrôle du fichier
+  `maj-kiln` (l'outil kiln et ses plugins, puis le repo ouvert), `adoption` (`kiln adopt` dans un repo existant, passif de la charte trié avec l'utilisateur), `report-to-kiln` (un défaut de kiln remonté en issue ou en PR, avec l'accord de l'utilisateur), `contribution` (la PR d'un contributeur extérieur : code relu avant d'en rien lancer, tri, revue, fusion qui le crédite, rien publié sans accord), `good-first-issues` (un petit stock d'issues `good first issue` tiré du backlog et réservé aux contributeurs extérieurs, regarni à chaque fusion) ; hooks garde de branche (et refus d'un message de commit signé Claude), fichiers protégés, contrôle du fichier
   modifié, questions à l'ouverture de session : dans un repo kiln, sa mise à jour (l'outil kiln s'il
   est en retard sur GitHub, puis le repo par `kiln update` ; un « non » repousse la question de
   5, 10, 30 puis 50 sessions, après quoi désinstaller kiln ou délier le repo est proposé) ; dans
@@ -80,6 +80,7 @@ l'installer). Pour suivre les candidates (canal `interne`) ou un commit précis 
 `uv tool install git+https://github.com/antoine-tena/kiln@<tag>`. macOS, Linux, et Windows par
 WSL. Quand une version sort, le hook de début de session propose de mettre à jour l'outil, puis
 chaque repo ; à la main : `uv tool upgrade kiln-cli`, puis `kiln update` dans le repo.
+Complétion dans bash : `eval "$(kiln completion bash)"` dans `~/.bashrc`.
 Python 3.14 est requis ; uv le télécharge au besoin. Au premier `kiln install`, kiln demande le
 système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.toml`, avec
 `proprietaire` et `equipe` par défaut si on les y ajoute.
@@ -100,6 +101,7 @@ système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.
 | `kiln update` | Évolutions du modèle, mises à jour compatibles des dépendances, puis contrôles. `--major` : versions majeures comprises. `--no-template`, `--no-deps` pour n'en faire qu'une partie. |
 | `kiln update --all` | Tous les repos kiln du dossier de code (`~/code`, réglable par `dossier_code`) : pour chacun, un worktree depuis la branche d'intégration, la mise à jour, des commits de dix fichiers au plus, puis la fusion directe dans l'intégration (commit de fusion poussé) ; contrôles en échec, la branche est poussée sans être fusionnée. L'arbre principal ne change jamais de branche. |
 | `kiln doctor` | Diagnostic du poste (git, uv, gh connecté, pnpm, podman, Java, pre-commit, version de kiln, plugin Claude, configuration) et du repo courant (version du modèle, crochet pre-commit, dépendances, `backend/.env`) : ✓, ! à regarder ou ✗ bloquant, chaque fois avec la commande qui corrige. Ne modifie rien. |
+| `kiln completion bash` | Script de complétion bash tiré des commandes et options de kiln ; l'activer par `eval "$(kiln completion bash)"` dans `~/.bashrc`. |
 | `kiln status` | État des repos kiln du dossier de code : branche, arbre propre ou non, version du modèle (`v0.3.2 → v0.3.5` en retard), dérogations (`!` si l'une est échue), stack ; puis les règles dérogées, par nombre de repos. |
 | `kiln version` | Dans le dépôt de kiln : dernière version publique, candidates (âge, repos qui les ont adoptées, prêtes à promouvoir) et numéro de la prochaine. |
 | `charte` | Vérifie le repo contre son `charte.toml` (`charte --detail`, `charte types`, `charte couverture`). |

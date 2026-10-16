@@ -54,6 +54,7 @@ keeps every repo you own current:
 #    macOS, Linux, and Windows through WSL. The PyPI package is kiln-cli, the command is kiln.
 uv tool install kiln-cli
 #    …or try it without installing anything: uvx kiln-cli new my-app
+#    Tab completion in bash: add  eval "$(kiln completion bash)"  to ~/.bashrc
 
 # 2. Create a project — answer a few questions, or pass them as flags
 kiln new my-app
@@ -144,6 +145,7 @@ make the opinions yours.
 | `kiln doctor` | Check the machine (git, uv, gh login, pnpm, podman, Java, pre-commit, kiln release, Claude plugin) and the current repo; each problem comes with the command that fixes it. Changes nothing. |
 | `kiln ci [commit]` | Replay the repo's GitHub CI locally against throwaway PostgreSQL/Redis, and push the verdict as a git note. |
 | `kiln contrat` | Django + Nuxt: export `openapi.json` and regenerate the front's API types. |
+| `kiln completion bash` | Print a bash completion script built from the parser; enable it with `eval "$(kiln completion bash)"` in `~/.bashrc`. |
 | `charte` | Check the repo against its `charte.toml` (`--detail`, `types`, `couverture`). |
 
 Full reference (in French): [README.fr.md](README.fr.md#commandes).
@@ -174,7 +176,7 @@ claude plugin install base@kiln
 
 | Plugin | What's inside |
 |---|---|
-| `base` | Skills for the git workflow (`worktree`, `fusion` = merge, `version` = release, `nettoyage` = cleanup, `relecture` = review of a branch's commits before they go public, and of the whole repo before a release, `backlog`, `maj-kiln` = self-update, `adoption` = bring an existing repo under kiln), `report-to-kiln` (a kiln defect met in your repo becomes an issue or a PR, posted once you approve) `contribution` (an outside contributor's PR handled like a well-run open-source project: untrusted code read before anything runs, triage, review, a merge that credits them, nothing posted without your yes) and `token` (a service token pasted once into a git-ignored `.<service>/` folder, never shown); hooks that guard protected branches and files, refuse a commit message signed by Claude, check each edited file, and ask at session start: kiln updates in kiln repos, adoption in your other repos ("Yes", "Later", "Never for this repo"), all paced by one goodwill score that each yes raises and each no lowers; a shared status line in four styles (`kiln set statusline=…`, or `aucune` / `perso` to keep your own); condensed command output with [rtk](https://github.com/rtk-ai/rtk). |
+| `base` | Skills for the git workflow (`worktree`, `fusion` = merge, `version` = release, `nettoyage` = cleanup, `relecture` = review of a branch's commits before they go public, and of the whole repo before a release, `backlog`, `maj-kiln` = self-update, `adoption` = bring an existing repo under kiln), `report-to-kiln` (a kiln defect met in your repo becomes an issue or a PR, posted once you approve) `contribution` (an outside contributor's PR handled like a well-run open-source project: untrusted code read before anything runs, triage, review, a merge that credits them, nothing posted without your yes), `good-first-issues` (a small, steady stock of `good first issue` issues drawn from your backlog and reserved for newcomers, refilled as they get merged) and `token` (a service token pasted once into a git-ignored `.<service>/` folder, never shown); hooks that guard protected branches and files, refuse a commit message signed by Claude, check each edited file, and ask at session start: kiln updates in kiln repos, adoption in your other repos ("Yes", "Later", "Never for this repo"), all paced by one goodwill score that each yes raises and each no lowers; a shared status line in four styles (`kiln set statusline=…`, or `aucune` / `perso` to keep your own); condensed command output with [rtk](https://github.com/rtk-ai/rtk). |
 | `pile-django` | Migrations, API regeneration, read-only PostgreSQL. |
 | `pile-nuxt` | Nuxt / Vue / Vitest skills, UI polish, screenshots on three phones and a desktop (Playwright). |
 | `vps-podman` | Deploy, production logs, production dumps. |

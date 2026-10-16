@@ -42,7 +42,7 @@ FRONTENDS = ("nuxt", "next", "astro", "streamlit", "dash", "aucun")
 # Écran d'accueil : commandes par section ; le rôle de chacune vient de son aide argparse.
 COMMAND_GROUPS = (
     ("Projet", ("new", "adopt", "install", "update", "set", "waive")),
-    ("Au quotidien", ("dev", "check", "ci", "contrat", "doctor")),
+    ("Au quotidien", ("dev", "check", "ci", "contrat", "doctor", "completion")),
     ("Tous les repos", ("status", "update --all", "version")),
 )
 FLEET_UPDATE_ROLE = "mettre à jour chaque repo kiln, fusion directe"
@@ -106,7 +106,46 @@ def build_parser() -> argparse.ArgumentParser:
         "--poste", action="store_true", help="réglages du poste, même depuis un repo"
     )
     _add_waive_command(commands)
+    completion_parser = commands.add_parser(
+        "completion", help="script de complétion du shell (eval dans ~/.bashrc)"
+    )
+    completion_parser.add_argument("shell", choices=["bash"], help="shell visé")
     return parser
+
+
+def generate_bash_completion() -> str:
+    """Script de complétion bash tiré du parser : commandes, puis options et choix de chacune."""
+    subparsers = next(
+        action
+        for action in build_parser()._actions
+        if isinstance(action, argparse._SubParsersAction)
+    )
+    cases: list[str] = []
+    for name, subparser in sorted(subparsers.choices.items()):
+        words: set[str] = set()
+        for action in subparser._actions:
+            words.update(action.option_strings)
+            if not action.option_strings and action.choices:
+                words.update(str(choice) for choice in action.choices)
+        cases.append(
+            f"        {name})\n"
+            f'            COMPREPLY=( $(compgen -W "{" ".join(sorted(words))}" -- "$cur") )\n'
+            f"            ;;"
+        )
+    commands = " ".join(sorted(subparsers.choices))
+    return f"""# kiln bash completion: eval "$(kiln completion bash)"
+_kiln_completion() {{
+    local cur="${{COMP_WORDS[COMP_CWORD]}}"
+    COMPREPLY=()
+    if [[ $COMP_CWORD -eq 1 ]]; then
+        COMPREPLY=( $(compgen -W "{commands}" -- "$cur") )
+        return 0
+    fi
+    case "${{COMP_WORDS[1]}}" in
+{"\n".join(cases)}
+    esac
+}}
+complete -F _kiln_completion kiln"""
 
 
 def _add_waive_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -231,6 +270,9 @@ BANNER_ACTIONS = {
 
 
 def dispatch(arguments: argparse.Namespace) -> None:
+    if arguments.command == "completion":
+        print(generate_bash_completion())
+        return
     _show_banner(arguments)
     if arguments.command == "new":
         new.create_project(_new_project_request(arguments))

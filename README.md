@@ -54,6 +54,7 @@ keeps every repo you own current:
 #    macOS, Linux, and Windows through WSL. The PyPI package is kiln-cli, the command is kiln.
 uv tool install kiln-cli
 #    …or try it without installing anything: uvx kiln-cli new my-app
+#    Tab completion in bash: add  eval "$(kiln completion bash)"  to ~/.bashrc
 
 # 2. Create a project — answer a few questions, or pass them as flags
 kiln new my-app
@@ -144,6 +145,7 @@ make the opinions yours.
 | `kiln doctor` | Check the machine (git, uv, gh login, pnpm, podman, Java, pre-commit, kiln release, Claude plugin) and the current repo; each problem comes with the command that fixes it. Changes nothing. |
 | `kiln ci [commit]` | Replay the repo's GitHub CI locally against throwaway PostgreSQL/Redis, and push the verdict as a git note. |
 | `kiln contrat` | Django + Nuxt: export `openapi.json` and regenerate the front's API types. |
+| `kiln completion bash` | Print a bash completion script built from the parser; enable it with `eval "$(kiln completion bash)"` in `~/.bashrc`. |
 | `charte` | Check the repo against its `charte.toml` (`--detail`, `types`, `couverture`). |
 
 Full reference (in French): [README.fr.md](README.fr.md#commandes).

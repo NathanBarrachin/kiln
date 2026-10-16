@@ -23,7 +23,7 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-43.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-44.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -419,6 +419,22 @@ lands on `develop`, before any candidate. Pinning it to a tag (`@v0.3.0`) would 
 the cost of a manual update on each release. The user's condition: never break annski.
 
 ## 🟡 Normal
+
+### T-43 · A skill that helps write a fine README, like kiln's own
+- **Type**: idea
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 16 October 2026
+
+kiln's README (showcase in English, reference in `README.fr.md`, home screen capture in
+`docs/assets/`) took real work; generated repos get none of that help. Give them a skill
+(`/kiln:readme`) that writes or refreshes the README the same way.
+- [ ] Draw the recipe from kiln's README: promise in one line, badges, capture or demo,
+  quick start in three commands, what it does, link to the full reference, contributing.
+- [ ] The skill reads the repo (stack, commands of `CLAUDE.md`, `kiln dev`) and proposes the
+  README, never invents a feature; a capture of the app when there is one (`run` skill).
+- [ ] Optional: `kiln check` notes a missing or bare README (rule of the charter, warning only).
 
 ### T-38 · `kiln adopt` reports the technologies kiln does not know yet
 - **Type**: improvement

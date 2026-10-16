@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-"""Status line commune à tous les dossiers, aux couleurs de kiln (pierre et feu), en anglais.
+"""One status line for every folder, in kiln's colors (stone and fire).
 
-Le style se choisit par poste (`kiln set statusline=…`, lu dans `~/.config/kiln/config.toml`) :
-- `sobre` (par défaut) : trois lignes, dépôt, session (modèle, jauges, durée), signaux triés
-  par importance (tâches, environnement, RAM et CPU du poste) ;
-- `bandeau` : la même sur un bandeau suie, les signaux importants en pastilles pleines ;
-- `classique` : une ligne étiquetée par domaine (REPO, SESSION, TASKS, ENV, ce dernier avec
-  RAM et CPU) ;
-- `classique-fond` : la même sur bandeau ;
-- `aucune` et `perso` : rien ici (`kiln set` retire ou laisse la `statusLine` de Claude Code).
-`--style <nom>` force un style, pour un aperçu.
+The style is chosen per machine (`kiln set statusline=…`, read in `~/.config/kiln/config.toml`):
+- `plain` (default): three lines, repo, session (model, gauges, duration), signals sorted by
+  importance (tasks, environment, the machine's RAM and CPU);
+- `band`: the same on a soot band, important signals as solid pills;
+- `classic`: one line per labeled domain (REPO, SESSION, TASKS, ENV, the last one with RAM and
+  CPU);
+- `classic-band`: the same on a band;
+- `none` and `custom`: nothing here (`kiln set` removes or leaves Claude Code's `statusLine`).
+The names of before kiln 0.4.0 (`sobre`, `bandeau`, `classique`, `classique-fond`, `aucune`,
+`perso`) are still read. `--style <name>` forces a style, for a preview.
 
-Les couleurs disent l'importance : gris quand tout va bien, puis glow (à surveiller), feu (à
-traiter), braise (urgent). Dans un repo : branche, état git, CI, prod, tâches, conteneurs, chacun
-affiché seulement si le repo s'en sert ; hors repo (~/code) : vue d'ensemble des repos du dessous.
-Les sources lentes sont lues en cache et rafraîchies en tâche de fond.
+Colors tell importance: gray when all is well, then glow (to watch), fire (to handle), ember
+(urgent). In a repo: branch, git state, CI, prod, tasks, containers, each shown only when the
+repo uses it; outside a repo (~/code): an overview of the repos below. Slow sources are read
+from a cache and refreshed in the background.
 """
 
 import contextlib
@@ -36,21 +37,30 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 CACHE = os.path.expanduser("~/.cache/claude-statusline")
-STYLES = ("sobre", "bandeau", "classique", "classique-fond")
-SILENT_STYLES = ("aucune", "perso")
-DEFAULT_STYLE = "sobre"
-TIMES = "\u00d7"  # signe de multiplication, entre un nom et un nombre (wt, br)
+STYLES = ("plain", "band", "classic", "classic-band")
+SILENT_STYLES = ("none", "custom")
+DEFAULT_STYLE = "plain"
+# names of before kiln 0.4.0, still found in the machine settings
+LEGACY_STYLES = {
+    "sobre": "plain",
+    "bandeau": "band",
+    "classique": "classic",
+    "classique-fond": "classic-band",
+    "aucune": "none",
+    "perso": "custom",
+}
+TIMES = "\u00d7"  # multiplication sign, between a name and a count (wt, br)
 INTEGRATION = ("main", "master", "develop")
 DAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-FALLBACK_COLUMNS = 160  # largeur supposée quand celle du terminal est inconnue
-CLAUDE_MARGIN = 4  # colonnes que Claude Code garde autour de la status line
+FALLBACK_COLUMNS = 160  # width assumed when the terminal's is unknown
+CLAUDE_MARGIN = 4  # columns Claude Code keeps around the status line
 
-# Palette pierre et feu de kiln (src/kiln/ui.py), recopiée : le script tourne sans kiln.
+# kiln's stone and fire palette (src/kiln/ui.py), copied: the script runs without kiln.
 STONE_LIGHT, STONE, STONE_DARK = (185, 185, 180), (140, 140, 135), (95, 95, 92)
 BRICK, FIRE, EMBER = (180, 75, 35), (247, 150, 40), (205, 50, 35)
 GLOW, WHITE, SOOT = (255, 225, 120), (255, 255, 255), (25, 25, 25)
 
-# états d'un ticket du suivi, en anglais (docs/backlog) ou en français (ancien docs/a-faire)
+# states of a backlog ticket, in English (docs/backlog) or French (former docs/a-faire)
 STATES = (
     ("in progress", "doing"),
     ("en cours", "doing"),
@@ -60,7 +70,7 @@ STATES = (
     ("à vérifier", "review"),
 )
 
-# tout va bien, à surveiller, à traiter, urgent
+# all well, to watch, to handle, urgent
 LEVEL_COLORS = {0: STONE, 1: GLOW, 2: FIRE, 3: EMBER}
 BOLD, ITALIC, RESET, NORMAL = "\033[1m", "\033[3m", "\033[0m", "\033[22;23m"
 
@@ -72,7 +82,7 @@ def read(path: str) -> str:
 
 def sh(*cmd: str, cwd: str | None = None, timeout: float = 2) -> str:
     try:
-        # jamais de verrou sur l'index : un git interrompu le laisserait derrière lui
+        # never a lock on the index: an interrupted git would leave it behind
         if cmd[:1] == ("git",):
             cmd = ("git", "--no-optional-locks", *cmd[1:])
         return subprocess.run(
@@ -83,9 +93,9 @@ def sh(*cmd: str, cwd: str | None = None, timeout: float = 2) -> str:
 
 
 def cached(name: str, ttl: float, cmd: str, cwd: str) -> str:
-    """Dernière valeur connue ; relance `cmd` (dans `cwd`) en fond si elle a plus de `ttl` s.
+    """The last known value; reruns `cmd` (in `cwd`) in the background when older than `ttl` s.
 
-    Une commande en échec ne remplace pas la dernière valeur connue.
+    A failing command does not replace the last known value.
     """
     os.makedirs(CACHE, exist_ok=True)
     path = os.path.join(CACHE, name)
@@ -125,7 +135,7 @@ def git_state(path: str) -> dict[str, str | int]:
 
 
 def scan(root: str) -> None:
-    """Imprime l'état git de chaque repo sous `root` (hors dossiers `_*` et node_modules)."""
+    """Prints the git state of each repo under `root` (except `_*` folders and node_modules)."""
     found = []
     for dirpath, dirs, files in os.walk(root):
         if (".git" in dirs or ".git" in files) and dirpath != root:
@@ -138,20 +148,20 @@ def scan(root: str) -> None:
     print(json.dumps([git_state(p) for p in found]))
 
 
-# ---------------------------------------------------------------------------- modèle d'affichage
+# ---------------------------------------------------------------------------- display model
 
 
 @dataclass
 class Item:
-    """Une info affichée. `short` : sa forme compacte quand la place manque (None : aucune,
-    "" : elle disparaît). `role` : `title` (nom du repo), `strong` (modèle), `muted` (commit)."""
+    """A displayed item. `short`: its compact form when room runs out (None: none, "": it
+    disappears). `role`: `title` (repo name), `strong` (model), `muted` (commit)."""
 
     text: str
     level: int = 0
     short: str | None = None
     role: str = ""
-    gauge: float | None = None  # pourcentage : l'info se dessine en jauge
-    reset: str = ""  # remise à zéro d'un quota, montrée quand il devient serré
+    gauge: float | None = None  # percentage: the item is drawn as a gauge
+    reset: str = ""  # a quota's reset, shown when it gets tight
     compact: bool = False
 
     @property
@@ -169,11 +179,11 @@ Group = list[Item]
 class Status:
     repo: list[Group] = field(default_factory=list)
     commit: str = ""
-    session: list[Group] = field(default_factory=list)  # modèle, jauges
-    usage: list[Group] = field(default_factory=list)  # cache, durée, lignes
+    session: list[Group] = field(default_factory=list)  # model, gauges
+    usage: list[Group] = field(default_factory=list)  # cache, duration, lines
     tasks: list[Group] = field(default_factory=list)
     env: list[Group] = field(default_factory=list)
-    machine: list[Group] = field(default_factory=list)  # RAM, CPU du poste
+    machine: list[Group] = field(default_factory=list)  # the machine's RAM, CPU
 
 
 def level_of(group: Group) -> int:
@@ -188,17 +198,17 @@ def plural(n: int, word: str) -> str:
     return f"{n} {word}{'s' if n > 1 else ''}"
 
 
-# ---------------------------------------------------------------------------- collecte
+# ---------------------------------------------------------------------------- collection
 
 
 def opt(main: str, key: str) -> str:
-    """Réglage du repo, posé par `git config statusline.<key> …` (`ci false`, `prod-url …`)."""
+    """A repo setting, set by `git config statusline.<key> …` (`ci false`, `prod-url …`)."""
     return sh("git", "-C", main, "config", "--get", f"statusline.{key}")
 
 
 def tracked_secrets(top: str) -> list[str]:
-    """Secrets suivis par git : .env (hors exemples, même rendus par un modèle : `.example.jinja`),
-    jetons, clés privées."""
+    """Secrets tracked by git: .env (except examples, even rendered by a template:
+    `.example.jinja`), tokens, private keys."""
     return [
         f
         for f in sh("git", "-C", top, "ls-files").splitlines()
@@ -211,8 +221,8 @@ def tracked_secrets(top: str) -> list[str]:
 
 
 def unmerged_branches(cwd: str, integ: str) -> int:
-    """Branches locales pas encore dans origin/<intégration>, l'intégration elle-même exclue
-    (une `develop` en avance sur origin n'est pas une branche à fusionner)."""
+    """Local branches not yet in origin/<integration>, the integration branch itself excluded
+    (a `develop` ahead of origin is not a branch to merge)."""
     names = sh(
         "git", "-C", cwd, "branch", "--no-merged", f"origin/{integ}", "--format=%(refname:short)"
     ).splitlines()
@@ -220,10 +230,10 @@ def unmerged_branches(cwd: str, integ: str) -> int:
 
 
 def backlog_items(top: str) -> Group:
-    """Tickets de docs/backlog/backlog.md (`### T-NN ·`), à défaut de l'ancien
-    docs/a-faire/a-faire.md (`### AF-NN ·`, champs en français) : ceux d'avant la section
-    « Done » (« Fait »), dont les critiques (section 🔴) ; à défaut, l'ancien format
-    `N. **Titre**` ; puis les cases d'urgent.md, ce que seul l'utilisateur peut faire."""
+    """Tickets of docs/backlog/backlog.md (`### T-NN ·`), or else of the former
+    docs/a-faire/a-faire.md (`### AF-NN ·`, French fields): those before the "Done" ("Fait")
+    section, critical ones included (🔴 section); or else the former `N. **Title**` format;
+    then the boxes of urgent.md, what only the user can do."""
     tasks: Group = []
     folder = "docs/backlog" if os.path.isdir(os.path.join(top, "docs/backlog")) else "docs/a-faire"
     tracker = "backlog.md" if folder == "docs/backlog" else "a-faire.md"
@@ -288,7 +298,7 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
         or "main"
     )
 
-    # dépôt : nom, worktree, branche, fichiers, écarts, opération en cours, rangements
+    # repo: name, worktree, branch, files, ahead/behind, operation in progress, stashes
     st = sh("git", "-C", cwd, "status", "--porcelain=v2", "--branch").splitlines()
     branch = next((line.split()[2] for line in st if line.startswith("# branch.head ")), "")
     branch = "" if branch == "(detached)" else branch
@@ -296,7 +306,7 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
     add = sum(1 for line in files if line[:1] in "12" and line[2:3] != ".")
     mod = sum(1 for line in files if line[:1] in "12u" and line[3:4] != ".")
     unt = sum(1 for line in files if line.startswith("?"))
-    # sur l'intégration avec des modifs : risque de commit direct
+    # on the integration branch with changes: risk of a direct commit
     branch_level = 1 if not branch else 2 if branch == integ and (add or mod or unt) else 0
     head = [Item(name, role="title")]
     if top != main:
@@ -361,9 +371,9 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
             [Item(f"secret tracked: {secrets[0]}{more}", 3, f"secret{TIMES}{len(secrets)}")]
         )
 
-    # prod : back et front, chacun avec les commits qui le touchent et ne sont pas encore
-    # déployés (une modif de docs ne compte pas). Back : la sonde de santé (`statusline.prod-url`)
-    # donne le commit déployé ; front : le dernier déploiement Vercel.
+    # prod: back and front, each with the commits that touch it and are not deployed yet (a
+    # docs change does not count). Back: the health probe (`statusline.prod-url`) gives the
+    # deployed commit; front: the latest Vercel deployment.
     def deployed(name: str, sha: str, paths: Iterable[str]) -> Item:
         late = ""
         if sha:
@@ -384,7 +394,7 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
         return Item(f"{name} ↓{late}", 2 if int(late) > 50 else 1, f"↓{late}")
 
     def framework(folder: str, markers: Iterable[tuple[str, str]], fallback: str) -> str:
-        """Nom du framework d'un dossier, reconnu à un fichier qui lui est propre."""
+        """A folder's framework, recognized by a file of its own."""
         return next(
             (n for f, n in markers if os.path.exists(os.path.join(main, folder, f))), fallback
         )
@@ -440,8 +450,8 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
     if prod:
         status.env.append([Item("prod"), *prod])
 
-    # CI de l'intégration : rejouée sur le poste par `kiln ci` (`statusline.ci locale`, verdict en
-    # note git refs/notes/ci, ⏳ tant que son worktree existe), sinon GitHub (sauf
+    # CI of the integration branch: replayed on the machine by `kiln ci` (`statusline.ci locale`,
+    # verdict in the git note refs/notes/ci, ⏳ while its worktree exists), else GitHub (unless
     # `statusline.ci false`)
     if opt(main, "ci") == "locale":
         sha = sh("git", "-C", main, "rev-parse", "-q", "--verify", f"origin/{integ}")
@@ -480,7 +490,7 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
             ]
         )
 
-    # marqueurs TODO/FIXME/XXX en commentaire
+    # TODO/FIXME/XXX markers in comments
     todos = cached(
         f"{key}-todo2",
         300,
@@ -491,7 +501,7 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
     if todos and todos != "0":
         status.env.append([Item(f"TODO{TIMES}{todos}")])
 
-    # dépendances à mettre à jour (uv, pnpm), vérifiées une fois par jour en tâche de fond
+    # dependencies to update (uv, pnpm), checked once a day in the background
     deps = []
     for folder in ("", "backend", "frontend"):
         path = os.path.join(main, folder)
@@ -518,7 +528,7 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
     if deps:
         status.env.append(deps)
 
-    # serveurs de dev : ports en écoute ouverts par un processus lancé depuis ce repo
+    # dev servers: listening ports opened by a process started from this repo
     ports = set()
     for line in sh("ss", "-ltnpH").splitlines():
         m = re.search(r":(\d+)\s.*pid=(\d+)", line)
@@ -533,7 +543,7 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
     if ports:
         status.env.append([Item(" ".join(f":{p}" for p in sorted(ports)))])
 
-    # conteneurs podman nommés <repo>-… : allumés sur le total
+    # podman containers named <repo>-…: running out of total
     pods = cached("podman", 30, "podman ps -a --format '{{.Names}} {{.State}}'", main)
     mine = [
         line.split()
@@ -547,8 +557,8 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
 
 
 def collect_overview(status: Status, cwd: str) -> None:
-    """Hors repo : un mot par repo du dessous, coloré s'il a des modifs ou un écart avec son
-    amont ; sa branche, si l'arbre principal a quitté l'intégration."""
+    """Outside a repo: one word per repo below, colored when it has changes or differs from its
+    upstream; its branch, when the main tree has left the integration branch."""
     key = hashlib.sha1(cwd.encode()).hexdigest()[:12]
     try:
         repos = json.loads(
@@ -578,8 +588,8 @@ def collect_overview(status: Status, cwd: str) -> None:
 
 
 def sweep_hint() -> str:
-    """Avec l'alerte mémoire, le verdict de `sweep --json` (lancé en fond, en cache) : ce que
-    `sweep --kill` arrêterait, ou rien à tuer."""
+    """With the memory alert, the verdict of `sweep --json` (run in the background, cached):
+    what `sweep --kill` would stop, or nothing to kill."""
     sweep = os.path.expanduser("~/.local/bin/sweep")
     if not os.path.exists(sweep):
         return ""
@@ -589,7 +599,7 @@ def sweep_hint() -> str:
         )
         candidates = report["candidates"]
     except ValueError, TypeError, KeyError:
-        return " → sweep"  # pas encore de verdict : le premier passage tourne en fond
+        return " → sweep"  # no verdict yet: the first run is in the background
     certain = [c for c in candidates if c.get("is_certain")]
     if certain:
         size = sum(c.get("rss_bytes", 0) for c in certain) / 2**20
@@ -630,7 +640,7 @@ def collect_session(status: Status, d: dict, main: str) -> None:
     if pct is not None:
         status.session.append([Item("ctx", quota_level(float(pct)), gauge=float(pct))])
 
-    # limites d'abonnement (fenêtre de 5 h, semaine), si Claude Code ou agy les fournit
+    # subscription limits (5 h window, week), when Claude Code or agy provides them
     has_limits = False
     for k, label in (("five_hour", "5h"), ("seven_day", "wk")):
         limit = (d.get("rate_limits") or {}).get(k) or {}
@@ -644,9 +654,9 @@ def collect_session(status: Status, d: dict, main: str) -> None:
             when = f"{at:%H:%M}" if k == "five_hour" else DAYS[at.weekday()]
         status.session.append([Item(label, quota_level(used), gauge=used, reset=when)])
 
-    # poste (Linux, WSL) : RAM, toujours ; alerte quand elle manque, ou que le swap est plein
-    # alors qu'elle se remplit (un swap plein sur une RAM libre ne gêne plus), avec le verdict de
-    # sweep ; et les cœurs occupés (charge sur une minute) sur le total
+    # machine (Linux, WSL): RAM, always; an alert when it runs short, or when swap is full while
+    # RAM fills up (a full swap over free RAM no longer hurts), with sweep's verdict; and the busy
+    # cores (one-minute load) out of total
     machine: Group = []
     try:
         meminfo = {
@@ -674,8 +684,8 @@ def collect_session(status: Status, d: dict, main: str) -> None:
     if machine:
         status.machine.append(machine)
 
-    # autres sessions Claude (consigne : une seule à la fois par projet) : dans un repo, celles
-    # qui tournent dans ce repo ou ses worktrees ; ailleurs, toutes ; et les sessions suspendues
+    # other Claude sessions (rule: one at a time per project): in a repo, those running in this
+    # repo or its worktrees; elsewhere, all of them; and the suspended sessions
     active, stopped = 0, 0
     for pid in sh("pgrep", "-x", "claude").split():
         try:
@@ -697,7 +707,7 @@ def collect_session(status: Status, d: dict, main: str) -> None:
     if sessions:
         status.repo.append(sessions)
 
-    # cache de prompt, durée et lignes de la session (le coût, seulement sans abonnement)
+    # prompt cache, duration and lines of the session (the cost, only without a subscription)
     pc = d.get("prompt_cache") or {}
     if pc.get("hit_ratio") is not None:
         ratio = 100 * float(pc["hit_ratio"])
@@ -717,7 +727,7 @@ def collect_session(status: Status, d: dict, main: str) -> None:
         status.usage.append(usage)
 
 
-# ---------------------------------------------------------------------------- rendu
+# ---------------------------------------------------------------------------- rendering
 
 
 def fg(color: tuple[int, int, int]) -> str:
@@ -741,13 +751,13 @@ def visible_width(text: str) -> int:
     )
 
 
-# pastilles du bandeau, par niveau : (fond, texte)
+# band pills, per level: (background, text)
 PILLS = {1: (mix(GLOW, SOOT, 0.78), GLOW), 2: (FIRE, SOOT), 3: (EMBER, WHITE)}
 
 
 class Painter:
-    """Dessine les infos : texte coloré sur le fond du terminal, ou (`band`) sur un bandeau suie,
-    le coloré en pastilles pleines."""
+    """Draws the items: colored text on the terminal's background, or (`band`) on a soot band,
+    colored items as solid pills."""
 
     def __init__(self, band: bool) -> None:
         self.band = band
@@ -795,9 +805,8 @@ class Painter:
 
 
 def fit(groups: list[Group], painter: Painter, room: int) -> str:
-    """La ligne, réduite jusqu'à tenir dans `room` colonnes : 1) le gris se compacte, du dernier
-    groupe au premier ; 2) les groupes tout gris tombent, en partant de la fin ; 3) le coloré se
-    compacte."""
+    """The line, shrunk until it fits in `room` columns: 1) gray items compact, from the last
+    group to the first; 2) all-gray groups drop, from the end; 3) colored items compact."""
 
     def compact(colored: bool) -> bool:
         for g in reversed(groups):
@@ -819,14 +828,14 @@ def fit(groups: list[Group], painter: Painter, room: int) -> str:
 
 
 def by_importance(groups: list[Group]) -> list[Group]:
-    """Les groupes du plus important au moins important ; l'ordre interne ne bouge pas (le
-    total des tâches reste devant ses sous-comptes)."""
+    """Groups from most to least important; the inner order stays (the task total stays ahead
+    of its sub-counts)."""
     return sorted(groups, key=lambda g: -level_of(g))
 
 
 def terminal_columns() -> int:
-    """Largeur du terminal de la session : celui du processus `claude` parent (le script n'a
-    pas de terminal à lui)."""
+    """Width of the session's terminal: that of the parent `claude` process (the script has no
+    terminal of its own)."""
     pid = os.getppid()
     for _ in range(6):
         try:
@@ -840,13 +849,13 @@ def terminal_columns() -> int:
     return 0
 
 
-EMPTY: list[Group] = [[Item("—")]]  # hauteur constante : une ligne vide garde sa place
+EMPTY: list[Group] = [[Item("—")]]  # constant height: an empty line keeps its place
 
 
 def render(status: Status, style: str, columns: int) -> list[str]:
-    band = style in ("bandeau", "classique-fond")
+    band = style in ("band", "classic-band")
     painter = Painter(band)
-    inner = columns - (2 if band else 0)  # le bandeau garde une colonne de marge de chaque côté
+    inner = columns - (2 if band else 0)  # the band keeps one column of margin on each side
 
     def finish(text: str) -> str:
         if not band:
@@ -854,7 +863,7 @@ def render(status: Status, style: str, columns: int) -> list[str]:
         pad = max(0, columns - 1 - visible_width(text))
         return bg(SOOT) + " " + text + bg(SOOT) + " " * pad + RESET
 
-    if style in ("sobre", "bandeau"):
+    if style in ("plain", "band"):
         signals = by_importance(status.tasks + status.env + status.machine)
         rows = (status.repo, status.session + status.usage, signals or EMPTY)
         return [finish(fit(row, painter, inner)) for row in rows]
@@ -878,15 +887,17 @@ def render(status: Status, style: str, columns: int) -> list[str]:
 
 
 def chosen_style() -> str:
-    """`--style <nom>`, sinon la clé `statusline` de la configuration de kiln du poste."""
+    """`--style <name>`, else the `statusline` key of kiln's machine settings."""
     if "--style" in sys.argv[1:-1]:
-        return sys.argv[sys.argv.index("--style") + 1]
-    base = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
-    try:
-        with open(os.path.join(base, "kiln", "config.toml"), "rb") as file:
-            return str(tomllib.load(file).get("statusline", DEFAULT_STYLE))
-    except OSError, tomllib.TOMLDecodeError:
-        return DEFAULT_STYLE
+        style = sys.argv[sys.argv.index("--style") + 1]
+    else:
+        base = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
+        try:
+            with open(os.path.join(base, "kiln", "config.toml"), "rb") as file:
+                style = str(tomllib.load(file).get("statusline", DEFAULT_STYLE))
+        except OSError, tomllib.TOMLDecodeError:
+            style = DEFAULT_STYLE
+    return LEGACY_STYLES.get(style, style)
 
 
 def main() -> None:
@@ -899,8 +910,8 @@ def main() -> None:
     if style not in STYLES:
         style = DEFAULT_STYLE
     d = json.load(sys.stdin)
-    # Antigravity CLI (agy) envoie le même format, sauf ses quotas : fraction restante par
-    # fenêtre (gemini-5h, gemini-weekly), ramenée ici au rate_limits de Claude Code.
+    # Antigravity CLI (agy) sends the same format, except its quotas: remaining fraction per
+    # window (gemini-5h, gemini-weekly), mapped here to Claude Code's rate_limits.
     if d.get("quota") and not d.get("rate_limits"):
         d["rate_limits"] = {}
         for src, k in (("gemini-5h", "five_hour"), ("gemini-weekly", "seven_day")):
@@ -910,14 +921,14 @@ def main() -> None:
                     "used_percentage": 100 * (1 - float(q["remaining_fraction"])),
                     "resets_at": time.time() + float(q.get("reset_in_seconds") or 0),
                 }
-    # dernière entrée reçue, pour voir les champs que fournit Claude Code
+    # last input received, to see the fields Claude Code provides
     with (
         contextlib.suppress(OSError),
         open(os.path.join(CACHE, "input.json"), "w", encoding="utf-8") as last_input,
     ):
         json.dump(d, last_input, indent=1)
     cwd = d.get("workspace", {}).get("current_dir") or d.get("cwd") or os.getcwd()
-    if re.match(r"[A-Za-z]:[\\/]", cwd):  # appelé depuis Claude Code Windows via wsl.exe
+    if re.match(r"[A-Za-z]:[\\/]", cwd):  # called from Claude Code on Windows through wsl.exe
         cwd = sh("wslpath", "-u", cwd) or cwd
 
     status = Status()

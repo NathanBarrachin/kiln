@@ -287,9 +287,9 @@ def dispatch(arguments: argparse.Namespace) -> None:
         _dispatch_fleet(arguments)
         return
     if arguments.command == "set" and (arguments.poste or not _is_in_repo()):
-        from kiln import poste
+        from kiln import machine
 
-        poste.run_poste(arguments.assignments)
+        machine.run_machine(arguments.assignments)
         return
     _dispatch_in_repo(arguments, _repo_root_or_hint())
 

@@ -195,20 +195,46 @@ def test_recap_outside_a_terminal_is_one_line(capsys: pytest.CaptureFixture[str]
     ui._steps.clear()
 
 
-def test_poste_settings_are_parsed_and_checked() -> None:
+def test_machine_settings_are_parsed_and_checked() -> None:
     from kiln.config import UserConfig
-    from kiln.poste import apply_poste
+    from kiln.machine import apply_machine
 
-    updated = apply_poste(
-        UserConfig(), ["systeme=wsl", "proprietaire=antoine", "equipe=a, b", "dossier_code=/srv"]
+    updated = apply_machine(
+        UserConfig(), ["system=wsl", "owner=antoine", "team=a, b", "code_dir=/srv"]
     )
 
     assert (updated.system, updated.owner, updated.team) == ("wsl", "antoine", ("a", "b"))
     assert updated.code_dir == Path("/srv")
-    with pytest.raises(KilnError, match="clés du poste"):
-        apply_poste(UserConfig(), ["backend=java"])
-    with pytest.raises(KilnError, match="systeme"):
-        apply_poste(UserConfig(), ["systeme=windows"])
+    with pytest.raises(KilnError, match="machine keys"):
+        apply_machine(UserConfig(), ["backend=java"])
+    with pytest.raises(KilnError, match="system"):
+        apply_machine(UserConfig(), ["system=windows"])
+
+
+def test_machine_keys_of_before_kiln_0_4_are_still_accepted() -> None:
+    from kiln.config import UserConfig
+    from kiln.machine import apply_machine
+
+    updated = apply_machine(UserConfig(), ["systeme=wsl", "canal=interne", "equipe=a"])
+
+    assert (updated.system, updated.channel, updated.team) == ("wsl", "internal", ("a",))
+
+
+def test_machine_config_of_before_kiln_0_4_is_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from kiln.config import config_path, load_config
+
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    config_path().parent.mkdir(parents=True)
+    config_path().write_text(
+        'systeme = "wsl"\ncanal = "interne"\nstatusline = "sobre"\ndossier_code = "/srv"\n'
+    )
+
+    config = load_config()
+
+    assert (config.system, config.channel, config.statusline) == ("wsl", "internal", "plain")
+    assert config.code_dir == Path("/srv")
 
 
 CHANGELOG = """# Nouveautés de kiln

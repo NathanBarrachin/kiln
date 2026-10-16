@@ -1,4 +1,4 @@
-"""`kiln new` : génère un projet complet, l'installe et le publie au besoin."""
+"""`kiln new`: generates a complete project, installs it and publishes it when asked."""
 
 import os
 import subprocess
@@ -34,10 +34,10 @@ class NewProjectRequest:
 
 def create_project(request: NewProjectRequest) -> None:
     if request.destination.exists() and any(request.destination.iterdir()):
-        raise KilnError(f"{request.destination} existe déjà et n'est pas vide")
+        raise KilnError(f"{request.destination} already exists and is not empty")
     require_tools("git", "uv")
     should_publish = request.should_publish and github.can_publish()
-    step("Génération depuis le modèle")
+    step("Generation from the template")
     source = template_source(request.template)
     copier.run_copy(
         source,
@@ -47,7 +47,7 @@ def create_project(request: NewProjectRequest) -> None:
         vcs_ref=template_revision(source),
         use_prereleases=follows_candidates(),
         unsafe=False,
-        # Hors terminal (CI, agent), les questions sans réponse prennent leur valeur par défaut.
+        # Outside a terminal (CI, agent), unanswered questions take their default.
         defaults=not sys.stdin.isatty(),
     )
     root = request.destination.resolve()
@@ -67,8 +67,8 @@ def create_project(request: NewProjectRequest) -> None:
 
 
 def _user_defaults(*, should_publish: bool) -> dict[str, object]:
-    """Propriétaire et équipe par défaut : réglages du poste, sinon le compte connecté à gh
-    (seulement quand on publie : pas d'appel réseau pour un projet local)."""
+    """Default owner and team: this machine's settings, otherwise the account logged in to gh
+    (only when publishing: no network call for a local project)."""
     config = load_config()
     defaults: dict[str, object] = {}
     owner = config.owner or (github.login() if should_publish else None)
@@ -98,21 +98,21 @@ def machine_timezone() -> str:
 
 
 def _initial_commit(root: Path) -> None:
-    step("Premier commit sur main")
+    step("First commit on main")
     run(["git", "add", "-A"], root)
-    # Seul commit admis sur main : celui qui crée le dépôt ([PAS-SUR-MAIN]).
+    # The only commit allowed on main: the one that creates the repo ([NO-COMMIT-ON-MAIN]).
     commit_env = {**os.environ, "SKIP": "no-commit-to-branch"}
     run(["git", "commit", "-q", "-m", INITIAL_COMMIT_MESSAGE], root, env=commit_env)
-    # main garde ce seul commit ; tout le travail part de develop.
+    # main keeps this single commit; all work starts from develop.
     run(["git", "switch", "-q", "-c", "develop"], root)
 
 
 def repository_name(root: Path) -> str:
-    """`propriétaire/nom` du dépôt GitHub ; sans propriétaire, le compte connecté à gh."""
+    """`owner/name` of the GitHub repo; without an owner, the account logged in to gh."""
     answers = read_answers(root)
     owner = str(answers.get("owner") or "") or github.login()
     if not owner:
-        raise KilnError("propriétaire GitHub inconnu : gh auth login, ou kiln set owner=…")
+        raise KilnError("unknown GitHub owner: gh auth login, or kiln set owner=…")
     return f"{owner}/{answers['name']}"
 
 
@@ -122,7 +122,7 @@ def team_logins(root: Path) -> list[str]:
 
 
 def publish_project(root: Path) -> None:
-    """`kiln publish` : le dépôt GitHub privé d'un projet créé sans (`--no-github`, gh absent)."""
+    """`kiln publish`: the private GitHub repo of a project made without (`--no-github`, no gh)."""
     require_tools("git", "gh")
     remote = subprocess.run(
         ["git", "remote", "get-url", "origin"],
@@ -132,7 +132,7 @@ def publish_project(root: Path) -> None:
         check=False,
     )
     if remote.returncode == 0:
-        raise KilnError(f"déjà publié : origin = {remote.stdout.strip()}")
+        raise KilnError(f"already published: origin = {remote.stdout.strip()}")
     if not github.can_publish():
-        raise KilnError(f"gh n'est pas connecté : gh auth login ({github.LOGIN_URL})")
+        raise KilnError(f"gh is not logged in: gh auth login ({github.LOGIN_URL})")
     github.publish(root, repository_name(root), team_logins(root))

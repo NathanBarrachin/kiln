@@ -97,19 +97,33 @@ def test_django_plan_keeps_the_project_inputs(tmp_path: Path) -> None:
     job = next(job for job in load_jobs(_project(tmp_path)) if job.name == "backend-quality")
     plan = plan_job(job)
     labels = [step.label for step in plan.steps]
-    assert labels == ["ruff", "aucune migration manquante", "pytest", "planchers de couverture"]
+    assert labels == ["ruff", "no missing migration", "pytest", "coverage floors"]
     assert plan.lane == BACK_LANE
     assert plan.env == {"DEBUG": "True", "IDEMPOTENCY_REQUIRED": "True"}
     assert plan.services is not None
     assert plan.services.postgres == "docker.io/library/postgres:18-alpine"
     assert plan.services.redis == DEFAULTS["django"]["redis"]
+    # `base`, its name before kiln 0.4.0, still names the database.
+    assert plan.services.database == "annski"
+
+
+def test_workflow_names_of_before_0_4_are_still_replayed() -> None:
+    old = Job("audit", "securite", {"niveau": "critical", "version-pnpm": "10"})
+    contract = Job("contract", "contrat-api", {"back": "api", "generation": "pnpm gen"})
+
+    audit_steps = plan_job(old).steps
+    contract_steps = plan_job(contract).steps
+
+    assert audit_steps[-1].command == "pnpm audit --prod --audit-level critical"
+    assert contract_steps[0].directory == "api"
+    assert contract_steps[1].command.startswith("pnpm gen\n")
 
 
 def test_a_job_stops_at_its_first_failed_step(tmp_path: Path) -> None:
     workspace = Workspace(tmp_path, tmp_path, "kiln-ci-test")
     job = Job("demo", INLINE_KIND, commands=("true", "false", "touch reached"))
     outcome = run_job(plan_job(job), workspace)
-    assert outcome == JobOutcome("demo", is_success=False, failed_step="étape 1")
+    assert outcome == JobOutcome("demo", is_success=False, failed_step="step 1")
     assert not (tmp_path / "reached").exists()
     assert "$ false" in (tmp_path / "demo.log").read_text()
 

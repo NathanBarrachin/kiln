@@ -1,15 +1,15 @@
 name: pypi
 
-# Publication de kiln sur PyPI (paquet kiln-cli) au tag d'une version promue, `vX.Y.Z` ; jamais
-# une candidate `-rc.N`, que seul le canal `interne` suit, par GitHub. Jeton PyPI dans le secret
-# `PYPI_TOKEN` de l'environnement `pypi` (posé depuis `.pypi/token`) ; sans lui, trusted
-# publishing si PyPI fait confiance à ce workflow.
+# Publishes kiln on PyPI (package kiln-cli) at the tag of a promoted release, `vX.Y.Z`; never a
+# candidate `-rc.N`, which only the internal channel follows, through GitHub. PyPI token in the
+# secret `PYPI_TOKEN` of the `pypi` environment (set from `.pypi/token`); without it, trusted
+# publishing if PyPI trusts this workflow.
 on:
   push:
     tags: [ "v[0-9]+.[0-9]+.[0-9]+" ]
 
 jobs:
-  publier:
+  publish:
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -20,16 +20,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
-      - name: Version du tag = version du paquet
+      - name: Tag version = package version
         run: |
-          paquet="$(uv version --short)"
-          if [ "v${paquet}" != "${GITHUB_REF_NAME}" ]; then
-            echo "::error::tag ${GITHUB_REF_NAME}, mais pyproject.toml dit ${paquet}"
+          package="$(uv version --short)"
+          if [ "v${package}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME}, but pyproject.toml says ${package}"
             exit 1
           fi
-      - name: Construction
+      - name: Build
         run: uv build
-      - name: Publication
+      - name: Publish
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: uv publish --trusted-publishing automatic

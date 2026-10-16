@@ -68,7 +68,7 @@ def is_alive(pid: int) -> bool:
 
 def _start_postgres(services: Services, container: str) -> str:
     port = free_port()
-    base = services.base
+    base = services.database
     _start(
         container,
         port,

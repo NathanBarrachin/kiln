@@ -128,8 +128,8 @@ def test_django_and_nuxt_share_a_typed_api_contract(tmp_path: Path) -> None:
     assert (project_dir / "frontend/app/composables/useApi.ts").is_file()
     assert "openapi.json linguist-generated" in (project_dir / ".gitattributes").read_text()
     workflow = yaml.safe_load((project_dir / ".github/workflows/ci.yml").read_text())
-    # Hors version (modèle pris à un commit), les workflows sont cités à develop.
-    assert workflow["jobs"]["contrat"]["uses"].endswith("contrat-api.yml@develop")
+    # Outside a release (template taken at a commit), workflows are cited at develop.
+    assert workflow["jobs"]["api-contract"]["uses"].endswith("api-contract.yml@develop")
 
 
 def test_fastapi_front_keeps_its_plain_fetch(tmp_path: Path) -> None:

@@ -467,6 +467,9 @@ def collect_repo(status: Status, cwd: str, top: str) -> str:
             status.env.append(
                 [
                     {
+                        "kiln ci: success": Item("CI ✓"),
+                        "kiln ci: failure": Item("CI ✗", 3),
+                        # Notes written by kiln 0.3.
                         "kiln ci : succès": Item("CI ✓"),
                         "kiln ci : échec": Item("CI ✗", 3),
                     }.get(note, Item("CI rerun needed", 1, "CI rerun"))

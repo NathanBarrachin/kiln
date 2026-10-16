@@ -179,7 +179,7 @@ def test_project_summary_names_size_and_frameworks(tmp_path: Path) -> None:
 
 def test_durations_read_the_french_way() -> None:
     assert [ui.format_duration(seconds) for seconds in (0.42, 12.3, 65)] == [
-        "0,4 s",
+        "0.4 s",
         "12 s",
         "1 min 05 s",
     ]
@@ -191,7 +191,7 @@ def test_recap_outside_a_terminal_is_one_line(capsys: pytest.CaptureFixture[str]
 
     ui.recap("install", ui._steps[0].started, succeeded=True)
 
-    assert capsys.readouterr().out.splitlines()[-1].startswith("Installation terminée en ")
+    assert capsys.readouterr().out.splitlines()[-1].startswith("Install done in ")
     ui._steps.clear()
 
 
@@ -330,16 +330,14 @@ def test_unreachable_github_gives_one_line(tmp_path: Path) -> None:
         check=True,
     )
 
-    with pytest.raises(KilnError, match=r"^GitHub injoignable"):
+    with pytest.raises(KilnError, match=r"^GitHub unreachable"):
         apply_template(tmp_path)
 
 
 def test_other_git_failure_keeps_its_last_line() -> None:
     error = ProcessExecutionError(["git", "clone"], 128, "", "fatal: ref inconnue\n\n")
 
-    assert (
-        git_failure(error) == "git a échoué pendant la mise à jour du modèle : fatal: ref inconnue"
-    )
+    assert git_failure(error) == "git failed while updating the template: fatal: ref inconnue"
 
 
 @pytest.mark.parametrize("local_edit", ["", "  local: true\n"])
@@ -445,7 +443,7 @@ def test_update_refuses_to_take_a_repo_back_to_an_older_kiln(
     )
     monkeypatch.setattr("kiln.update.tool_release_tag", lambda: "v0.3.4")
 
-    with pytest.raises(KilnError, match="plus récent que l'outil"):
+    with pytest.raises(KilnError, match="newer than the installed tool"):
         check_tool_not_older(tmp_path)
 
 

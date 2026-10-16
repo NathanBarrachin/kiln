@@ -28,7 +28,7 @@ def test_home_screen_lists_every_command_by_section(
     for title, names in cli.COMMAND_GROUPS:
         assert title.upper() in out
         assert all(name in out for name in names)
-    assert "EXEMPLES" in out
+    assert "EXAMPLES" in out
 
 
 def test_every_command_of_the_home_screen_exists() -> None:
@@ -50,7 +50,7 @@ def test_outside_a_repository_the_error_is_explained(
     monkeypatch.chdir(tmp_path)
 
     assert run_kiln(monkeypatch, "install") == cli.EXIT_FAILURE
-    assert "n'est pas dans un repo" in capsys.readouterr().err
+    assert "is not in a repo" in capsys.readouterr().err
 
 
 def test_a_failed_command_ends_on_an_interrupted_recap(
@@ -65,8 +65,8 @@ def test_a_failed_command_ends_on_an_interrupted_recap(
 
     assert run_kiln(monkeypatch, "check") == cli.EXIT_FAILURE
     captured = capsys.readouterr()
-    assert "Interrompu après" in captured.out
-    assert "kiln : échec de `uv sync`" in captured.err
+    assert "Interrupted after" in captured.out
+    assert "kiln: échec de `uv sync`" in captured.err
     ui._steps.clear()
 
 
@@ -99,3 +99,23 @@ def test_bash_completion_script_lists_commands_and_options(
     assert "--all" in out
     assert "--containers" in out
     assert "complete -F _kiln_completion kiln" in out
+
+
+@pytest.mark.parametrize(
+    ("legacy", "modern"),
+    [
+        (["contrat"], ["contract"]),
+        (["set", "--poste", "team=a"], ["set", "--global", "team=a"]),
+        (["ci", "--sauter=infra", "--statut"], ["ci", "--skip=infra", "--status"]),
+        (["ci", "--garder", "--sans-pousser"], ["ci", "--keep", "--no-push"]),
+    ],
+)
+def test_the_names_of_kiln_0_3_still_work_with_a_warning(
+    capsys: pytest.CaptureFixture[str], legacy: list[str], modern: list[str]
+) -> None:
+    assert cli.modernize(legacy) == modern
+    assert "is now" in capsys.readouterr().err
+
+
+def test_an_option_of_another_command_is_left_alone() -> None:
+    assert cli.modernize(["update", "--statut"]) == ["update", "--statut"]

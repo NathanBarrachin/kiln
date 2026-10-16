@@ -1,4 +1,4 @@
-"""`kiln update` : rapporte les évolutions du modèle, puis met à jour les dépendances."""
+"""`kiln update`: brings in the changes of the template, then updates the dependencies."""
 
 import re
 import subprocess
@@ -32,11 +32,11 @@ from kiln.versions import (
 )
 
 PROTECTED_BRANCHES = ("main", "develop")
-# Début d'un conflit laissé par Copier (`git merge-file`).
+# Start of a conflict left by Copier (`git merge-file`).
 CONFLICT_MARKER = "<<<<<<< before updating"
-# Un workflow réutilisable de kiln cité à un tag : `antoine-tena/kiln/….yml@v0.3.1`.
+# A reusable workflow of kiln cited at a tag: `antoine-tena/kiln/….yml@v0.3.1`.
 KILN_WORKFLOW_REF = re.compile(r"(antoine-tena/kiln/\S+?)@(\S+)")
-# Ancienne adresse du modèle (init-repo, renommé kiln) : GitHub redirige, mais on la remplace.
+# Former address of the template (init-repo, renamed kiln): GitHub redirects, still replaced.
 LEGACY_TEMPLATE_SOURCES = ("https://github.com/antoine-tena/init-repo.git",)
 
 
@@ -52,7 +52,7 @@ def update_project(
     check_working_branch(root)
     if should_update_template:
         check_tool_not_older(root)
-        step("Architecture : évolutions du modèle")
+        step("Architecture: changes of the template")
         previous = template_commit(root)
         apply_template(root)
         show_release_notes(previous, template_commit(root))
@@ -72,8 +72,8 @@ def update_project(
 
 
 def check_tool_not_older(root: Path) -> None:
-    """Refuse de ramener un repo à une version de kiln plus ancienne que celle dont il part
-    (mis à jour par un équipier qui a un kiln plus récent) : il faut d'abord monter l'outil."""
+    """Refuses to take a repo back to a version of kiln older than the one it comes from
+    (updated by a teammate with a newer kiln): the tool must be upgraded first."""
     if _template_source(root) != DEFAULT_TEMPLATE_SOURCE:
         return
     project_ref = template_commit(root)
@@ -81,24 +81,24 @@ def check_tool_not_older(root: Path) -> None:
     project, tool = release_version(project_ref), release_version(tool_tag or "")
     if project is not None and tool is not None and project > tool:
         raise KilnError(
-            f"ce repo suit kiln {project_ref}, plus récent que l'outil installé ({tool_tag}) : "
+            f"this repo follows kiln {project_ref}, newer than the installed tool ({tool_tag}): "
             f"{upgrade_command(tag_of(project_ref) or project_ref)}"
         )
 
 
 def mention_newer_release() -> None:
-    """Une version de kiln plus récente que l'outil est sortie : le dire, avec la commande."""
+    """A version of kiln newer than the tool is out: say so, with the command."""
     tool = release_version(tool_release_tag() or "")
     latest = latest_release()
     newer = release_version(latest or "")
     if tool is not None and newer is not None and newer > tool and latest is not None:
-        ui.note(f"kiln {latest} est sorti : {upgrade_command(latest)}, puis kiln update.")
+        ui.note(f"kiln {latest} is out: {upgrade_command(latest)}, then kiln update.")
 
 
 def apply_template(root: Path, answers: Mapping[str, object] | None = None) -> None:
-    """Modèle réappliqué (révision la plus récente, réponses éventuellement changées), sans
-    écraser les modifications locales : les conflits sont marqués dans les fichiers. Les
-    fichiers figés (`kiln-waivers.toml`) sont laissés tels quels."""
+    """Template applied again (latest revision, answers possibly changed), without overwriting
+    local changes: conflicts are marked in the files. Frozen files (`kiln-waivers.toml`) are
+    left as they are."""
     previous_answers = migrations.raw_answers(root)
     try:
         copier.run_update(
@@ -115,27 +115,27 @@ def apply_template(root: Path, answers: Mapping[str, object] | None = None) -> N
             unsafe=False,
         )
     except UserMessageError as error:
-        raise KilnError(f"mise à jour du modèle refusée : {error}") from error
+        raise KilnError(f"template update refused: {error}") from error
     except ProcessExecutionError as error:
         raise KilnError(git_failure(error)) from error
-    # Après Copier, qui exige un arbre propre et réécrit le fichier de réponses.
+    # After Copier, which requires a clean tree and rewrites the answers file.
     source = _template_source(root)
     for converted in migrations.convert(root, previous_answers, source, template_revision(source)):
         ui.note(f"kiln 0.4: {converted}.")
     resolve_kiln_ref_conflicts(root)
     replace_legacy_source(root)
     if migrate_legacy_backlog(root):
-        ui.note("Suivi déplacé de docs/a-faire/ vers docs/backlog/ (tickets T-NN, en anglais).")
+        ui.note("Tracking moved from docs/a-faire/ to docs/backlog/ (T-NN tickets, in English).")
 
 
 def resolve_kiln_ref_conflicts(root: Path) -> None:
-    """Conflits nés du seul `@<tag>` des workflows de kiln : refusionnés sans lui.
+    """Conflicts born of the `@<tag>` of kiln's workflows alone: merged again without it.
 
-    Un tag promu pose sur le commit de sa dernière candidate (`v0.3.1` = `v0.3.1-rc.1`) ; Copier
-    rend l'ancienne version sous le nom que lui donne `git describe`, le promu, et ne retrouve
-    plus le `@v0.3.1-rc.1` du projet : conflit à chaque promotion, sans rien à arbitrer. Copier
-    laisse les trois versions dans l'index (1 : ancien rendu, 2 : projet, 3 : nouveau rendu) ;
-    la fusion est refaite avec l'ancien rendu au tag du projet, et gardée si elle passe."""
+    A promoted tag sits on the commit of its last candidate (`v0.3.1` = `v0.3.1-rc.1`); Copier
+    renders the old version under the name `git describe` gives it, the promoted one, and no
+    longer finds the project's `@v0.3.1-rc.1`: a conflict at each promotion, with nothing to
+    decide. Copier leaves the three versions in the index (1: old render, 2: project, 3: new
+    render); the merge is redone with the old render at the project's tag, and kept if clean."""
     for name in conflicted_files(root):
         stages = [_index_stage(root, stage, name) for stage in (1, 2, 3)]
         if None in stages:
@@ -145,14 +145,14 @@ def resolve_kiln_ref_conflicts(root: Path) -> None:
         rendered_refs = _kiln_refs(base)
         if len(project_refs) != 1 or len(rendered_refs) != 1 or project_refs == rendered_refs:
             continue
-        # Le tag revient ailleurs que dans les `uses:` (commentaire de tête de ci.yml) : il est
-        # remplacé partout, sans toucher un tag plus long qui le prolonge.
+        # The tag also appears outside the `uses:` (header comment of ci.yml): it is replaced
+        # everywhere, without touching a longer tag that extends it.
         rendered_tag = re.escape(rendered_refs.pop())
         aligned_base = re.sub(rf"{rendered_tag}(?![\w.-])", project_refs.pop(), base)
         merged = _merge_cleanly(aligned_base, ours, theirs)
         if merged is not None:
             (root / name).write_text(merged)
-            # Plus de conflit dans l'index : une modification du modèle comme les autres.
+            # No more conflict in the index: a change of the template like any other.
             run(["git", "reset", "-q", "--", name], root)
 
 
@@ -168,7 +168,7 @@ def _index_stage(root: Path, stage: int, name: str) -> str | None:
 
 
 def _merge_cleanly(base: str, ours: str, theirs: str) -> str | None:
-    """Fusion à trois de `git merge-file`, ou None si elle laisse un conflit."""
+    """Three-way merge by `git merge-file`, or None if it leaves a conflict."""
     with tempfile.TemporaryDirectory() as directory:
         paths = [Path(directory) / name for name in ("ours", "base", "theirs")]
         for path, text in zip(paths, (ours, base, theirs), strict=True):
@@ -183,7 +183,7 @@ def _merge_cleanly(base: str, ours: str, theirs: str) -> str | None:
 
 
 def conflicted_files(root: Path) -> list[str]:
-    """Fichiers où Copier a laissé un conflit à résoudre à la main."""
+    """Files where Copier left a conflict to resolve by hand."""
     found = subprocess.run(
         ["git", "grep", "-l", "--untracked", CONFLICT_MARKER],
         cwd=root,
@@ -194,17 +194,17 @@ def conflicted_files(root: Path) -> list[str]:
     return found.stdout.split()
 
 
-# Ce que git écrit quand le réseau ou GitHub ne répond pas.
+# What git writes when the network or GitHub does not answer.
 UNREACHABLE_MARKERS = ("could not resolve host", "unable to access", "connection timed out")
 
 
 def git_failure(error: ProcessExecutionError) -> str:
-    """Une ligne pour un git lancé par Copier (tags, clone du modèle) qui a échoué."""
+    """One line for a git run by Copier (tags, clone of the template) that failed."""
     stderr = str(error.stderr or "")
     if any(marker in stderr.lower() for marker in UNREACHABLE_MARKERS):
-        return "GitHub injoignable : vérifier le réseau, puis relancer"
+        return "GitHub unreachable: check the network, then run again"
     last_line = next((line for line in reversed(stderr.splitlines()) if line.strip()), "")
-    return f"git a échoué pendant la mise à jour du modèle : {last_line.strip() or error}"
+    return f"git failed while updating the template: {last_line.strip() or error}"
 
 
 def _template_source(root: Path) -> str:
@@ -213,37 +213,37 @@ def _template_source(root: Path) -> str:
 
 
 def template_commit(root: Path) -> str:
-    """Révision du modèle dont part le repo : `v3`, ou un commit avant la première version."""
+    """Revision of the template the repo comes from: `v3`, or a commit before the first release."""
     return str(read_answers(root).get("_commit", ""))
 
 
 def show_release_notes(previous: str, current: str) -> None:
-    """Encadré des nouveautés de chaque version passée, d'après le journal de kiln."""
+    """Frame with what is new in each version passed, from kiln's changelog."""
     notes = notes_between(previous, current, read_changelog())
     if not notes:
         return
     lines: list[str] = []
     for release in notes:
         lines += [f"{release.tag}  {release.date}".rstrip(), *release.lines, ""]
-    ui.panel(f"Nouveautés de kiln : {previous or '?'} → {current}", lines[:-1])
+    ui.panel(f"What's new in kiln: {previous or '?'} → {current}", lines[:-1])
 
 
 def check_working_branch(root: Path) -> None:
     if not (root / ANSWERS_FILE).exists():
-        raise KilnError(f"pas de {ANSWERS_FILE} : ce dépôt n'a pas été généré par kiln")
+        raise KilnError(f"no {ANSWERS_FILE}: this repo was not generated by kiln")
     branch = capture(["git", "branch", "--show-current"], root)
     if branch in PROTECTED_BRANCHES:
-        raise KilnError(f"sur {branch} : créer d'abord une branche (ex. chore/kiln-update)")
+        raise KilnError(f"on {branch}: create a branch first (e.g. chore/kiln-update)")
     if capture(["git", "status", "--porcelain"], root):
-        raise KilnError("arbre non propre : commiter ou mettre de côté les modifications")
+        raise KilnError("working tree not clean: commit or set aside the changes")
 
 
 def report_changes(root: Path) -> None:
-    step("Fichiers modifiés")
+    step("Changed files")
     run(["git", "status", "--short"], root, live=True)
     print()
     ui.note(
-        "Relire le diff (conflits marqués <<<<<<<), commiter, puis fusionner dans develop "
+        "Review the diff (conflicts marked <<<<<<<), commit, then merge into develop "
         "(skill /kiln:merge)."
     )
 

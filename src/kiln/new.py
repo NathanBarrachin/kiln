@@ -1,6 +1,7 @@
-"""`kiln new` : génère un projet complet, l'installe et le publie au besoin."""
+"""`kiln new`: generates a complete project, installs it and publishes it when asked."""
 
 import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -8,7 +9,7 @@ from pathlib import Path
 
 import copier
 
-from kiln import github, install
+from kiln import github, install, questions
 from kiln.config import load_config
 from kiln.contract import generate_api_contract
 from kiln.deps import lock_dependencies
@@ -30,14 +31,29 @@ class NewProjectRequest:
     template: str | None
     should_install: bool
     should_publish: bool
+    all_questions: bool = False
 
 
-def create_project(request: NewProjectRequest) -> None:
+CLAUDE_CODE_INSTALL = "curl -fsSL https://claude.ai/install.sh | bash"
+CLAUDE_CODE_DOCS = "https://code.claude.com/docs"
+# A first thing to ask Claude Code, by what the project is.
+FIRST_PROMPTS = {
+    "app": "add sign-up and login by email, with tests",
+    "api": "add a /items endpoint with create, list and delete, with tests",
+    "site": "write the home page: what the project is, in three sections",
+    "dashboard": "add a chart of a sample CSV, with a date filter",
+    "analysis": "load a sample CSV and plot its main trend in a notebook",
+    "cli": "add a --verbose option that logs each step",
+}
+
+
+def create_project(request: NewProjectRequest) -> Path:
+    """Generates the project and returns its root."""
     if request.destination.exists() and any(request.destination.iterdir()):
-        raise KilnError(f"{request.destination} existe déjà et n'est pas vide")
+        raise KilnError(f"{request.destination} already exists and is not empty")
     require_tools("git", "uv")
     should_publish = request.should_publish and github.can_publish()
-    step("Génération depuis le modèle")
+    step("Generation from the template")
     source = template_source(request.template)
     copier.run_copy(
         source,
@@ -47,8 +63,9 @@ def create_project(request: NewProjectRequest) -> None:
         vcs_ref=template_revision(source),
         use_prereleases=follows_candidates(),
         unsafe=False,
-        # Hors terminal (CI, agent), les questions sans réponse prennent leur valeur par défaut.
-        defaults=not sys.stdin.isatty(),
+        # Only the essential questions (asked before) unless all are wanted; outside a
+        # terminal (CI, agent), every unanswered question takes its default.
+        defaults=not (request.all_questions and sys.stdin.isatty()),
     )
     root = request.destination.resolve()
     stack = load_stack(root)
@@ -64,11 +81,30 @@ def create_project(request: NewProjectRequest) -> None:
     _initial_commit(root)
     if should_publish:
         github.publish(root, repository_name(root), team_logins(root))
+    return root
+
+
+def next_steps(request: NewProjectRequest, root: Path) -> list[str]:
+    """What to do once the project exists: go in, run it, open Claude Code, a first prompt."""
+    stack = load_stack(root)
+    lines = [f"cd {request.destination}"]
+    if not request.should_install:
+        lines.append("kiln install")
+    lines.append("kiln dev" if stack.dev_commands() else "kiln check")
+    lines.append("claude")
+    project_type = str(read_answers(root).get("project_type", "app"))
+    prompt = FIRST_PROMPTS.get(project_type, FIRST_PROMPTS["app"])
+    lines += ["", f'A first prompt to try: "{prompt}"']
+    if shutil.which("claude") is None:
+        lines.append(f"Claude Code is not installed: {CLAUDE_CODE_INSTALL} ({CLAUDE_CODE_DOCS})")
+    if not (root / ".git" / "refs" / "remotes").is_dir():
+        lines.append("A GitHub repo when you want one: kiln publish")
+    return lines
 
 
 def _user_defaults(*, should_publish: bool) -> dict[str, object]:
-    """Propriétaire et équipe par défaut : réglages du poste, sinon le compte connecté à gh
-    (seulement quand on publie : pas d'appel réseau pour un projet local)."""
+    """Default owner and team: this machine's settings, otherwise the account logged in to gh
+    (only when publishing: no network call for a local project)."""
     config = load_config()
     defaults: dict[str, object] = {}
     owner = config.owner or (github.login() if should_publish else None)
@@ -77,8 +113,7 @@ def _user_defaults(*, should_publish: bool) -> dict[str, object]:
     if config.team:
         defaults["team"] = list(config.team)
     defaults["timezone"] = machine_timezone()
-    if os.environ.get("LANG", "").startswith("fr"):
-        defaults["language"] = "fr"
+    defaults["language"] = questions.default_language()
     return defaults
 
 
@@ -98,21 +133,21 @@ def machine_timezone() -> str:
 
 
 def _initial_commit(root: Path) -> None:
-    step("Premier commit sur main")
+    step("First commit on main")
     run(["git", "add", "-A"], root)
-    # Seul commit admis sur main : celui qui crée le dépôt ([PAS-SUR-MAIN]).
+    # The only commit allowed on main: the one that creates the repo ([NO-COMMIT-ON-MAIN]).
     commit_env = {**os.environ, "SKIP": "no-commit-to-branch"}
     run(["git", "commit", "-q", "-m", INITIAL_COMMIT_MESSAGE], root, env=commit_env)
-    # main garde ce seul commit ; tout le travail part de develop.
+    # main keeps this single commit; all work starts from develop.
     run(["git", "switch", "-q", "-c", "develop"], root)
 
 
 def repository_name(root: Path) -> str:
-    """`propriétaire/nom` du dépôt GitHub ; sans propriétaire, le compte connecté à gh."""
+    """`owner/name` of the GitHub repo; without an owner, the account logged in to gh."""
     answers = read_answers(root)
     owner = str(answers.get("owner") or "") or github.login()
     if not owner:
-        raise KilnError("propriétaire GitHub inconnu : gh auth login, ou kiln set owner=…")
+        raise KilnError("unknown GitHub owner: gh auth login, or kiln set owner=…")
     return f"{owner}/{answers['name']}"
 
 
@@ -122,7 +157,7 @@ def team_logins(root: Path) -> list[str]:
 
 
 def publish_project(root: Path) -> None:
-    """`kiln publish` : le dépôt GitHub privé d'un projet créé sans (`--no-github`, gh absent)."""
+    """`kiln publish`: the private GitHub repo of a project made without (`--no-github`, no gh)."""
     require_tools("git", "gh")
     remote = subprocess.run(
         ["git", "remote", "get-url", "origin"],
@@ -132,7 +167,7 @@ def publish_project(root: Path) -> None:
         check=False,
     )
     if remote.returncode == 0:
-        raise KilnError(f"déjà publié : origin = {remote.stdout.strip()}")
+        raise KilnError(f"already published: origin = {remote.stdout.strip()}")
     if not github.can_publish():
-        raise KilnError(f"gh n'est pas connecté : gh auth login ({github.LOGIN_URL})")
+        raise KilnError(f"gh is not logged in: gh auth login ({github.LOGIN_URL})")
     github.publish(root, repository_name(root), team_logins(root))

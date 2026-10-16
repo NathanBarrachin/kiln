@@ -12,7 +12,7 @@ commandes dans [`README.fr.md`](README.fr.md) (vitrine en anglais :
 Où chercher, pour ne pas explorer ; à tenir à jour dans le commit qui ajoute, déplace ou retire
 un dossier ou un module.
 
-- `src/kiln/` : la commande. `cli.py` (arguments) ; une commande par module : `new.py`,
+- `src/kiln/` : la commande. `cli.py` (arguments ; anciens noms de 0.3 acceptés par `modernize`) ; une commande par module : `new.py` (questions de `questions.py`),
   `adopt.py` (`kiln adopt`, repo existant), `install.py`, `dev.py`, `check.py`, `settings.py` (`kiln set`, clés réglables), `machine.py` (`kiln set` hors d'un repo : réglages du poste), `waive.py` (`kiln waive`), `update.py`,
   `contract.py`, `release.py` (`kiln version`), `doctor.py` (diagnostic du poste et du repo), `fleet.py` (`status`, `update --all`) ; socle : `stack.py` (stack lue dans
   `.copier-answers.yml`), `template.py`, `deps.py`, `github.py`, `rules.py` (règles non
@@ -40,7 +40,7 @@ un dossier ou un module.
 - `docs/backlog/` : suivi du travail, en anglais (skill `/kiln:backlog`), dont la prochaine
   promotion de version ; `docs/assets/` : images de la vitrine.
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
-  accueil, erreurs, bilan, sorties hors terminal), `test_unites.py`,
+  accueil, erreurs, bilan, sorties hors terminal, anciens noms), `test_questions.py` (questions de `kiln new`), `test_unites.py`,
   `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_deployment.py`, `test_statusline.py` (choix du
   poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_branch_guard.py` (hook de garde de branche), `test_adopt.py`,
   `test_reminders.py`, `test_session_start.py` ; `conftest.py` : config git du poste écartée, identité de test.

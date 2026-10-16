@@ -17,7 +17,10 @@ CI_WORKFLOW = Path(".github/workflows/ci.yml")
 KILN_WORKFLOW = re.compile(r"antoine-tena/kiln/\.github/workflows/(?P<name>[\w-]+)\.yml@")
 CHECKOUT_ACTION = "actions/checkout@"
 # Workflows réutilisables de kiln que `kiln ci` sait rejouer (voir jobs.py).
-REPLAYABLE_WORKFLOWS = frozenset({"django", "contrat-api", "charte", "pnpm", "securite", "secrets"})
+REPLAYABLE_WORKFLOWS = frozenset(
+    {"django", "api-contract", "charter", "pnpm", "security", "secrets"}
+    | {"contrat-api", "charte", "securite"}  # names before kiln 0.4.0
+)
 INLINE_KIND = "inline"
 
 

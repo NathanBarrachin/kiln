@@ -2,7 +2,10 @@
 
 # kiln 🔥
 
-**Make Claude Code build production-grade repos — and keep them that way.**
+**Start every project like a senior engineer would — even if you're not one.**
+
+Three questions, and Claude Code gets a modern repo: stack chosen for you, tests, CI,
+guardrails, a GitHub repo — kept up to date for as long as the project lives.
 
 [![CI](https://github.com/antoine-tena/kiln/actions/workflows/kiln.yml/badge.svg?branch=develop)](https://github.com/antoine-tena/kiln/actions/workflows/kiln.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)

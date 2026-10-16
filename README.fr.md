@@ -2,6 +2,8 @@
 
 *[English](README.md) · Français*
 
+**Chaque projet démarré comme le ferait un ingénieur expérimenté, même sans l'être soi-même.**
+
 L'atelier de Claude Code : kiln lui donne de quoi construire des repos de qualité production et
 les garder ainsi. Le savoir (stacks à jour, consignes par repo, documentation des bibliothèques),
 les garde-fous (règles vérifiées par la machine, hooks, branches protégées), les façons de

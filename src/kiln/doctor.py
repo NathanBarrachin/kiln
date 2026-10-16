@@ -187,7 +187,7 @@ def _config(config: UserConfig) -> Finding:
             Level.WARN,
             "configuration",
             f"dossier de code introuvable : {config.code_dir}",
-            f'dossier_code = "…" dans {config_path()}',
+            f'code_dir = "…" dans {config_path()}',
         )
     return Finding(Level.OK, "configuration", f"{config.system}, repos dans {config.code_dir}")
 

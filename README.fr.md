@@ -41,10 +41,10 @@ Les plugins Claude Code vivent dans [`plugins/`](plugins/), catalogue `kiln`
   par `relances.py` : une note de bienveillance du poste monte à chaque « oui » et baisse à
   chaque « non », et étire ou raccourcit tous les délais (doublés au plus méfiant, de moitié au
   plus enthousiaste) ; `git config kiln-a-jour.desactive true` pour s'en passer, sorties de commandes condensées par [rtk](https://github.com/rtk-ai/rtk) quand il
-  est installé (`mise use -g github:rtk-ai/rtk`, sans `rtk init` : le hook est fourni ici) ; MCP context7 ; status line commune (`plugins/base/scripts/statusline.py`,
+  est installé (`mise use -g github:rtk-ai/rtk`, sans `rtk init` : le hook est fourni ici) ; MCP context7 ; status line commune (`plugins/kiln/scripts/statusline.py`,
   en anglais, aux couleurs de kiln), posée par `kiln install` dans `~/.claude/settings.json` ; son
-  style se choisit par poste : `kiln set statusline=sobre|bandeau|classique|classique-fond`,
-  `aucune` (retirée) ou `perso` (kiln ne touche plus à la `statusLine` de l'utilisateur, choix
+  style se choisit par poste : `kiln set statusline=plain|band|classic|classic-band`,
+  `none` (retirée) ou `custom` (kiln ne touche plus à la `statusLine` de l'utilisateur, choix
   automatique s'il en a déjà une) ;
 - `pile-nuxt` (skills Nuxt, Vue, Vitest, `polish`, `apercu` — captures sur trois téléphones et un ordinateur ; MCP playwright) et `pile-django` (skills
   `migration`, `regen-api`, `postgres-lecture`), activés par le `.claude/settings.json` généré
@@ -76,14 +76,14 @@ uv tool install kiln-cli
 
 Installe deux commandes, `kiln` et `charte`, à la dernière version publiée sur PyPI (le paquet
 s'appelle `kiln-cli`, `kiln` y étant pris ; `uvx kiln-cli new mon-app` l'essaie sans
-l'installer). Pour suivre les candidates (canal `interne`) ou un commit précis :
+l'installer). Pour suivre les candidates (canal `internal`) ou un commit précis :
 `uv tool install git+https://github.com/antoine-tena/kiln@<tag>`. macOS, Linux, et Windows par
 WSL. Quand une version sort, le hook de début de session propose de mettre à jour l'outil, puis
 chaque repo ; à la main : `uv tool upgrade kiln-cli`, puis `kiln update` dans le repo.
 Complétion dans bash : `eval "$(kiln completion bash)"` dans `~/.bashrc`.
 Python 3.14 est requis ; uv le télécharge au besoin. Au premier `kiln install`, kiln demande le
 système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.toml`, avec
-`proprietaire` et `equipe` par défaut si on les y ajoute.
+`owner` et `team` par défaut si on les y ajoute.
 
 ## Commandes
 
@@ -97,9 +97,9 @@ système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.
 | `kiln ci [commit]` | Rejoue sur le poste la CI du `ci.yml` pour ce commit (défaut `HEAD`) et pose le verdict en note git sur origin, que le script de déploiement accepte comme une CI verte. `--statut` : le verdict seul. Voir « CI rejouée sur le poste ». |
 | `kiln contrat` | Django + Nuxt : exporte `openapi.json` depuis le code, puis régénère les types du front (`app/types/api.d.ts`). `kiln update` le fait aussi. |
 | `kiln waive [RÈGLE\|fichier]` | Déroge à une règle de kiln (`--paths`, `--reason`, `--upstream`), ou fige un fichier généré que `kiln update` ne touchera plus ; `--renew` passe au palier suivant (une semaine, un mois, trois mois, six mois), `--permanent` sans échéance. Sans argument : liste les dérogations. Voir [Moteur de charte](#moteur-de-charte). |
-| `kiln set` | Dans un repo : sans argument, affiche ses paramètres ; `kiln set clé=valeur…` les change (équipe, frameworks, podman, boussole…) : le repo est régénéré, un framework retiré emporte ses fichiers. Hors d'un repo, ou avec `--poste` : les réglages du poste (`systeme`, `proprietaire`, `equipe`, `dossier_code`, dans `~/.config/kiln/config.toml`). |
+| `kiln set` | Dans un repo : sans argument, affiche ses paramètres ; `kiln set clé=valeur…` les change (équipe, frameworks, podman, boussole…) : le repo est régénéré, un framework retiré emporte ses fichiers. Hors d'un repo, ou avec `--poste` : les réglages du poste (`system`, `owner`, `team`, `code_dir`, `channel`, `statusline`, dans `~/.config/kiln/config.toml`). |
 | `kiln update` | Évolutions du modèle, mises à jour compatibles des dépendances, puis contrôles. `--major` : versions majeures comprises. `--no-template`, `--no-deps` pour n'en faire qu'une partie. |
-| `kiln update --all` | Tous les repos kiln du dossier de code (`~/code`, réglable par `dossier_code`) : pour chacun, un worktree depuis la branche d'intégration, la mise à jour, des commits de dix fichiers au plus, puis la fusion directe dans l'intégration (commit de fusion poussé) ; contrôles en échec, la branche est poussée sans être fusionnée. L'arbre principal ne change jamais de branche. |
+| `kiln update --all` | Tous les repos kiln du dossier de code (`~/code`, réglable par `code_dir`) : pour chacun, un worktree depuis la branche d'intégration, la mise à jour, des commits de dix fichiers au plus, puis la fusion directe dans l'intégration (commit de fusion poussé) ; contrôles en échec, la branche est poussée sans être fusionnée. L'arbre principal ne change jamais de branche. |
 | `kiln doctor` | Diagnostic du poste (git, uv, gh connecté, pnpm, podman, Java, pre-commit, version de kiln, plugin Claude, configuration) et du repo courant (version du modèle, crochet pre-commit, dépendances, `backend/.env`) : ✓, ! à regarder ou ✗ bloquant, chaque fois avec la commande qui corrige. Ne modifie rien. |
 | `kiln completion bash` | Script de complétion bash tiré des commandes et options de kiln ; l'activer par `eval "$(kiln completion bash)"` dans `~/.bashrc`. |
 | `kiln status` | État des repos kiln du dossier de code : branche, arbre propre ou non, version du modèle (`v0.3.2 → v0.3.5` en retard), dérogations (`!` si l'une est échue), stack ; puis les règles dérogées, par nombre de repos. |
@@ -211,8 +211,8 @@ leur note et convertis par `kiln update` ; la mineure ne monte que pour une éta
 Le travail s'intègre dans `develop` ; `main` ne reçoit que des versions.
 
 - **Candidate** (`v0.3.5-rc.1`) : tirée de `develop` sur une branche `release/v0.3.5`, avec son
-  entrée en tête de [`CHANGELOG.md`](CHANGELOG.md). Seuls les postes au canal `interne` la
-  suivent (`kiln set canal=interne`).
+  entrée en tête de [`CHANGELOG.md`](CHANGELOG.md). Seuls les postes au canal `internal` la
+  suivent (`kiln set channel=internal`).
 - **Promotion** (`v0.3.5`) : dès qu'une candidate plus récente est prête (pas de délai fixe :
   c'est la suivante prête qui évite le correctif d'urgence), le même commit est tagué et fusionné
   dans `main`. `kiln version` montre les candidates, leur âge, qui les a adoptées, lesquelles

@@ -13,10 +13,10 @@ Où chercher, pour ne pas explorer ; à tenir à jour dans le commit qui ajoute,
 un dossier ou un module.
 
 - `src/kiln/` : la commande. `cli.py` (arguments) ; une commande par module : `new.py`,
-  `adopt.py` (`kiln adopt`, repo existant), `install.py`, `dev.py`, `check.py`, `settings.py` (`kiln set`, clés réglables), `waive.py` (`kiln waive`), `update.py`,
+  `adopt.py` (`kiln adopt`, repo existant), `install.py`, `dev.py`, `check.py`, `settings.py` (`kiln set`, clés réglables), `machine.py` (`kiln set` hors d'un repo : réglages du poste), `waive.py` (`kiln waive`), `update.py`,
   `contract.py`, `release.py` (`kiln version`), `doctor.py` (diagnostic du poste et du repo), `fleet.py` (`status`, `update --all`) ; socle : `stack.py` (stack lue dans
   `.copier-answers.yml`), `template.py`, `deps.py`, `github.py`, `rules.py` (règles non
-  vérifiées), `statusline.py`, `versions.py` (tags, journal des versions), `frozen.py` (fichiers figés par `kiln-waivers.toml`, épargnés par `update`), `banner.py` (bannière, écran d'accueil), `ui.py` (palette pierre et feu, étapes,
+  vérifiées), `statusline.py`, `versions.py` (tags, journal des versions), `frozen.py` (fichiers figés par `kiln-waivers.toml`, épargnés par `update`), `renames.py` (noms d'avant 0.4.0 et leurs noms anglais), `banner.py` (bannière, écran d'accueil), `ui.py` (palette pierre et feu, étapes,
   roue animée, bilan, succès, erreurs), `shell.py`, `config.py` (`~/.config/kiln/config.toml`).
 - `src/kiln/ci/` : `kiln ci` (CI rejouée sur le poste, verdict en note git) ;
   `src/kiln/charte/` : moteur de `charte` (`interdictions.py`, `cliquets.py`,
@@ -81,8 +81,8 @@ Deux temps, par la skill `/kiln:release` (pas de déploiement : le tag publie, e
 publie sur PyPI le paquet `kiln-cli` par `pypi.yml`) :
 1. **Candidate** : branche `release/vX.Y.Z` tirée de `develop`, entrée `## vX.Y.Z — date` en tête
    de `CHANGELOG.md`, `version = "X.Y.Z"` dans `pyproject.toml`, contrôle complet (les trois
-   commandes ci-dessous), tag `vX.Y.Z-rc.1` poussé. Les postes au canal `interne` (`kiln set
-   canal=interne`, celui d'antoine) la suivent : `kiln update --all` y fait passer tous les repos
+   commandes ci-dessous), tag `vX.Y.Z-rc.1` poussé. Les postes au canal `internal` (`kiln set
+   channel=internal`, celui d'antoine) la suivent : `kiln update --all` y fait passer tous les repos
    générés. Un correctif de la candidate : commit `fix:` sur sa branche, tag `-rc.N+1`.
 2. **Promotion**, quand `kiln version` la dit prête (une candidate plus récente existe, sans
    délai d'attente) : tag `vX.Y.Z` sur le commit exact de sa

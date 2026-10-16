@@ -228,3 +228,29 @@ def legacy_answers(values: Mapping[str, object]) -> dict[str, object]:
         legacy_value = old_values.get(value, value) if isinstance(value, str) else value
         legacy[legacy_keys.get(key, key)] = legacy_value
     return legacy
+
+
+# Machine settings of `~/.config/kiln/config.toml` (and keys of `kiln set` outside a repo).
+MACHINE_KEYS: Mapping[str, str] = {
+    "canal": "channel",
+    "dossier_code": "code_dir",
+    "equipe": "team",
+    "proprietaire": "owner",
+    "systeme": "system",
+}
+MACHINE_VALUES: Mapping[str, Mapping[str, str]] = {
+    "channel": {"interne": "internal"},
+    "statusline": {
+        "sobre": "plain",
+        "bandeau": "band",
+        "classique": "classic",
+        "classique-fond": "classic-band",
+        "aucune": "none",
+        "perso": "custom",
+    },
+}
+
+
+def machine_value(key: str, value: str) -> str:
+    """A machine setting's value under its current name (`interne` → `internal`)."""
+    return MACHINE_VALUES.get(key, {}).get(value, value)

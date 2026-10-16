@@ -2,7 +2,7 @@
 
 En 0.x, chaque version monte le correctif, cassante comprise (`0.3.4 → 0.3.5`) ; la mineure ne
 monte que pour une étape (CLAUDE.md, Versions). Deux canaux : une version sort d'abord en
-candidate (`v0.3.5-rc.1`), suivie par les postes au canal `interne` (`kiln set canal=interne`) ;
+candidate (`v0.3.5-rc.1`), suivie par les postes au canal `internal` (`kiln set channel=internal`) ;
 elle est promue (`v0.3.5`, fusion
 dans `main`) quand la suivante est prête. Le canal `public`, par
 défaut, ne voit que les versions promues. Chaque version a son entrée dans `CHANGELOG.md`, que
@@ -59,12 +59,12 @@ def tag_of(ref: str) -> str | None:
 
 
 def follows_candidates() -> bool:
-    """Le poste suit-il les candidates (canal `interne`) ?"""
+    """Le poste suit-il les candidates (canal `internal`) ?"""
     return load_config().channel == INTERNAL_CHANNEL
 
 
 def latest_release(source: str = KILN_GIT_URL, *, candidates: bool | None = None) -> str | None:
-    """Tag de la version la plus récente du dépôt, candidates comprises au canal `interne` ;
+    """Tag de la version la plus récente du dépôt, candidates comprises au canal `internal` ;
     None sans réseau ou sans version."""
     if candidates is None:
         candidates = follows_candidates()

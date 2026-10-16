@@ -44,7 +44,7 @@ def kiln_env(tmp_path: Path) -> dict[str, str]:
     own, so that nothing is asked and the user's Claude Code status line is left alone."""
     config_dir = tmp_path / "config" / "kiln"
     config_dir.mkdir(parents=True)
-    (config_dir / "config.toml").write_text('systeme = "linux"\nstatusline = "perso"\n')
+    (config_dir / "config.toml").write_text('system = "linux"\nstatusline = "custom"\n')
     return {
         **os.environ,
         "XDG_CONFIG_HOME": str(config_dir.parent),

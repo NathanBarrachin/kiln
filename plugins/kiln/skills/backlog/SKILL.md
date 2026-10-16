@@ -38,29 +38,54 @@ in the current code, propose a short plan, then create the branch (in a worktree
 **`new <what>`**: add a ticket with the "next free" ID from the "How to use" section (then
 increment it), the type that fits (`idea` when nothing is decided yet), `todo`, today's date as
 `Opened`, in the section matching its priority (⚪ background for an idea still to explore).
+If the backlog has a `## 🚀 Releases` section, also place the ticket in the release where it
+fits best, **whatever its position**: a new idea may join v0.4.1 while v0.5.3 is the last
+planned one; create a release only when none fits, following the rules of `plan`.
 
 **`start T-NN`**: set the **Status** line to `in progress — branch <name>, since YYYY-MM-DD`.
 
 **`done T-NN`**: remove the ticket from its section and add at the **top** of the "✅ Done" log a
 line `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`. A
 half-done ticket stays in place: tick the steps done, write what is left. Keep the style and
-tone of the file.
+tone of the file. Remove the ticket from `## 🚀 Releases` too; a release left empty means it is
+ready for its candidate: say so.
 
-**`plan`**: group the open tickets into the next releases. Read every open ticket (priority,
-effort, status, `blocked — waiting for T-xx`) and the versioning rules of the repo's
-`CLAUDE.md`, then propose 2 to 4 releases, in order:
-- a ticket comes after those it waits for; a ticket blocked on the user goes nowhere until
-  they answer (list it apart);
-- one theme per release, small releases (a few days of effort at most): in 0.x each release
-  bumps the patch;
-- a breaking change (CLI, `copier.yml` questions, generated tree, workflow inputs, skill and
-  hook names, charter rule IDs) is flagged: it opens the release note and needs its conversion
-  in `kiln update`;
-- a group that forms a milestone may be proposed as a minor bump, saying why; the user decides.
-For each release: the number, the tickets (ID, title, effort), one sentence on why they go
-together. Nothing is written before the user agrees; then keep a `## 🚀 Next releases` section
-just above 🔴 critical (one line per release: number, tickets, theme) and update it when a
-ticket closes or the plan changes.
+**`plan`**: put **every** open ticket into a planned release, written straight into the
+`## 🚀 Releases` section just above 🔴 critical (create it if missing), then show the plan. Read
+every open ticket (priority, effort, status, `blocked — waiting for …`, what it touches) and the
+versioning rules of the repo's `CLAUDE.md`. The plan is a living draft, not a queue: redo the
+groupings freely each time, as long as the result follows these rules.
+- **Every ticket has a release.** No leftover pile: background work, debt and ideas go into the
+  release whose theme they serve; a ticket blocked on the user goes into the release it makes
+  sense in, marked `(blocked: <who>)`; a ticket waiting for another one comes in the same
+  release or a later one.
+- **A release is a real grouping.** Its tickets share one outcome a user can notice or a
+  milestone it unblocks, and its name says that outcome in a few words
+  (`v0.4.1 · Nothing to trip on for a beginner`), never a list of contents or `misc`. Look for
+  links across priorities: a 🟡 ticket that completes a 🟠 one goes with it.
+- **No useless release.** A release that only holds a stray XS ticket or a vague theme is
+  merged into a neighbour; a release too big to ship within about a week is split along a
+  real seam. Urgent fixes (a 🔴 bug) may stand alone.
+- **Order**: what blocks first, then 🔴 then 🟠 then the rest; within that, the release that
+  makes the north star of the header closest comes first.
+- **Numbers are planned, not promised.** In 0.x each release bumps the patch; a group that
+  forms a milestone may be proposed as a minor bump, saying why in the release line: the user
+  decides (until then keep the patch number). Inserting or merging releases renumbers the
+  later ones. A release whose candidate is tagged is frozen: no ticket enters or leaves it.
+- **Breaking changes** (CLI, `copier.yml` questions, generated tree, workflow inputs, skill and
+  hook names, charter rule IDs) are flagged `⚠ breaking` on the release: they open its release
+  note and need their conversion in `kiln update`.
+
+Format of the section, one block per release, in order:
+
+    ### v0.4.1 · Nothing to trip on for a beginner
+    Why these go together, in one sentence. ⚠ breaking: the size question goes away.
+    - T-39 · Start light, grow with the repo (M)
+    - T-42 · The git flow grows with the size (M)
+
+Tickets stay in their priority sections; the release section only quotes ID, short title and
+effort. After writing, show the user the releases (name, tickets, why) and what moved since
+the last plan; they reshuffle by asking.
 
 An ID is never reused. Changes are committed on the work branch, never on the integration
 branch. Never copy a ticket into `rejected.md` without an explicit decision from the user.

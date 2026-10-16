@@ -33,12 +33,78 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
   🔴 critical (now), 🟠 important (before the north star), 🟡 normal, ⚪ background
   (long-running work, debt, ideas still to be explored).
 - **Effort**: XS (under an hour), S (half a day), M (one or two days), L (more).
+- **Releases**: the `## 🚀 Releases` section at the top places every open ticket in a planned
+  release (`/kiln:backlog plan`); numbers are planned, not promised, until the candidate is cut.
 - **Closing a ticket**: remove it from its section and add a line at the top of the "✅ Done"
   log: `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.
 - **Locations quoted are hints, not addresses.**
 - Overview: `grep -E '^(## |### T-|- \*\*Status)' docs/backlog/backlog.md`.
 - **Good first issues**: keep 3 open on GitHub, reserved for outside contributors (skill
   `base:good-first-issues`); their tickets have **Owner**: `contributor — #NN`.
+
+---
+
+## 🚀 Releases
+
+### v0.3.4 · A newcomer gets through the first run
+Candidate tagged (`v0.3.4-rc.1`): frozen.
+- T-22 · Release v0.3.4 and promote v0.3.3 (S)
+
+### v0.3.5 · Releases that run themselves
+Shipping is a dozen manual steps; after this, `kiln version` drives the plan and the promotions.
+- T-29 · GitHub Release at each promotion, `kiln version` does the mechanical steps (M)
+- T-44 · `/kiln:backlog plan`, read by `kiln version` and `/kiln:release` (M)
+- T-14 · Promote v0.3.1, the first release on PyPI (XS) (blocked: antoine, old token)
+- T-05 · Check the first real run of the workflows on GitHub (XS) (blocked: GitHub billing)
+- T-04 · Decide whether annski quotes kiln's workflows at a tag (XS) (blocked: antoine)
+
+### v0.4.0 · kiln speaks English
+The milestone decided by antoine: every rename at once, converted by `kiln update`.
+⚠ breaking: CLI names, `copier.yml` questions, charter rule IDs, workflow inputs, skill names.
+- T-23 · kiln in English (L)
+- T-25 · Plugin `kiln` with English skills, released with kiln (M)
+- T-08 · Copier migrations for breaking releases (M)
+- T-27 · The edit hook checks only the edited file (S)
+
+### v0.4.1 · Nothing to trip on for a beginner
+A first project without a question to answer, a flow to learn or a French default to undo.
+⚠ breaking: the size question goes away.
+- T-39 · Start light, grow with the repo (M)
+- T-42 · The git flow grows with the size (M)
+- T-36 · `kiln new` recommends the stack, the user decides (S)
+- T-31 · Neutral defaults instead of AnnSki's (S)
+- T-28 · Quiet session hook outside kiln repos (S)
+
+### v0.4.2 · Everything settable, and you find it
+The other half of T-41: the expert sets anything in one command, the newcomer is told when it matters.
+- T-41 · Beginner with nothing to set, expert with everything settable (M)
+- T-40 · kiln tells you what is possible, once, at the right moment (M)
+- T-10 · Interface polish (S)
+
+### v0.4.3 · Instructions that fit the repo
+A script stops carrying a service's 400-line charter; rules load by path and by size.
+⚠ breaking: generated tree (`.claude/rules/kiln/`).
+- T-24 · Generated instructions in `.claude/rules/kiln/`, by path and by size (L)
+
+### v0.4.4 · From idea to live app
+Every project type deploys from `kiln new`, on docker or podman, with a live example to prove it.
+- T-37 · Docker or podman: the engine the machine has (M)
+- T-32 · Every project type deployable from `kiln new` (L)
+- T-35 · A site and an example app made by kiln, online (M)
+
+### v0.4.5 · Your existing repo, welcome
+The second door: adopt a repo as it is, say what kiln does not know, give it a fine README.
+- T-34 · kiln for the repo you already have (M)
+- T-38 · `kiln adopt` reports the technologies kiln does not know yet (M)
+- T-07 · Better support for Java projects (M)
+- T-43 · A skill that helps write a fine README, like kiln's own (M)
+
+### v0.4.6 · Public launch
+Proposed as **v0.5.0**: the public stability promise starts here (antoine decides).
+- T-33 · One promise everywhere: tagline, About, PyPI, social preview (S)
+- T-30 · README, English reference in `docs/`, demo of `kiln new` (M)
+- T-03 · Launch kiln publicly, then list it in the Claude Code directories (S)
+- T-12 · Homebrew formula in a tap (S) (blocked: demand)
 
 ---
 
@@ -435,6 +501,8 @@ a new skill: one name less to learn, T-41) proposes the next releases.
 - [x] May propose a minor bump when a group forms a milestone (allowed by antoine,
   16 October 2026); antoine decides.
 - [x] Once agreed, write the plan into the backlog ("🚀 Next releases" section).
+- [x] Every open ticket in a release, named after its outcome; new tickets placed anywhere in
+  the plan (antoine, 16 October 2026).
 - [ ] `kiln version`
   and `/kiln:release` say what is missing before the next candidate.
 

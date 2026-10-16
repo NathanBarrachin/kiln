@@ -9,7 +9,7 @@ main_tree="$(dirname "$(git -C "$worktree" rev-parse --path-format=absolute --gi
 
 # Fichiers .env* ignorés de l'arbre principal (hors exemples et node_modules), même chemin relatif.
 git -C "$main_tree" ls-files --others --ignored --exclude-standard -- '*.env' '*.env.*' '.env' '.env.*' \
-  | grep -vE '(^|/)node_modules/|\.(example|sample)$|^\.claude/worktrees/' \
+  | { grep -vE '(^|/)node_modules/|\.(example|sample)$|^\.claude/worktrees/' || true; } \
   | while read -r f; do
       mkdir -p "$worktree/$(dirname "$f")"
       cp -p "$main_tree/$f" "$worktree/$f"

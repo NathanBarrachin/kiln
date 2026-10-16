@@ -99,5 +99,6 @@ l'outil), `release.py` (`kiln version`).
 
 `uv run pytest -q` (réparti sur tous les cœurs par pytest-xdist : une vingtaine de secondes ;
 `-n 0` pour un seul processus, au débogage), `uv run ruff check`
-et `uv run ruff format --check`. Un hook ou un script de plugin est lu en direct par Claude Code
+et `uv run ruff format --check`. Le crochet pre-commit de kiln (`.pre-commit-config.yaml`, posé par
+`kiln install`) lance ruff à chaque commit et mypy avant chaque push. Un hook ou un script de plugin est lu en direct par Claude Code
 (catalogue déclaré en dossier local) : il agit dès la fusion dans `develop`.

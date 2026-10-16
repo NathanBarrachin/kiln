@@ -23,7 +23,7 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-44.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-45.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -419,6 +419,23 @@ lands on `develop`, before any candidate. Pinning it to a tag (`@v0.3.0`) would 
 the cost of a manual update on each release. The user's condition: never break annski.
 
 ## 🟡 Normal
+
+### T-44 · `/kiln:backlog plan`: group the open tickets into the next releases
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 16 October 2026
+
+Deciding which tickets ship together is done by hand. A `plan` mode of the backlog skill (not
+a new skill: one name less to learn, T-41) proposes the next releases.
+- [ ] Read open tickets: priority, effort, status, dependencies (`blocked — waiting for T-xx`).
+- [ ] Group them into releases: dependencies first, one theme per release, small releases
+  (each one bumps the patch); breaking changes flagged, they open the release note.
+- [ ] May propose a minor bump when a group forms a milestone (allowed by antoine,
+  16 October 2026); antoine decides.
+- [ ] Once agreed, write the plan into the backlog ("Next releases" section); `kiln version`
+  and `/kiln:release` say what is missing before the next candidate.
 
 ### T-43 · A skill that helps write a fine README, like kiln's own
 - **Type**: idea

@@ -1,6 +1,7 @@
 """`kiln new`: generates a complete project, installs it and publishes it when asked."""
 
 import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -8,7 +9,7 @@ from pathlib import Path
 
 import copier
 
-from kiln import github, install
+from kiln import github, install, questions
 from kiln.config import load_config
 from kiln.contract import generate_api_contract
 from kiln.deps import lock_dependencies
@@ -30,9 +31,24 @@ class NewProjectRequest:
     template: str | None
     should_install: bool
     should_publish: bool
+    all_questions: bool = False
 
 
-def create_project(request: NewProjectRequest) -> None:
+CLAUDE_CODE_INSTALL = "curl -fsSL https://claude.ai/install.sh | bash"
+CLAUDE_CODE_DOCS = "https://code.claude.com/docs"
+# A first thing to ask Claude Code, by what the project is.
+FIRST_PROMPTS = {
+    "app": "add sign-up and login by email, with tests",
+    "api": "add a /items endpoint with create, list and delete, with tests",
+    "site": "write the home page: what the project is, in three sections",
+    "dashboard": "add a chart of a sample CSV, with a date filter",
+    "analysis": "load a sample CSV and plot its main trend in a notebook",
+    "cli": "add a --verbose option that logs each step",
+}
+
+
+def create_project(request: NewProjectRequest) -> Path:
+    """Generates the project and returns its root."""
     if request.destination.exists() and any(request.destination.iterdir()):
         raise KilnError(f"{request.destination} already exists and is not empty")
     require_tools("git", "uv")
@@ -47,8 +63,9 @@ def create_project(request: NewProjectRequest) -> None:
         vcs_ref=template_revision(source),
         use_prereleases=follows_candidates(),
         unsafe=False,
-        # Outside a terminal (CI, agent), unanswered questions take their default.
-        defaults=not sys.stdin.isatty(),
+        # Only the essential questions (asked before) unless all are wanted; outside a
+        # terminal (CI, agent), every unanswered question takes its default.
+        defaults=not (request.all_questions and sys.stdin.isatty()),
     )
     root = request.destination.resolve()
     stack = load_stack(root)
@@ -64,6 +81,25 @@ def create_project(request: NewProjectRequest) -> None:
     _initial_commit(root)
     if should_publish:
         github.publish(root, repository_name(root), team_logins(root))
+    return root
+
+
+def next_steps(request: NewProjectRequest, root: Path) -> list[str]:
+    """What to do once the project exists: go in, run it, open Claude Code, a first prompt."""
+    stack = load_stack(root)
+    lines = [f"cd {request.destination}"]
+    if not request.should_install:
+        lines.append("kiln install")
+    lines.append("kiln dev" if stack.dev_commands() else "kiln check")
+    lines.append("claude")
+    project_type = str(read_answers(root).get("project_type", "app"))
+    prompt = FIRST_PROMPTS.get(project_type, FIRST_PROMPTS["app"])
+    lines += ["", f'A first prompt to try: "{prompt}"']
+    if shutil.which("claude") is None:
+        lines.append(f"Claude Code is not installed: {CLAUDE_CODE_INSTALL} ({CLAUDE_CODE_DOCS})")
+    if not (root / ".git" / "refs" / "remotes").is_dir():
+        lines.append("A GitHub repo when you want one: kiln publish")
+    return lines
 
 
 def _user_defaults(*, should_publish: bool) -> dict[str, object]:
@@ -77,8 +113,7 @@ def _user_defaults(*, should_publish: bool) -> dict[str, object]:
     if config.team:
         defaults["team"] = list(config.team)
     defaults["timezone"] = machine_timezone()
-    if os.environ.get("LANG", "").startswith("fr"):
-        defaults["language"] = "fr"
+    defaults["language"] = questions.default_language()
     return defaults
 
 

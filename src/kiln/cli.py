@@ -216,6 +216,9 @@ def _add_new_command(commands: argparse._SubParsersAction[argparse.ArgumentParse
     )
     new_parser.add_argument("--no-install", action="store_true", help="install nothing")
     new_parser.add_argument("--template", help="template source (path or git URL)")
+    new_parser.add_argument(
+        "--all-questions", action="store_true", help="ask every question of the template"
+    )
 
 
 def _add_ci_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -270,12 +273,17 @@ def _new_project_request(arguments: argparse.Namespace) -> new.NewProjectRequest
         answers["owner"] = arguments.owner
     if arguments.team:
         answers["team"] = [login.strip() for login in arguments.team.split(",")]
+    if not arguments.all_questions:
+        from kiln import questions
+
+        answers = questions.ask_essentials(answers)
     return new.NewProjectRequest(
         destination=directory,
         answers=answers,
         template=arguments.template,
         should_install=not arguments.no_install,
         should_publish=not arguments.no_github,
+        all_questions=arguments.all_questions,
     )
 
 
@@ -300,37 +308,36 @@ BANNER_ACTIONS = {
 }
 
 
-def dispatch(arguments: argparse.Namespace) -> None:
+def dispatch(arguments: argparse.Namespace) -> list[str]:
     """Runs the command; each module is imported on demand (copier, pulled by `new` and
-    `update`, costs 0.4 s on its own, which `status`, `doctor` or `--version` need not pay)."""
+    `update`, costs 0.4 s on its own, which `status`, `doctor` or `--version` need not pay).
+    Returns the next steps to show after the recap, if any."""
     if arguments.command == "completion":
         print(generate_bash_completion())
-        return
+        return []
     _show_banner(arguments)
     if arguments.command == "new":
         from kiln import new
 
-        new.create_project(_new_project_request(arguments))
-        return
+        request = _new_project_request(arguments)
+        return new.next_steps(request, new.create_project(request))
     if arguments.command == "doctor":
         from kiln import doctor
 
         doctor.run_doctor(Path.cwd())
-        return
-    if arguments.command == "version":
+    elif arguments.command == "version":
         from kiln import release
 
         release.show_release_status(repo_root(Path.cwd()), milestone=arguments.minor)
-        return
-    if arguments.command == "status" or (arguments.command == "update" and arguments.all):
+    elif arguments.command == "status" or (arguments.command == "update" and arguments.all):
         _dispatch_fleet(arguments)
-        return
-    if arguments.command == "set" and (arguments.machine or not _is_in_repo()):
+    elif arguments.command == "set" and (arguments.machine or not _is_in_repo()):
         from kiln import machine
 
         machine.run_machine(arguments.assignments)
-        return
-    _dispatch_in_repo(arguments, _repo_root_or_hint())
+    else:
+        _dispatch_in_repo(arguments, _repo_root_or_hint())
+    return []
 
 
 def _dispatch_in_repo(arguments: argparse.Namespace, root: Path) -> None:
@@ -499,11 +506,13 @@ def main() -> None:
         arguments = parser.parse_args(modernize(sys.argv[1:]))
         started = time.monotonic()
         try:
-            dispatch(arguments)
+            steps = dispatch(arguments)
         except KilnError:
             _recap(arguments, started, succeeded=False)
             raise
         _recap(arguments, started, succeeded=True)
+        if steps:
+            ui.panel("Next steps", steps)
     except KilnError as error:
         ui.error(str(error))
         sys.exit(EXIT_FAILURE)

@@ -33,6 +33,7 @@ You need [uv](https://docs.astral.sh/uv/) and git. Python 3.14 is downloaded by 
 git clone https://github.com/antoine-tena/kiln
 cd kiln
 uv sync
+uvx pre-commit install           # ruff before each commit, mypy before each push
 uv run kiln                      # the CLI, straight from your checkout
 KILN_TEMPLATE=$PWD uv run kiln new /tmp/demo --no-github   # try your template changes
 ```
@@ -42,7 +43,7 @@ Checks (the same ones CI runs):
 ```sh
 uv run ruff check . && uv run ruff format --check src tests
 uv run mypy src tests
-uv run pytest -q                 # renders every stack combination, takes ~2 minutes
+uv run pytest -q                 # renders every stack combination, ~20 s on all cores
 ```
 
 ## Where things live

@@ -146,7 +146,8 @@ def test_status_counts_waivers_across_the_fleet(
 
     fleet.show_status(tmp_path)
 
-    assert "TAILLE-FICHIER (2)" in capsys.readouterr().out
+    # A waiver written with a rule name of before kiln 0.4.0 counts under the current one.
+    assert "FILE-SIZE (2)" in capsys.readouterr().out
 
 
 def _clone_with_develop(tmp_path: Path) -> Path:

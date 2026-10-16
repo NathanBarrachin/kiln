@@ -13,9 +13,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from kiln import ui
-from kiln.charte.charte import derogations
-from kiln.charte.moteur import Depot
-from kiln.charte.waivers import NEVER, NOT_WAIVABLE, TIERS_DAYS, WAIVERS_FILE, max_days
+from kiln.charter.cli import waivers_of
+from kiln.charter.config import load
+from kiln.charter.repo import Repo
+from kiln.charter.waivers import NEVER, TIERS_DAYS, WAIVERS_FILE, is_waivable, max_days
+from kiln.renames import rule_id
 from kiln.shell import KilnError
 
 RULE_ID = re.compile(r"[A-Z0-9+-]+")
@@ -38,7 +40,7 @@ class WaiveRequest:
 
 
 def show_waivers(root: Path) -> None:
-    waivers = derogations(_depot(root))
+    waivers = waivers_of(_repo(root))
     if not (waivers.actives or waivers.errors):
         ui.note(f"Aucune dérogation ({WAIVERS_FILE}). Ajouter : kiln waive <RÈGLE> --reason …")
         return
@@ -56,7 +58,7 @@ def waive(root: Path, request: WaiveRequest, today: datetime.date | None = None)
     if not request.reason.strip():
         raise KilnError("une dérogation se justifie : --reason « pourquoi »")
     is_rule = RULE_ID.fullmatch(request.target) is not None
-    if is_rule and request.target in NOT_WAIVABLE:
+    if is_rule and not is_waivable(request.target):
         raise KilnError(f"[{request.target}] ne se déroge pas")
     if not is_rule and request.paths:
         raise KilnError("--paths ne va qu'avec une règle ; un fichier se fige en entier")
@@ -95,7 +97,8 @@ def waive(root: Path, request: WaiveRequest, today: datetime.date | None = None)
         blocks[index] = block
     previous = path.read_text("utf-8") if path.exists() else None
     path.write_text(_join(blocks), "utf-8")
-    problems = [e for e in derogations(_depot(root)).errors if request.target in e]
+    target = rule_id(request.target) if is_rule else request.target
+    problems = [error for error in waivers_of(_repo(root)).errors if target in error]
     if problems:
         _restore(path, previous)
         raise KilnError("dérogation refusée : " + " ; ".join(problems))
@@ -105,9 +108,8 @@ def waive(root: Path, request: WaiveRequest, today: datetime.date | None = None)
     )
 
 
-def _depot(root: Path) -> Depot:
-    config = root / "charte.toml"
-    return Depot(root, tomllib.loads(config.read_text("utf-8")) if config.exists() else {})
+def _repo(root: Path) -> Repo:
+    return Repo(root, load(root))
 
 
 def _split(text: str) -> list[str]:

@@ -33,7 +33,9 @@ Issues = "https://github.com/antoine-tena/kiln/issues"
 kiln = "kiln.cli:main"
 # Même commande sous le nom du paquet, pour que `uvx kiln-cli new` marche sans `--from`.
 kiln-cli = "kiln.cli:main"
-charte = "kiln.charte.charte:lancer"
+charter = "kiln.charter.cli:run"
+# Its name before kiln 0.4.0, still called by adopted repos and older generated ones.
+charte = "kiln.charter.cli:run"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kiln"]

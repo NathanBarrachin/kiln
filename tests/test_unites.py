@@ -16,7 +16,7 @@ from kiln.dev import service_prefix
 from kiln.doctor import Level, workstation_findings
 from kiln.install import ensure_env_file
 from kiln.release import Tag, latest_candidates, next_version, promotion_verdict
-from kiln.rules import charter_rules, verified_rules
+from kiln.rules import charter_rules, verified_rules, write_unverified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
 from kiln.shell import KilnError
 from kiln.stack import Stack, answers_if_any, load_stack, stack_from_answers
@@ -53,7 +53,7 @@ def test_checks_end_with_charter() -> None:
     assert [command.label for command in commands][-3:] == [
         "frontend lint",
         "frontend typecheck",
-        "charte",
+        "charter",
     ]
 
 
@@ -65,7 +65,7 @@ def test_java_backend_is_checked_by_the_maven_wrapper() -> None:
     assert stack.dev_commands() == []
     assert [(command.label, command.argv) for command in stack.check_commands()] == [
         ("backend maven", ("./mvnw", "-B", "-q", "verify")),
-        ("charte", ("charte",)),
+        ("charter", ("charter",)),
     ]
 
 
@@ -93,14 +93,26 @@ def test_unknown_key_is_refused() -> None:
         parse_assignments(["couleur=bleu"])
 
 
-def test_rules_checked_by_charte_are_verified(tmp_path: Path) -> None:
-    (tmp_path / "CLAUDE.md").write_text("- **[SIGNAUX]** a\n- **[NOMS-INTERDITS]** b\n")
-    (tmp_path / "charte.toml").write_text('[interdictions.signaux-django]\nid = "SIGNAUX"\n')
+def test_rules_checked_by_the_charter_are_verified(tmp_path: Path) -> None:
+    rules = tmp_path / ".claude/rules/kiln"
+    rules.mkdir(parents=True)
+    (rules / "django.md").write_text("- **[NO-SIGNALS]** a\n- **[GENERIC-NAMES]** b\n")
+    (tmp_path / "charter.toml").write_text('[bans.django-signals]\nid = "NO-SIGNALS"\n')
 
     stack = Stack(backend="django", frontend="aucun", has_podman=False)
     unverified = set(charter_rules(tmp_path)) - verified_rules(tmp_path, stack)
 
-    assert unverified == {"NOMS-INTERDITS"}
+    assert unverified == {"GENERIC-NAMES"}
+
+
+def test_an_adopted_charter_of_before_0_4_still_verifies_its_rules(tmp_path: Path) -> None:
+    (tmp_path / "CLAUDE.md").write_text("- **[SIGNAUX]** a\n- **[NOMS-INTERDITS]** b\n")
+    (tmp_path / "charte.toml").write_text('[interdictions.signaux-django]\nid = "SIGNAUX"\n')
+
+    write_unverified_rules(tmp_path, Stack(backend="django", frontend="aucun", has_podman=False))
+
+    listed = (tmp_path / "scripts/ci/unverified-rules.txt").read_text()
+    assert "[NOMS-INTERDITS]" in listed and "[SIGNAUX]" not in listed
 
 
 def test_legacy_template_source_is_replaced(tmp_path: Path) -> None:

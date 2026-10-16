@@ -20,9 +20,10 @@ from pathlib import Path
 import copier
 
 from kiln import ui
+from kiln.charter.config import CHARTER_FILE, charter_path
 from kiln.rules import write_unverified_rules
 from kiln.shell import KilnError, capture, require_tools, run_status, step
-from kiln.stack import ANSWERS_FILE, CHARTER_FILE, detect_stack
+from kiln.stack import ANSWERS_FILE, detect_stack
 from kiln.template import template_revision, template_source
 from kiln.update import PROTECTED_BRANCHES
 from kiln.versions import follows_candidates
@@ -33,25 +34,24 @@ DEFAULT_SIZE = "ember"
 RENDER_STACK = {"backend": "cli", "frontend": "aucun"}
 
 CHARTER = """\
-# Règles impératives vérifiées par la commande `charte` de kiln (`charte --detail`) : après chaque
-# édition (hook du plugin base de kiln), et en CI ou avant chaque commit si on l'y ajoute.
-# Repo adopté par `kiln adopt` : seules les règles valables partout. Interdictions : respectées
-# partout. D'autres (journalisation, données personnelles, cliquets…) s'ajoutent à la main, sur
-# le modèle du charte.toml qu'écrit `kiln new`.
+# Rules checked by kiln's `charter` command (`charter --detail`): after each edit (hook of
+# kiln's Claude Code plugin), and in CI or before each commit once added there. Repo adopted by
+# `kiln adopt`: only the rules that hold anywhere. Bans hold everywhere. Others (logging,
+# personal data, ratchets…) are added by hand, after the charter.toml `kiln new` writes.
 
-envergure = "{size}"
-exclus = ["/migrations/", "/node_modules/", "/vendor/"]
-regles_non_verifiees = "scripts/ci/charte-non-verifiee.txt"
+size = "{size}"
+exclude = ["/migrations/", "/node_modules/", "/vendor/"]
+unverified_rules = "scripts/ci/unverified-rules.txt"
 
-[interdictions.outils-interdits]
+[bans.forbidden-tools]
 id = "UV-PODMAN"
 
-# Les renvois à un rapport d'audit (« audit H36 », « (CART-06) ») pourrissent avec lui. Ajouter
-# à `prefixes` les préfixes des constats des audits du projet, à mesure qu'ils arrivent.
-[interdictions.renvois-audit]
-id = "RENVOIS-AUDIT"
+# References to an audit report ("audit H36", "(CART-06)") rot with it. Add to `prefixes` the
+# prefixes of the project's audit findings as they come.
+[bans.audit-references]
+id = "AUDIT-REFERENCES"
 prefixes = "AUDIT"
-exclus = '(^docs/|^charte\\.toml$|/migrations/|-lock\\.yaml$|\\.lock$)'
+exclude = '(^docs/|^charter\\.toml$|/migrations/|-lock\\.yaml$|\\.lock$)'
 """
 
 
@@ -67,20 +67,18 @@ def adopt_project(root: Path, *, size: str = DEFAULT_SIZE, template: str | None 
         step("Suivi du travail")
         copy_backlog(root, template)
     step("Passif relevé par la charte")
-    if shutil.which("charte") is None or run_status(["charte"], root, live=True) == 0:
+    if shutil.which("charter") is None or run_status(["charter"], root, live=True) == 0:
         ui.note("Aucun écart.")
     else:
-        ui.note(
-            "Écarts ci-dessus : les corriger, ou retirer leur règle de charte.toml (choix du repo)."
-        )
+        ui.note("Écarts ci-dessus : les corriger, ou retirer leur règle de charter.toml.")
     ui.note("Relire, commiter, puis fusionner (skill base:fusion).")
 
 
 def check_adoptable(root: Path) -> None:
     if (root / ANSWERS_FILE).exists():
         raise KilnError("repo généré par kiln : rien à adopter (kiln update pour le suivre)")
-    if (root / CHARTER_FILE).exists():
-        raise KilnError(f"{CHARTER_FILE} existe déjà : repo déjà adopté")
+    if charter_path(root) is not None:
+        raise KilnError(f"{charter_path(root)} existe déjà : repo déjà adopté")
     branch = capture(["git", "branch", "--show-current"], root)
     if branch in (*PROTECTED_BRANCHES, "master"):
         raise KilnError(f"sur {branch} : créer d'abord une branche (ex. chore/kiln-adopt)")

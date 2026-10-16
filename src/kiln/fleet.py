@@ -13,11 +13,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from kiln import ui
-from kiln.charte.waivers import Waivers, load
+from kiln.charter.config import CHARTER_FILE, LEGACY_CHARTER_FILE
+from kiln.charter.waivers import Waivers, load
 from kiln.check import run_checks
 from kiln.install import install_project
 from kiln.shell import KilnError, capture, require_tools, run, step
-from kiln.stack import ANSWERS_FILE, CHARTER_FILE, answers_if_any, load_stack, read_answers
+from kiln.stack import ANSWERS_FILE, answers_if_any, load_stack, read_answers
 from kiln.update import conflicted_files, update_project
 from kiln.versions import latest_release, release_version
 
@@ -25,7 +26,7 @@ KILN_SOURCE_MARKERS = ("antoine-tena/kiln", "antoine-tena/init-repo")
 SEARCH_DEPTH = 3
 # Un dépôt adopté (que kiln n'a pas généré) se reconnaît à sa charte : `status` le montre,
 # `update --all` l'ignore, car appliquer le modèle écraserait ses fichiers écrits à la main.
-ADOPTED_MARKER = CHARTER_FILE
+ADOPTED_MARKERS = (CHARTER_FILE, LEGACY_CHARTER_FILE)
 SKIPPED_DIRS = frozenset({"node_modules", ".venv", ".git", ".claude", "_archives"})
 WORKTREES_DIR = Path(".claude") / "worktrees"
 UPDATE_BRANCH_PREFIX = "chore/kiln-update"
@@ -60,11 +61,13 @@ def find_repos(code_dir: Path) -> list[ManagedRepo]:
 
 def find_adopted(code_dir: Path) -> list[Path]:
     """Repos du dossier de code qui suivent une charte kiln sans avoir été générés par kiln."""
-    return [
+    roots = {
         marker.parent
-        for marker in _marker_files(code_dir, ADOPTED_MARKER, SEARCH_DEPTH)
+        for name in ADOPTED_MARKERS
+        for marker in _marker_files(code_dir, name, SEARCH_DEPTH)
         if (marker.parent / ".git").is_dir() and not (marker.parent / ANSWERS_FILE).exists()
-    ]
+    }
+    return sorted(roots)
 
 
 def _marker_files(directory: Path, name: str, depth: int) -> list[Path]:

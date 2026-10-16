@@ -23,7 +23,7 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-36.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-42.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -123,9 +123,12 @@ questions, and only exists for Django (a VPS, SSH, domain and DNS set up by hand
 newcomer) and Nuxt (Vercel). A content site, Next, FastAPI, Streamlit: nothing, although they
 are the easiest to put online. Whoever tries the promise on launch day must get a URL.
 - [ ] A fourth question, "Where should it run?", whose choices follow the stack and whose
-  default is the zero-knowledge host: Vercel for `site`/`next`/`nuxt`/`astro`, a managed
-  platform with a free tier for Python backends and dashboards (to choose: Render, Fly.io,
-  Railway…), PyPI for `cli`, none for `analysis`; the VPS stays the expert choice.
+  default is the zero-knowledge host: Vercel for `site`/`next`/`nuxt`/`astro`, Render for
+  Python backends and dashboards (Django, FastAPI, Streamlit, Dash, with its PostgreSQL), PyPI
+  for `cli`, none for `analysis`; the VPS stays the expert choice. Decided by Claude
+  (16 October 2026, antoine: "when there is a choice, decide"): Render has a free tier without
+  a card and deploys from GitHub, so a newcomer gets to the end; Fly.io asks for a card,
+  Railway only has a paid trial.
 - [ ] `kiln deploy`: one login when missing (with its direct link), project linked, deployed
   from a pushed commit whose CI is green, URL printed; secrets set without being shown.
 - [ ] The URL in the generated README and in the status line ("prod ✓").
@@ -146,6 +149,9 @@ About (shown in search results and link previews), the PyPI summary and the laun
 - [ ] Today's honest version everywhere: "Start every project like a senior engineer would,
   even if you're not one."
 - [ ] Once T-32 ships: "From idea to live app with Claude Code. No experience needed."
+- [ ] Right under it, the two lines that answer "kiln forces too much" before anyone says it:
+  "Strong defaults, chosen for you — every one of them yours to change." and "Starts light.
+  Grows with your project. Never lets it rot." (T-36, T-39, T-41).
 - [ ] Social preview 1280×640 (kiln pixel art, the promise, `uvx kiln-cli new`), uploaded by
   antoine (no API): https://github.com/antoine-tena/kiln/settings (Social preview).
 - [ ] GitHub About homepage = the T-35 site; PyPI version and downloads badges.
@@ -180,9 +186,107 @@ A real example convinces more than any badge.
   live, CI green, linked from the README.
 - [ ] The README says that a non-profit's production site runs on kiln (annski), with its link.
 
+### T-36 · `kiln new` recommends the stack, the user decides
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: positioning, 16 October 2026 (antoine: "what if the user wants to choose their
+  frameworks?")
+
+The three questions never show the stack: what you build picks it silently (an app gets
+Django + Nuxt). Choosing is possible (`--backend`, `--frontend`, `--all-questions`, `kiln set`)
+only for whoever already knows it is. A recommendation one keystroke away from a choice serves
+both the newcomer and the expert, the way `create-vite` does.
+- [ ] After "What are you building?": "Recommended stack: Django + Nuxt", Enter accepts, a
+  menu lists the other backends and frontends valid for that type (validator of `copier.yml`
+  respected), each with its one-line pitch.
+- [ ] Machine-wide preferences for the expert: `kiln set --global backend=fastapi
+  frontend=next` become the recommendation on this machine (`machine.py`).
+- [ ] Outside a terminal and with `--backend`/`--frontend`: no question, as today.
+
+### T-37 · Docker or podman: the engine the machine has
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: positioning, 16 October 2026 ("kiln forces too much")
+
+"docker forbidden, podman required" is the choice most likely to make a newcomer close the tab
+(almost everyone has Docker Desktop) and the first comment on Hacker News. Decided by Claude
+(16 October 2026): the generated files work with both engines, and kiln uses the one the machine
+has; podman when both or neither are there (rootless, daemonless: still the better default).
+- [ ] `containers=podman|docker` setting, chosen at `kiln new` by detection, changeable with
+  `kiln set containers=docker`; `compose.yaml` and the Containerfiles stay engine-neutral.
+- [ ] `kiln dev --containers`, `kiln ci`, the `infra.yml` and `services` actions and the
+  deployment scripts run the chosen engine.
+- [ ] The charter rule no longer forbids `docker`: it forbids the engine the repo did not
+  choose (no mix); `pip` stays forbidden (uv is the norm now, nobody will miss it).
+- [ ] `kiln doctor` says which engine is used and how to change it.
+
+### T-39 · Start light, grow with the repo: no size question, promotion suggested
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: positioning, 16 October 2026 (antoine: "the smallest level at creation, and
+  rules that grow with the repo?"); builds on T-24
+
+Nobody knows at creation how big a project will get. Two kinds of rules, decided by Claude
+(16 October 2026): **foundations** from day one whatever the size (formatting, lint, strict
+typing, tests that run, CI, no secret in the code, protected branches: cheap now, weeks to
+retrofit, and Claude Code pays for them, not the human); **ceremony** that grows with the repo
+(coverage floor, reviewers, release candidates, OpenTelemetry, SLO, CSP, mutation tests,
+SBOM). The charter's ratchets make moving up painless: new code meets the rule, existing debt
+can only shrink.
+- [ ] `kiln new` asks two questions (what you build, language); every project starts at
+  `spark` = the foundations, nothing more; `--size` stays for whoever knows.
+- [ ] Coverage floor by size (none at `spark`, then rising); strict typing stays everywhere.
+- [ ] Promotion suggested, never automatic (real users in production cannot be read from the
+  code): at `kiln update` and at session start, from signals (lines of code, contributors in
+  the last 90 days, a deployment, several services): "This repo looks like a flame now: 3
+  contributors, deployed. It would add: coverage floor 80 %, 1 required reviewer. `kiln set
+  size=flame`?" Paced like the other questions (`reminders.py`), "Never for this repo" kept.
+- [ ] Moving up applies the new rules as ratchets on existing code, never a wall of errors.
+
+### T-40 · kiln tells you what is possible, once, at the right moment
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 16 October 2026 ("sometimes kiln should say that this or that is
+  possible")
+
+Everything an expert can set is there, but a newcomer only finds it by reading the docs.
+- [ ] Contextual tips after a command, one at a time, each shown once per machine, paced (no
+  tip after a failure, at most one a day): after `kiln new` "Changed your mind on the frontend?
+  `kiln set frontend=next`"; after a charter failure "Disagree with this rule? `kiln waive
+  RULE`"; on a second repo "Update all your repos at once: `kiln update --all`"…
+- [ ] The same tips offered to Claude at session start (hook), so it can mention them when
+  they fit what the user is doing.
+- [ ] `kiln set tips=off` (machine), and a test that every tip names a command that exists.
+
+### T-41 · Beginner with nothing to set, expert with everything settable
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 16 October 2026 ("someone who knows nothing can use it, someone who
+  knows everything can set everything, easily")
+
+The rule for every kiln feature: a default that works without a question, changeable in one
+command, findable without the docs.
+- [ ] `kiln set` with no argument lists every setting of the repo grouped by topic, current
+  value, choices, one line each; `kiln set KEY` explains one; the same with `--global` for the
+  machine.
+- [ ] Audit: each default of `copier.yml`, of the charter and of the plugins reachable by
+  `kiln set`, `kiln waive` or a machine setting; what is not becomes a ticket.
+- [ ] `kiln new --all-questions` presented as "expert mode" in the help and the README.
+- [ ] Generated README: a short "Your choices" section listing the stack and how to change it.
+
 ### T-03 · Launch kiln publicly, then list it in the Claude Code directories
 - **Type**: task
-- **Status**: blocked — waiting for T-23 to T-25 and T-30, T-32 to T-35
+- **Status**: blocked — waiting for T-23 to T-25, T-30, T-32 to T-37 and T-39 to T-41
 - **Opened**: 2026-10-15
 - **Effort**: S · **Owner**: antoine · **Due**: —
 - **Origin**: GitHub showcase, 15 October 2026; "Claude Code's workshop" positioning,
@@ -259,6 +363,9 @@ README rewritten around a 60-second start and an animated demo; full reference i
   `kiln new` → three questions → `claude` and its first prompt → green CI → live URL (T-32).
   Issue #38 is too central for a good first issue: done here, another one opened instead.
 - [ ] A "kiln vs Claude Code alone vs starter kits vs Copier" table, outcome by outcome.
+- [ ] "Every default is yours to change": a table of what kiln chooses (stack, uv, pnpm,
+  containers, strict typing, coverage, branches…), why, and the one command that changes it
+  (T-41).
 - [ ] Commands, plugins, workflows and versions move to `docs/`; no outdated names (`base`,
   `pile-django`, `tableau`).
 
@@ -287,6 +394,22 @@ lands on `develop`, before any candidate. Pinning it to a tag (`@v0.3.0`) would 
 the cost of a manual update on each release. The user's condition: never break annski.
 
 ## 🟡 Normal
+
+### T-38 · `kiln adopt` reports the technologies kiln does not know yet
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 16 October 2026 (adopters should tell kiln what it lacks); issue #42
+
+Each adopted repo shows what kiln lacks (Svelte, Go, Rails…): the best roadmap there is, and
+public issues show visitors that kiln has users.
+- [ ] `kiln adopt` (and `kiln doctor`) detects the frameworks from the manifests
+  (`package.json`, `pyproject.toml`, `pom.xml`, `go.mod`, `Gemfile`, `Cargo.toml`…).
+- [ ] For what kiln does not support, one question, once per repo: "Svelte is not in kiln yet.
+  Tell kiln? (opens an issue with the name and version only, nothing from your code)"; yes goes
+  through `/kiln:report`.
+- [ ] An existing issue for the same technology gets a 👍 instead of a duplicate; close #42.
 
 ### T-27 · The edit hook checks only the edited file
 - **Type**: improvement

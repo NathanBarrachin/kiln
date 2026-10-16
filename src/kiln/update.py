@@ -101,15 +101,23 @@ def resolve_kiln_ref_conflicts(root: Path) -> None:
         if None in stages:
             continue
         base, ours, theirs = (str(text) for text in stages)
-        refs = {match.group(2) for match in KILN_WORKFLOW_REF.finditer(ours)}
-        if len(refs) != 1:
+        project_refs = _kiln_refs(ours)
+        rendered_refs = _kiln_refs(base)
+        if len(project_refs) != 1 or len(rendered_refs) != 1 or project_refs == rendered_refs:
             continue
-        aligned_base = KILN_WORKFLOW_REF.sub(rf"\1@{refs.pop()}", base)
-        merged = _merge_cleanly(aligned_base, ours, theirs) if aligned_base != base else None
+        # Le tag revient ailleurs que dans les `uses:` (commentaire de tête de ci.yml) : il est
+        # remplacé partout, sans toucher un tag plus long qui le prolonge.
+        rendered_tag = re.escape(rendered_refs.pop())
+        aligned_base = re.sub(rf"{rendered_tag}(?![\w.-])", project_refs.pop(), base)
+        merged = _merge_cleanly(aligned_base, ours, theirs)
         if merged is not None:
             (root / name).write_text(merged)
             # Plus de conflit dans l'index : une modification du modèle comme les autres.
             run(["git", "reset", "-q", "--", name], root)
+
+
+def _kiln_refs(text: str) -> set[str]:
+    return {match.group(2) for match in KILN_WORKFLOW_REF.finditer(text)}
 
 
 def _index_stage(root: Path, stage: int, name: str) -> str | None:

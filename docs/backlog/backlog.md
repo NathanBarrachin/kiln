@@ -58,7 +58,8 @@ candidate followed by annway, sweep and vision.
   uv cache.
 - [x] README (English and French): `uv tool install kiln-cli` as the main install.
 - [x] Token scoped to `kiln-cli` in `.pypi/token`, `PYPI_TOKEN` secret updated (16 October
-  2026); it is first used by the promotion of `v0.3.2`.
+  2026); first used by the promotion of `v0.3.2` (16 October 2026): `kiln-cli 0.3.2` is on
+  PyPI. `v0.3.3-rc.2` is now the candidate followed by annway, sweep and vision.
 - [ ] antoine deletes the old account-wide token on https://pypi.org/manage/account/token/
 
 ## 🟠 Important

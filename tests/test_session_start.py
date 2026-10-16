@@ -1,4 +1,6 @@
 import importlib.util
+import io
+import json
 import subprocess
 from collections.abc import Callable
 from pathlib import Path
@@ -8,6 +10,18 @@ from typing import Any
 import pytest
 
 HOOK_PATH = Path(__file__).resolve().parent.parent / "plugins/kiln/hooks/session_start.py"
+CHANGELOG = """# Changes
+
+## v0.4.0 — 2026-10-20
+- **Breaking**: the charter is in English.
+- `kiln new` asks fewer questions.
+
+## v0.3.5 — 2026-10-17
+- Faster `kiln status`.
+
+## v0.3.4 — 2026-10-16
+- **Cassant** : old change, already applied.
+"""
 KILN_ANSWERS = "_commit: 8e6427b\n_src_path: https://github.com/antoine-tena/kiln.git\n"
 
 
@@ -26,6 +40,7 @@ def hook(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     monkeypatch.setattr(module, "git_root", lambda cwd: tmp_path / "annway")
     monkeypatch.setattr(module, "kiln_repo", lambda cwd: (tmp_path / "annway", "8e6427b"))
     monkeypatch.setattr(module, "installed_kiln", lambda: ("git", "ancien"))
+    monkeypatch.setattr(module, "fetch_changelog", lambda tag: CHANGELOG)
     return module
 
 
@@ -190,3 +205,113 @@ def test_promoted_versions_come_from_pypi_and_candidates_from_github(
     assert '"git+https://github.com/antoine-tena/kiln@v0.5.0-rc.1"' in hook.tool_update_command(
         ("pypi", "v0.4.1"), "v0.5.0-rc.1"
     )
+
+
+def test_the_logo_is_the_one_of_kiln() -> None:
+    from kiln import banner
+
+    hook = load_hook()
+
+    assert hook.LOGO == banner.LOGO
+    assert {key: color.true_color for key, color in banner.LOGO_COLORS.items()} == hook.LOGO_COLORS
+
+
+def test_the_user_sees_the_logo_above_the_question(
+    hook: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("NO_COLOR", raising=False)
+
+    found = hook.offer(".", {}, release=released())
+
+    assert found is not None
+    assert found.notice.startswith("\n")
+    assert hook.render_logo()[0].rstrip() in found.notice
+    assert "kiln v0.4.0\x1b[0m  \x1b[38;2;140;140;135mupdate available" in found.notice
+    assert "breaking\x1b[0m The charter is in English" in found.notice
+    assert "kiln new asks fewer questions" in found.notice
+
+
+def test_without_colors_the_notice_is_one_line(
+    hook: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("NO_COLOR", "1")
+    monkeypatch.setattr(hook, "installed_kiln", lambda: ("git", "nouveau"))
+    monkeypatch.setattr(hook, "kiln_repo", lambda cwd: (Path("annway"), "v0.3.4"))
+
+    found = hook.offer(".", {}, release=released())
+
+    assert found is not None
+    assert found.notice == (
+        "kiln v0.4.0 · update available · The charter is in English · "
+        "kiln new asks fewer questions · Faster kiln status"
+    )
+
+
+def test_the_notice_waits_for_the_first_prompt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    hook = load_hook()
+    spec = importlib.util.spec_from_file_location(
+        "first_prompt", HOOK_PATH.with_name("first_prompt.py")
+    )
+    assert spec is not None and spec.loader is not None
+    first_prompt = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(first_prompt)
+    monkeypatch.setattr(hook, "NOTICES_DIR", tmp_path)
+    monkeypatch.setattr(first_prompt, "NOTICES_DIR", tmp_path)
+    hook.save_notice("abc", "the logo")
+
+    def prompt() -> str:
+        monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps({"session_id": "abc"})))
+        output = io.StringIO()
+        monkeypatch.setattr("sys.stdout", output)
+        first_prompt.main()
+        return output.getvalue()
+
+    assert json.loads(prompt()) == {"systemMessage": "the logo"}
+    assert prompt() == ""
+
+
+def test_changes_are_shortened_to_a_headline() -> None:
+    hook = load_hook()
+
+    assert hook.headline("**Cassant** : le suivi passe en anglais") == "Le suivi passe en anglais"
+    assert hook.headline("`kiln` répond en 0,12 s (commandes à la demande)") == (
+        "kiln répond en 0,12 s"
+    )
+    assert hook.headline("Le modèle suit l'outil installé : `kiln update` applique…") == (
+        "Le modèle suit l'outil installé"
+    )
+    assert hook.headline("`kiln waive` : ajoute une dérogation") == (
+        "kiln waive : ajoute une dérogation"
+    )
+    long = "`kiln new` sans `gh`, ou hors terminal sans connexion, crée le projet en local"
+    assert hook.headline(long) == "kiln new sans gh, ou hors terminal sans connexion…"
+
+
+def test_fixes_come_after_the_other_changes() -> None:
+    hook = load_hook()
+    changelog = "## v0.3.5 — 2026-10-17\n- Correctifs : a fix.\n- A feature.\n"
+
+    shown = hook.headlines(hook.changes_between("v0.3.4", "v0.3.5", changelog))
+
+    assert shown == [(False, "A feature"), (False, "Correctifs : a fix")]
+
+
+def test_the_question_only_says_the_move(hook: ModuleType) -> None:
+    message = hook.instructions(".", {}, release=released())
+
+    assert '"Update kiln to v0.4.0?"' in message
+    assert '"Update annway from 8e6427b to v0.4.0?"' in message
+    assert "the charter is in English" not in message
+    assert 'If "Update": skill `/kiln:update` with the argument `tool`' in message
+
+
+def test_breaking_changes_of_skipped_releases_only() -> None:
+    hook = load_hook()
+
+    changes = hook.changes_between("v0.3.4", "v0.4.0-rc.1", CHANGELOG)
+
+    assert changes.passed == ["v0.4.0", "v0.3.5"]
+    assert changes.breaking == ["**Breaking**: the charter is in English."]
+    assert hook.changes_between(None, "v0.3.5", CHANGELOG).passed == ["v0.3.5"]

@@ -29,7 +29,8 @@ un dossier ou un module.
   fusion, dépôt entier avant une version), `backlog`, `update`, `adopt`, `report` (défaut de kiln
   remonté en issue ou PR), `token` (jeton d'un service dans `.<service>/`), `contribution` (PR
   d'un contributeur extérieur), `good-first-issues` ; `hooks/` (dont `reminders.py`, espacement
-  des questions de mise à jour) ; `scripts/statusline.py`), `django/`, `nuxt/`, `vps/`,
+  des questions de mise à jour, et `first_prompt.py`, logo de kiln et nouveautés au-dessus de la
+  question) ; `scripts/statusline.py`), `django/`, `nuxt/`, `vps/`,
   `stripe/`, `serena/` ; `base/` : renvois des anciens chemins des hooks et scripts (sessions ouvertes, status line).
 - `.github/workflows/` : workflows réutilisables appelés par les repos générés, plus ceux de
   kiln (`kiln.yml` contrôles, `pypi.yml` publication du paquet `kiln-cli` au tag promu) ;

@@ -9,19 +9,16 @@ serveurs de développement, contrôles. Les commandes (`install`, `dev`, `check`
 connaissent pas les frameworks, seulement une `Stack`.
 """
 
-import tomllib
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
 import yaml  # fourni par copier
 
+from kiln.charter import config as charter
 from kiln.shell import KilnError
 
 ANSWERS_FILE = ".copier-answers.yml"
-# Un dépôt adopté n'a pas de réponses : ses paramètres (l'envergure) vivent dans sa charte.
-CHARTER_FILE = "charte.toml"
-ADOPTED_KEYS = ("envergure",)
 BACKEND_DIR = "backend"
 FRONTEND_DIR = "frontend"
 
@@ -159,7 +156,7 @@ class Stack:
                 Command(f"{self.pnpm_dir} {script}", self.pnpm_dir, ("pnpm", script))
                 for script in PNPM_CHECK_SCRIPTS[self.frontend]
             ]
-        return [*commands, Command("charte", ".", ("charte",))]
+        return [*commands, Command("charter", ".", ("charter",))]
 
 
 def read_answers(root: Path) -> dict[str, object]:
@@ -174,14 +171,11 @@ def read_answers(root: Path) -> dict[str, object]:
 
 
 def answers_if_any(root: Path) -> dict[str, object]:
-    """Réponses Copier ; pour un dépôt adopté, les paramètres déclarés dans sa charte."""
+    """Réponses Copier ; pour un dépôt adopté, l'envergure déclarée dans sa charte."""
     if (root / ANSWERS_FILE).exists():
         return read_answers(root)
-    charter_path = root / CHARTER_FILE
-    if not charter_path.exists():
-        return {}
-    charter = tomllib.loads(charter_path.read_text())
-    return {key: charter[key] for key in ADOPTED_KEYS if key in charter}
+    size = charter.load(root).get("size")
+    return {"envergure": size} if size else {}
 
 
 def stack_from_answers(answers: Mapping[str, object]) -> Stack:

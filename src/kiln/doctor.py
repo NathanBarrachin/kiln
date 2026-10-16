@@ -14,10 +14,11 @@ from enum import Enum
 from pathlib import Path
 
 from kiln import ui
+from kiln.charter.config import charter_path
 from kiln.config import UserConfig, config_path, load_config
 from kiln.install import SYSTEM_HINTS
 from kiln.shell import INSTALL_HINTS, KilnError
-from kiln.stack import ANSWERS_FILE, BACKEND_DIR, CHARTER_FILE, Stack, load_stack, read_answers
+from kiln.stack import ANSWERS_FILE, BACKEND_DIR, Stack, load_stack, read_answers
 from kiln.versions import installed_version, latest_release, release_version, upgrade_command
 
 PROBE_TIMEOUT = 5
@@ -213,9 +214,9 @@ def repo_findings(root: Path, stack: Stack | None) -> list[Finding]:
 
 def _template(root: Path) -> Finding:
     if not (root / ANSWERS_FILE).exists():
-        if (root / CHARTER_FILE).exists():
+        if charter_path(root) is not None:
             return Finding(Level.OK, "modèle", "dépôt adopté (charte sans modèle)")
-        return Finding(Level.WARN, "modèle", "pas un repo kiln", "kiln new, ou une charte.toml")
+        return Finding(Level.WARN, "modèle", "pas un repo kiln", "kiln new, ou kiln adopt")
     commit = str(read_answers(root).get("_commit", "?"))
     latest = _latest_release()
     current_version = release_version(commit)

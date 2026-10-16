@@ -10,7 +10,7 @@ import copier
 from copier.errors import CopierError
 
 from kiln import ui
-from kiln.charte.waivers import WAIVERS_FILE, load
+from kiln.charter.waivers import WAIVERS_FILE, load
 from kiln.stack import read_answers
 
 DIFF_LINES = 40

@@ -21,8 +21,10 @@ from pathlib import Path
 
 ESLINT_SUFFIXES = (".ts", ".vue", ".js", ".mjs")
 CHARTER_SUFFIXES = (".py", ".ts", ".vue", ".js", ".mjs", ".css")
-# Fin du rapport utile : la suite rappelle les règles non vérifiées, du bruit à chaque édition.
-CHARTER_REPORT_END = "\nRègles de CLAUDE.md non vérifiées"
+# Fin du rapport utile : la suite rappelle les règles non vérifiées, du bruit à chaque édition
+# (le moteur d'avant kiln 0.4.0 les listait toutes ; celui d'aujourd'hui les compte en une ligne).
+LEGACY_REPORT_END = "\nRègles de CLAUDE.md non vérifiées"
+CHARTER_FILES = ("charter.toml", "charte.toml")
 
 
 def find_upward(start: Path, relative: str) -> Path | None:
@@ -59,9 +61,9 @@ def charter_command(path: Path) -> tuple[list[str], Path] | None:
     ).stdout.strip()
     if not top:
         return None
-    if (Path(top) / "charte.toml").exists():
-        # `charte` vient de kiln (uv tool install kiln-cli).
-        moteur = shutil.which("charte")
+    if any((Path(top) / name).exists() for name in CHARTER_FILES):
+        # `charter` vient de kiln (uv tool install kiln-cli) ; `charte`, son nom d'avant 0.4.0.
+        moteur = shutil.which("charter") or shutil.which("charte")
         return ([moteur], Path(top)) if moteur else None
     script = os.environ.get("PROJET_CHARTE")
     if not script or not (Path(top) / script).exists():
@@ -76,7 +78,10 @@ def failure_report(command: tuple[list[str], Path] | None) -> str:
     completed = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, timeout=60)
     if completed.returncode == 0:
         return ""
-    return (completed.stdout + completed.stderr).split(CHARTER_REPORT_END)[0].strip()
+    report = completed.stdout + completed.stderr
+    if LEGACY_REPORT_END in report:
+        report = report.split(LEGACY_REPORT_END)[0]
+    return report.strip()
 
 
 def is_new_charter_report(report: str, repo_root: Path) -> bool:

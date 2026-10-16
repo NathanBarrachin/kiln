@@ -99,7 +99,7 @@ def _django(job: Job, inputs: Mapping[str, str]) -> Plan:
     directory = inputs["dossier"]
     steps = [
         Step("ruff", "uv run ruff check .\nuv run ruff format --check .", directory),
-        Step("typage (charte types)", "charte types") if inputs["mypy"] == "true" else None,
+        Step("typage (charter types)", "charter types") if inputs["mypy"] == "true" else None,
         Step(
             "aucune migration manquante",
             "uv run python manage.py makemigrations --check --dry-run",
@@ -110,7 +110,7 @@ def _django(job: Job, inputs: Mapping[str, str]) -> Plan:
             "uv run pytest --cov --cov-branch --cov-report=xml --cov-report=term:skip-covered",
             directory,
         ),
-        Step("planchers de couverture", "charte couverture")
+        Step("planchers de couverture", "charter coverage")
         if inputs["couverture"] == "true"
         else None,
     ]
@@ -144,7 +144,7 @@ def _contract(job: Job, inputs: Mapping[str, str]) -> Plan:
 
 
 def _charter(job: Job, inputs: Mapping[str, str]) -> Plan:
-    return Plan(job, (Step("charte", "charte"),))
+    return Plan(job, (Step("charter", "charter"),))
 
 
 def _pnpm(job: Job, inputs: Mapping[str, str]) -> Plan:

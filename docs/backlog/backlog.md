@@ -155,17 +155,6 @@ kiln itself is all English; a generated repo is written in its team's language. 
 
 ## 🟡 Normal
 
-### T-21 · Credit #41 in the notes of the next release
-- **Type**: task
-- **Status**: todo
-- **Opened**: 2026-10-16
-- **Effort**: XS · **Owner**: Claude · **Due**: —
-- **Origin**: PR #41 merged into `develop` (squash `648d498`), 16 October 2026
-
-The next candidate's `CHANGELOG.md` entry (cut by `base:version`) has the line: `kiln
-completion bash`, a bash completion script built from the parser (#41, thanks
-@HarshRajSinghania).
-
 ### T-05 · Check the first real run of the workflows on GitHub
 - **Type**: task
 - **Status**: blocked — waiting for GitHub billing (CI stopped)
@@ -230,21 +219,12 @@ takes the nested worktrees as gitlinks; `.claude/worktrees/` is only ignored in
 - [ ] `kiln check`: the step title and the `✓` line say the same thing (one command per step).
 - Bash completion moved to T-20.
 
-### T-20 · Bash completion (`kiln completion bash`)
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-16
-- **Effort**: S · **Owner**: contributor — #40 · **Due**: —
-- **Origin**: split from T-10, good first issue #40
-
-`kiln completion bash` prints a script built from `build_parser()` (`src/kiln/cli.py`), with no
-new dependency; `eval "$(kiln completion bash)"` enables it. Left to an outside contributor:
-see https://github.com/antoine-tena/kiln/issues/40.
-
 ---
 
 ## ✅ Done
 
+- **2026-10-16** · T-21 · Credit #41 in the notes of the next release — line in the `v0.3.3` entry of `CHANGELOG.md` (release/v0.3.3) · opened 2026-10-16
+- **2026-10-16** · T-20 · Bash completion (`kiln completion bash`) — PR #41 by @HarshRajSinghania, fixed up and merged, issue #40 closed · opened 2026-10-16
 - **2026-10-16** · T-18 · Promoting a release makes `kiln update` conflict on `ci.yml` — cause confirmed (Copier's old render takes the promoted tag from `git describe`); the three-way merge is redone with the project's tag, reproduced in a test (fix/conflit-promotion) · opened 2026-10-16
 - **2026-10-16** · T-19 · kiln has no pre-push hook — `.pre-commit-config.yaml` (ruff at commit, mypy before push), set by `kiln install` (chore/pre-push-kiln) · opened 2026-10-16
 - **2026-10-16** · T-16 · A failed `kiln update --all` leaves a worktree that blocks the next

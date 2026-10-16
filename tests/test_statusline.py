@@ -14,7 +14,7 @@ from kiln.poste import apply_poste
 from kiln.shell import KilnError
 from kiln.statusline import apply_statusline_choice, is_kiln_statusline
 
-SCRIPT = Path(__file__).parent.parent / "plugins" / "base" / "scripts" / "statusline.py"
+SCRIPT = Path(__file__).parent.parent / "plugins" / "kiln" / "scripts" / "statusline.py"
 OWN = {"type": "command", "command": "~/bin/ma-ligne.sh"}
 X = "\u00d7"  # signe de multiplication des compteurs
 
@@ -32,8 +32,8 @@ def home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Un poste avec le catalogue kiln déclaré là où Claude Code le range."""
     monkeypatch.setenv("HOME", str(tmp_path))
     kiln = tmp_path / "kiln"
-    (kiln / "plugins" / "base" / "scripts").mkdir(parents=True)
-    (kiln / "plugins" / "base" / "scripts" / "statusline.py").write_text("")
+    (kiln / "plugins" / "kiln" / "scripts").mkdir(parents=True)
+    (kiln / "plugins" / "kiln" / "scripts" / "statusline.py").write_text("")
     plugins = tmp_path / ".claude" / "plugins"
     plugins.mkdir(parents=True)
     (plugins / "known_marketplaces.json").write_text(

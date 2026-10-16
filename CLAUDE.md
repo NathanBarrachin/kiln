@@ -23,26 +23,27 @@ un dossier ou un module.
   `outils_python.py`, `waivers.py` : dérogations de `kiln-waivers.toml`).
 - `copier.yml` : questions du modèle ; `template/` : le modèle (`CLAUDE.md.jinja`, chartes de
   `backend/` et `frontend/` par stack, `.claude/settings.json.jinja`, CI…) ; `macros.jinja`.
-- `plugins/` : plugins Claude Code, catalogue `.claude-plugin/marketplace.json` ; `base/`
-  (skills `worktree`, `fusion`, `version`, `nettoyage`, `relecture` (commits et diff d'une branche avant la fusion, dépôt entier avant une version), `backlog`, `maj-kiln`, `adoption`,
-  `report-to-kiln` (défaut de kiln remonté en issue ou PR), `token` (jeton d'un service dans
-  `.<service>/`), `contribution` (PR d'un contributeur extérieur : sécurité, tri, revue,
-  fusion créditée), `good-first-issues` (quelques issues pour débutants tirées du backlog,
-  réservées aux contributeurs extérieurs) ; `hooks/` (dont `relances.py`, politique commune des questions de kiln) ; `scripts/statusline.py`),
-  `pile-django/`, `pile-nuxt/`, `vps-podman/`, `stripe/`, `serena/`.
+- `plugins/` : plugins Claude Code, catalogue `.claude-plugin/marketplace.json` (avec
+  `renames` : anciens noms `base`, `pile-django`, `pile-nuxt`, `vps-podman`) ; `kiln/` (skills
+  `worktree`, `merge`, `release`, `cleanup`, `review` (commits et diff d'une branche avant la
+  fusion, dépôt entier avant une version), `backlog`, `update`, `adopt`, `report` (défaut de kiln
+  remonté en issue ou PR), `token` (jeton d'un service dans `.<service>/`), `contribution` (PR
+  d'un contributeur extérieur), `good-first-issues` ; `hooks/` (dont `reminders.py`, espacement
+  des questions de mise à jour) ; `scripts/statusline.py`), `django/`, `nuxt/`, `vps/`,
+  `stripe/`, `serena/` ; `base/` : renvois des anciens chemins des hooks et scripts (sessions ouvertes, status line).
 - `.github/workflows/` : workflows réutilisables appelés par les repos générés, plus ceux de
   kiln (`kiln.yml` contrôles, `pypi.yml` publication du paquet `kiln-cli` au tag promu) ;
   `actions/` : actions composites (`charte`, `services`).
 - Vitrine publique, en anglais : `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`
   (MIT), `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` ; capture de l'écran
   d'accueil `docs/assets/kiln-accueil.svg`. Référence complète en français : `README.fr.md`.
-- `docs/backlog/` : suivi du travail, en anglais (skill `base:backlog`), dont la prochaine
+- `docs/backlog/` : suivi du travail, en anglais (skill `/kiln:backlog`), dont la prochaine
   promotion de version ; `docs/assets/` : images de la vitrine.
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal), `test_unites.py`,
   `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_deployment.py`, `test_statusline.py` (choix du
-  poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_garde_branche.py` (hook garde-branche), `test_adopt.py`,
-  `test_relances.py`, `test_hook_kiln_a_jour.py` ; `conftest.py` : config git du poste écartée, identité de test.
+  poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_branch_guard.py` (hook de garde de branche), `test_adopt.py`,
+  `test_reminders.py`, `test_session_start.py` ; `conftest.py` : config git du poste écartée, identité de test.
 
 ## Versions
 
@@ -76,7 +77,7 @@ changements cassants en tête des notes, migration automatique), pas la numérot
 cassant → majeure (rare et planifiée), `feat` → mineure, le reste → correctif. `kiln version`
 (module `release.py`) propose le numéro et dit quelles candidates sont prêtes.
 
-Deux temps, par la skill `base:version` (pas de déploiement : le tag publie, et le tag promu
+Deux temps, par la skill `/kiln:release` (pas de déploiement : le tag publie, et le tag promu
 publie sur PyPI le paquet `kiln-cli` par `pypi.yml`) :
 1. **Candidate** : branche `release/vX.Y.Z` tirée de `develop`, entrée `## vX.Y.Z — date` en tête
    de `CHANGELOG.md`, `version = "X.Y.Z"` dans `pyproject.toml`, contrôle complet (les trois
@@ -100,5 +101,8 @@ l'outil), `release.py` (`kiln version`).
 `uv run pytest -q` (réparti sur tous les cœurs par pytest-xdist : une vingtaine de secondes ;
 `-n 0` pour un seul processus, au débogage), `uv run ruff check`
 et `uv run ruff format --check`. Le crochet pre-commit de kiln (`.pre-commit-config.yaml`, posé par
-`kiln install`) lance ruff à chaque commit et mypy avant chaque push. Un hook ou un script de plugin est lu en direct par Claude Code
-(catalogue déclaré en dossier local) : il agit dès la fusion dans `develop`.
+`kiln install`) lance ruff à chaque commit et mypy avant chaque push. Le catalogue étant déclaré en dossier local sur le poste
+d'antoine, les sessions ouvertes appellent les hooks et la status line **dans l'arbre principal**
+(`~/code/kiln/plugins/…`) : un fichier retiré ou renommé casse aussitôt chaque session (hook
+introuvable = outil bloqué). Un chemin de plugin qui change garde donc un renvoi à l'ancien
+(`plugins/base/`, vérifié par `test_plugins.py`).

@@ -104,7 +104,7 @@ def waive(root: Path, request: WaiveRequest, today: datetime.date | None = None)
         raise KilnError("dérogation refusée : " + " ; ".join(problems))
     ui.note(
         f"{request.target} dérogée jusqu'au {until} ({WAIVERS_FILE}, à commiter). Si la règle "
-        "est fausse pour tout le monde : skill base:report-to-kiln, puis --upstream <lien>."
+        "est fausse pour tout le monde : skill /kiln:report, puis --upstream <lien>."
     )
 
 

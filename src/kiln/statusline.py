@@ -21,7 +21,9 @@ from kiln.config import (
 from kiln.shell import KilnError, run
 from kiln.stack import answers_if_any
 
-SCRIPT = Path("plugins") / "base" / "scripts" / "statusline.py"
+SCRIPT = Path("plugins") / "kiln" / "scripts" / "statusline.py"
+# Its path before kiln 0.4 (plugin `base`), still recognized.
+LEGACY_SCRIPT = Path("plugins") / "base" / "scripts" / "statusline.py"
 
 
 def apply_statusline_settings(root: Path) -> None:
@@ -53,7 +55,8 @@ def kiln_script() -> Path:
 
 
 def is_kiln_statusline(entry: object) -> bool:
-    return isinstance(entry, dict) and SCRIPT.as_posix() in str(entry.get("command", ""))
+    command = str(entry.get("command", "")) if isinstance(entry, dict) else ""
+    return any(script.as_posix() in command for script in (SCRIPT, LEGACY_SCRIPT))
 
 
 def apply_statusline_choice(choice: str, settings_path: Path | None = None) -> str:

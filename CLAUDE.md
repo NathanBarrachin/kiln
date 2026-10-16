@@ -13,21 +13,21 @@ Où chercher, pour ne pas explorer ; à tenir à jour dans le commit qui ajoute,
 un dossier ou un module.
 
 - `src/kiln/` : la commande. `cli.py` (arguments) ; une commande par module : `new.py`,
-  `install.py`, `dev.py`, `check.py`, `settings.py` (`kiln set`, clés réglables), `update.py`,
+  `adopt.py` (`kiln adopt`, repo existant), `install.py`, `dev.py`, `check.py`, `settings.py` (`kiln set`, clés réglables), `waive.py` (`kiln waive`), `update.py`,
   `contract.py`, `release.py` (`kiln version`), `doctor.py` (diagnostic du poste et du repo), `fleet.py` (`status`, `update --all`) ; socle : `stack.py` (stack lue dans
   `.copier-answers.yml`), `template.py`, `deps.py`, `github.py`, `rules.py` (règles non
-  vérifiées), `statusline.py`, `versions.py` (tags, journal des versions), `banner.py` (bannière, écran d'accueil), `ui.py` (palette pierre et feu, étapes,
+  vérifiées), `statusline.py`, `versions.py` (tags, journal des versions), `frozen.py` (fichiers figés par `kiln-waivers.toml`, épargnés par `update`), `banner.py` (bannière, écran d'accueil), `ui.py` (palette pierre et feu, étapes,
   roue animée, bilan, succès, erreurs), `shell.py`, `config.py` (`~/.config/kiln/config.toml`).
 - `src/kiln/ci/` : `kiln ci` (CI rejouée sur le poste, verdict en note git) ;
   `src/kiln/charte/` : moteur de `charte` (`interdictions.py`, `cliquets.py`,
-  `outils_python.py`).
+  `outils_python.py`, `waivers.py` : dérogations de `kiln-waivers.toml`).
 - `copier.yml` : questions du modèle ; `template/` : le modèle (`CLAUDE.md.jinja`, chartes de
   `backend/` et `frontend/` par stack, `.claude/settings.json.jinja`, CI…) ; `macros.jinja`.
 - `plugins/` : plugins Claude Code, catalogue `.claude-plugin/marketplace.json` ; `base/`
-  (skills `worktree`, `fusion`, `version`, `nettoyage`, `backlog`, `maj-kiln`,
+  (skills `worktree`, `fusion`, `version`, `nettoyage`, `relecture` (commits et diff d'une branche avant la fusion, dépôt entier avant une version), `backlog`, `maj-kiln`, `adoption`,
   `report-to-kiln` (défaut de kiln remonté en issue ou PR), `token` (jeton d'un service dans
   `.<service>/`), `contribution` (PR d'un contributeur extérieur : sécurité, tri, revue,
-  fusion créditée) ; `hooks/` ; `scripts/statusline.py`),
+  fusion créditée) ; `hooks/` (dont `relances.py`, politique commune des questions de kiln) ; `scripts/statusline.py`),
   `pile-django/`, `pile-nuxt/`, `vps-podman/`, `stripe/`, `serena/`.
 - `.github/workflows/` : workflows réutilisables appelés par les repos générés, plus ceux de
   kiln (`kiln.yml` contrôles, `pypi.yml` publication du paquet `kiln-cli` au tag promu) ;
@@ -39,8 +39,9 @@ un dossier ou un module.
   promotion de version ; `docs/assets/` : images de la vitrine.
 - `tests/` : `test_modele.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal), `test_unites.py`,
-  `test_ci.py`, `test_flotte.py`, `test_deploiement.py`, `test_statusline.py` (choix du
-  poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier).
+  `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_deploiement.py`, `test_statusline.py` (choix du
+  poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_garde_branche.py` (hook garde-branche), `test_adopt.py`,
+  `test_relances.py`, `test_hook_kiln_a_jour.py` ; `conftest.py` : config git du poste écartée, identité de test.
 
 ## Versions
 

@@ -4,9 +4,12 @@ import argparse
 import re
 import sys
 import time
+from collections.abc import Sequence
 from pathlib import Path
+from typing import NoReturn
 
 from kiln import (
+    adopt,
     banner,
     check,
     ci,
@@ -21,10 +24,12 @@ from kiln import (
     settings,
     ui,
     update,
+    waive,
 )
 from kiln.config import load_config
 from kiln.shell import KilnError, repo_root
 from kiln.stack import load_stack
+from kiln.versions import installed_version
 
 EXIT_FAILURE = 1
 PROJECT_NAME = re.compile(r"[a-z][a-z0-9-]*")
@@ -36,7 +41,7 @@ FRONTENDS = ("nuxt", "next", "astro", "streamlit", "dash", "aucun")
 
 # Écran d'accueil : commandes par section ; le rôle de chacune vient de son aide argparse.
 COMMAND_GROUPS = (
-    ("Projet", ("new", "install", "update", "set")),
+    ("Projet", ("new", "adopt", "install", "update", "set", "waive")),
     ("Au quotidien", ("dev", "check", "ci", "contrat", "doctor")),
     ("Tous les repos", ("status", "update --all", "version")),
 )
@@ -47,14 +52,36 @@ EXAMPLES = (
     "kiln set podman=true",
     "kiln set equipe=alice,bob     # hors d'un repo : réglages du poste",
 )
-NO_RECAP_COMMANDS = frozenset({"dev", "ci", "status", "doctor", "version"})
+NO_RECAP_COMMANDS = frozenset({"dev", "ci", "status", "doctor", "version", "waive"})
 HELP_FLAGS: tuple[list[str], ...] = ([], ["-h"], ["--help"])
+
+
+class _VersionAction(argparse.Action):
+    """`--version`, calculée seulement quand on la demande : `installed_version()` lance git
+    sur une installation depuis un dossier, ce que les autres commandes n'ont pas à payer."""
+
+    def __init__(self, option_strings: Sequence[str], dest: str, **_: object) -> None:
+        super().__init__(option_strings, dest, nargs=0, help="afficher la version de kiln")
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: object,
+        option_string: str | None = None,
+    ) -> NoReturn:
+        print(installed_version())
+        parser.exit()
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="kiln", description=__doc__)
+    parser.add_argument("--version", action=_VersionAction)
     commands = parser.add_subparsers(dest="command")
     _add_new_command(commands)
+    adopt_parser = commands.add_parser("adopt", help="faire suivre kiln à un repo existant")
+    adopt_parser.add_argument("--size", choices=SIZES, help="envergure du projet (défaut : ember)")
+    adopt_parser.add_argument("--template", help="source du modèle (chemin ou URL git)")
     commands.add_parser("install", help="préparer le poste après un clone")
     _add_update_command(commands)
     dev_parser = commands.add_parser("dev", help="lancer le projet en local")
@@ -78,7 +105,24 @@ def build_parser() -> argparse.ArgumentParser:
     set_parser.add_argument(
         "--poste", action="store_true", help="réglages du poste, même depuis un repo"
     )
+    _add_waive_command(commands)
     return parser
+
+
+def _add_waive_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+    waive_parser = commands.add_parser(
+        "waive", help="déroger à une règle de kiln, ou figer un fichier (sans argument : lister)"
+    )
+    waive_parser.add_argument(
+        "target", nargs="?", metavar="RÈGLE|fichier", help="identifiant de règle, ou fichier généré"
+    )
+    waive_parser.add_argument("--reason", default="", help="pourquoi (obligatoire)")
+    waive_parser.add_argument("--paths", nargs="+", default=[], help="motifs git couverts")
+    waive_parser.add_argument(
+        "--renew", action="store_true", help="renouveler : palier suivant, raison redemandée"
+    )
+    waive_parser.add_argument("--permanent", action="store_true", help="écart sans échéance")
+    waive_parser.add_argument("--upstream", default="", help="issue ou PR ouverte chez kiln")
 
 
 def _add_new_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -178,6 +222,7 @@ def _ask_project_name() -> str:
 
 BANNER_ACTIONS = {
     "new": "nouveau projet",
+    "adopt": "adoption",
     "install": "installation",
     "update": "mise à jour",
     "status": "état des repos",
@@ -203,7 +248,11 @@ def dispatch(arguments: argparse.Namespace) -> None:
         poste.run_poste(arguments.assignments)
         return
     root = _repo_root_or_hint()
-    if arguments.command == "install":
+    if arguments.command == "adopt":
+        adopt.adopt_project(
+            root, size=arguments.size or adopt.DEFAULT_SIZE, template=arguments.template
+        )
+    elif arguments.command == "install":
         install.install_project(root)
     elif arguments.command == "update":
         update.update_project(
@@ -220,6 +269,8 @@ def dispatch(arguments: argparse.Namespace) -> None:
         _dispatch_ci(root, arguments)
     elif arguments.command == "contrat":
         contract.generate_api_contract(root, load_stack(root))
+    elif arguments.command == "waive":
+        _dispatch_waive(root, arguments)
     elif arguments.command == "set":
         if arguments.assignments:
             settings.apply_settings(root, arguments.assignments)
@@ -281,6 +332,23 @@ def _dispatch_ci(root: Path, arguments: argparse.Namespace) -> None:
     print("\n" + verdict.render(), end="")
     if not verdict.is_success:
         sys.exit(EXIT_FAILURE)
+
+
+def _dispatch_waive(root: Path, arguments: argparse.Namespace) -> None:
+    if arguments.target is None:
+        waive.show_waivers(root)
+        return
+    waive.waive(
+        root,
+        waive.WaiveRequest(
+            target=arguments.target,
+            reason=arguments.reason,
+            paths=tuple(arguments.paths),
+            renew=arguments.renew,
+            permanent=arguments.permanent,
+            upstream=arguments.upstream,
+        ),
+    )
 
 
 def _dispatch_fleet(arguments: argparse.Namespace) -> None:

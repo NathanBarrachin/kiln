@@ -5,12 +5,14 @@ from pathlib import Path
 
 import copier
 from copier.errors import UserMessageError
+from plumbum import ProcessExecutionError
 
 from kiln import ui
 from kiln.backlog import migrate_legacy_backlog
 from kiln.check import check_project
 from kiln.contract import generate_api_contract
 from kiln.deps import lock_dependencies, sync_dependencies, update_dependencies
+from kiln.frozen import frozen_files, report_frozen_drift
 from kiln.rules import write_unverified_rules
 from kiln.shell import KilnError, capture, require_tools, run, step
 from kiln.stack import ANSWERS_FILE, load_stack, read_answers
@@ -37,6 +39,7 @@ def update_project(
         previous = template_commit(root)
         apply_template(root)
         show_release_notes(previous, template_commit(root))
+        report_frozen_drift(root, _template_source(root), previous, template_commit(root))
     stack = load_stack(root)
     if should_update_deps:
         update_dependencies(root, stack, allow_major=allow_major)
@@ -52,13 +55,15 @@ def update_project(
 
 def apply_template(root: Path, answers: Mapping[str, object] | None = None) -> None:
     """Modèle réappliqué (révision la plus récente, réponses éventuellement changées), sans
-    écraser les modifications locales : les conflits sont marqués dans les fichiers."""
+    écraser les modifications locales : les conflits sont marqués dans les fichiers. Les
+    fichiers figés (`kiln-waivers.toml`) sont laissés tels quels."""
     try:
         copier.run_update(
             root,
             data=dict(answers or {}),
             vcs_ref=template_revision(_template_source(root)),
             use_prereleases=follows_candidates(),
+            exclude=frozen_files(root),
             defaults=True,
             skip_answered=True,
             overwrite=True,
@@ -67,10 +72,25 @@ def apply_template(root: Path, answers: Mapping[str, object] | None = None) -> N
         )
     except UserMessageError as error:
         raise KilnError(f"mise à jour du modèle refusée : {error}") from error
+    except ProcessExecutionError as error:
+        raise KilnError(git_failure(error)) from error
     # Après Copier, qui exige un arbre propre et réécrit le fichier de réponses.
     replace_legacy_source(root)
     if migrate_legacy_backlog(root):
         ui.note("Suivi déplacé de docs/a-faire/ vers docs/backlog/ (tickets T-NN, en anglais).")
+
+
+# Ce que git écrit quand le réseau ou GitHub ne répond pas.
+UNREACHABLE_MARKERS = ("could not resolve host", "unable to access", "connection timed out")
+
+
+def git_failure(error: ProcessExecutionError) -> str:
+    """Une ligne pour un git lancé par Copier (tags, clone du modèle) qui a échoué."""
+    stderr = str(error.stderr or "")
+    if any(marker in stderr.lower() for marker in UNREACHABLE_MARKERS):
+        return "GitHub injoignable : vérifier le réseau, puis relancer"
+    last_line = next((line for line in reversed(stderr.splitlines()) if line.strip()), "")
+    return f"git a échoué pendant la mise à jour du modèle : {last_line.strip() or error}"
 
 
 def _template_source(root: Path) -> str:

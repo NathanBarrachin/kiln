@@ -22,7 +22,7 @@ North star: **kiln v0.3.0 public, adopted by every generated repo**.
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-14.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-18.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -41,39 +41,28 @@ North star: **kiln v0.3.0 public, adopted by every generated repo**.
 
 ## 🔴 Critical
 
-### T-01 · Promote v0.3.0, the first public release
+### T-14 · Promote v0.3.1, the first release on PyPI
 - **Type**: task
-- **Status**: blocked — waiting for a next candidate (no waiting period, antoine 2026-10-16)
-- **Opened**: 2026-10-15
+- **Status**: blocked — waiting for `v0.3.2-rc.1`
+- **Opened**: 2026-10-16
 - **Effort**: S · **Owner**: Claude · **Due**: —
-- **Origin**: move to semver and release candidates, 15 October 2026
+- **Origin**: promotion of v0.3.0, 16 October 2026
 
-`v0.3.0-rc.1` (branch `release/v0.3.0`) is adopted by annway, sweep and vision. The rule
-(CLAUDE.md, "Versions") requires a next candidate ready, nothing more.
-`kiln version` says when it is ready.
-- [ ] Cut `v0.3.1-rc.1` from `develop` (gitleaks in CI, the `status` column, the `doctor` fix
-  are already there), then `kiln update --all`: annway must no longer conflict on `ci.yml`
-  (its gitleaks job is now in the template, identical).
-- [ ] As soon as `v0.3.1-rc.1` is out: tag `v0.3.0` on the commit of `v0.3.0-rc.1`, merge
-  `release/v0.3.0` into `main`, merge back into `develop`, then `kiln update --all`.
-- [ ] Check the public install: `uv tool install git+https://github.com/antoine-tena/kiln@main`
-  (the default branch stays `develop`, so install docs quote `@main`).
+`v0.3.0` has no PyPI workflow: `kiln-cli` is first published when `v0.3.1` is promoted. The
+`PYPI_TOKEN` secret (environment `pypi`, account-wide token in `.pypi/token`) is set.
+- [ ] Cut `v0.3.2-rc.1` from `develop`; its `CHANGELOG.md` entry credits the first outside
+  contribution: `kiln --version` (#39, thanks @SakarPaisen). Then `kiln update --all`.
+- [ ] Promote `v0.3.1` (tag on the commit of `v0.3.1-rc.1`, merge into `main`, back into
+  `develop`), check the `pypi` run, then `uv tool install kiln-cli` on a clean machine.
+- [ ] Replace the account-wide token with one scoped to `kiln-cli`
+  (https://pypi.org/manage/project/kiln-cli/settings/), update the secret, delete the old one.
+- [ ] README (English and French): `uv tool install kiln-cli` as the main install.
 
 ## 🟠 Important
 
-### T-02 · Review PR #39 (`kiln --version`) from an outside contributor
-- **Type**: task
-- **Status**: todo
-- **Opened**: 2026-10-15
-- **Effort**: XS · **Owner**: Claude · **Due**: —
-- **Origin**: https://github.com/antoine-tena/kiln/pull/39 (issue #35)
-
-The displayed version now comes from `versions.installed_version()`: the PR must use it.
-Only antoine-tena merges a PR (CONTRIBUTING.md); answer quickly and say thanks.
-
 ### T-03 · Launch kiln publicly, then list it in the Claude Code directories
 - **Type**: task
-- **Status**: blocked — waiting for T-01, T-11 and T-06
+- **Status**: blocked — waiting for T-14 and T-06
 - **Opened**: 2026-10-15
 - **Effort**: S · **Owner**: antoine · **Due**: —
 - **Origin**: GitHub showcase, 15 October 2026; "Claude Code's workshop" positioning,
@@ -92,27 +81,6 @@ comes first. Posts are made by antoine, never without them; Claude drafts the te
 - [ ] Anthropic's official directory (claude-plugins-official, loaded by default in Claude
   Code): https://clau.de/plugin-directory-submission — after T-06, French plugins are
   unlikely to get in.
-
-### T-11 · Publish kiln on PyPI as `kiln-cli`
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-16
-- **Effort**: S · **Owner**: Claude (antoine for the PyPI account) · **Due**: —
-- **Origin**: distribution, 16 October 2026
-
-The name `kiln` is taken on PyPI; the package is `kiln-cli`, the command stays `kiln`. Only
-the command goes through PyPI: the template, plugins and workflows are still read from the git
-repo at the tag (Copier, Claude Code and GitHub Actions cannot read PyPI). Targets: macOS,
-Linux and Windows through WSL; native Windows is out of scope (antoine's call, 16 October
-2026).
-- [ ] Rename the distribution to `kiln-cli` in `pyproject.toml`, and add a `kiln-cli` command
-  (same entry point) so that `uvx kiln-cli new` works.
-- [ ] `installed_version()`, `kiln doctor` and `maj-kiln`: read the version and offer the
-  update through PyPI (`uv tool upgrade kiln-cli`), keeping the install from git.
-- [ ] Publishing workflow on the promotion tag, with trusted publishing (no token); antoine
-  creates the pending project on https://pypi.org/manage/account/publishing/
-- [ ] README (English and French): `uv tool install kiln-cli`, `uvx kiln-cli new`, and the line
-  "macOS, Linux, Windows via WSL".
 
 ### T-12 · Homebrew formula in an `antoine-tena/homebrew-kiln` tap
 - **Type**: improvement
@@ -222,7 +190,15 @@ has even when the repo edited it; its content is still in the last commit.
 
 plumbum or Copier fails if pytest runs in the main tree in the middle of a merge while a
 worktree exists: run the tests in a clean worktree, or make the template test independent of
-the tree's state.
+the tree's state. Seen again on 16 October 2026 (merge of `feat/relecture`, briefly filed as
+T-17): 97 tests fail with `fatal: No url found for submodule path
+'.claude/worktrees/chore-versions' in .gitmodules`; the same commit passes in a clean
+worktree. Lead to check: with a dirty template, Copier copies it and runs `git add -A`, which
+takes the nested worktrees as gitlinks; `.claude/worktrees/` is only ignored in
+`.git/info/exclude`, which the copy does not carry.
+- [ ] Reproduce, confirm the cause.
+- [ ] Fix: `.claude/worktrees/` in kiln's `.gitignore`, or tests that render from a clean
+  source (`vcs_ref="HEAD"` as in `test_deploiement.py`).
 
 ### T-10 · Interface polish
 - **Type**: improvement
@@ -237,6 +213,23 @@ the tree's state.
 
 ## ✅ Done
 
+- **2026-10-16** · T-16 · A failed `kiln update --all` leaves a worktree that blocks the next
+  run — a worktree with no change and no commit of its own is removed after the failure and
+  before the next run; one with work in it is kept and named (`fix/update-reseau`) · opened 2026-10-16
+- **2026-10-16** · T-15 · `kiln update --all` crashes with a Python traceback when GitHub is
+  unreachable — Copier's git failure becomes one line in the summary, "GitHub injoignable"
+  when the network is down (`fix/update-reseau`) · opened 2026-10-16
+- **2026-10-16** · T-11 · Publish kiln on PyPI as `kiln-cli` — distribution and `kiln-cli`
+  command, install source and update through PyPI, `pypi.yml` on the promotion tag, README;
+  the first upload is checked by T-14 · opened 2026-10-16
+
+- **2026-10-16** · T-01 · Promote v0.3.0, the first public release — `v0.3.1-rc.1` cut, then
+  `v0.3.0` tagged on the commit of `v0.3.0-rc.1`, merged into `main`, back into `develop`;
+  annway, sweep and vision moved to `v0.3.1-rc.1` (`kiln update --all`) · opened 2026-10-15
+- **2026-10-16** · T-02 · Review PR #39 (`kiln --version`) from an outside contributor —
+  reviewed with the new skill `base:contribution`, version computed only on demand (commit
+  pushed on top of the contributor's), merged (`b71f91a`), issue #35 closed; credit to add to
+  the next changelog entry (T-01) · opened 2026-10-15
 - **2026-10-16** · Backlog in English: `docs/a-faire/` becomes `docs/backlog/` (`backlog.md`,
   `rejected.md`, `urgent.md`), `T-NN` tickets with a type and an opening date, skill
   `base:backlog`, status line reading both formats, old trackers converted by `kiln update`

@@ -1,10 +1,13 @@
 import datetime
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 from packaging.version import Version
+from plumbum import ProcessExecutionError
 
-from kiln import ui
+from kiln import cli, ui
 from kiln.banner import LOGO, _project_summary, render_logo
 from kiln.config import UserConfig
 from kiln.deps import _major_bounds
@@ -16,8 +19,8 @@ from kiln.rules import charter_rules, verified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
 from kiln.shell import KilnError
 from kiln.stack import Stack, answers_if_any, load_stack, stack_from_answers
-from kiln.update import replace_legacy_source
-from kiln.versions import notes_between, release_version
+from kiln.update import apply_template, git_failure, replace_legacy_source
+from kiln.versions import installed_version, notes_between, release_version
 
 
 def test_legacy_answers_mean_django_and_nuxt() -> None:
@@ -252,3 +255,38 @@ def test_a_candidate_is_promoted_as_soon_as_the_next_is_ready() -> None:
     assert not promotion_verdict(young, [old, young])[1]
     assert not promotion_verdict(old, [old])[1]
     assert latest_candidates([old, young]) == [old, young]
+
+
+def test_version_flag_prints_the_installed_version(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(sys, "argv", ["kiln", "--version"])
+    with pytest.raises(SystemExit) as exit_request:
+        cli.main()
+
+    assert exit_request.value.code == 0
+    assert capsys.readouterr().out.strip() == installed_version()
+
+
+def test_unreachable_github_gives_one_line(tmp_path: Path) -> None:
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / ".copier-answers.yml").write_text(
+        "_commit: v0.3.0\n_src_path: https://kiln.invalid/kiln.git\n"
+    )
+    subprocess.run(["git", "add", "-A"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init"],
+        cwd=tmp_path,
+        check=True,
+    )
+
+    with pytest.raises(KilnError, match=r"^GitHub injoignable"):
+        apply_template(tmp_path)
+
+
+def test_other_git_failure_keeps_its_last_line() -> None:
+    error = ProcessExecutionError(["git", "clone"], 128, "", "fatal: ref inconnue\n\n")
+
+    assert (
+        git_failure(error) == "git a échoué pendant la mise à jour du modèle : fatal: ref inconnue"
+    )

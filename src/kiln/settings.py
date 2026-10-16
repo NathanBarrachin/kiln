@@ -1,8 +1,8 @@
-"""`kiln set` : affiche ou change les paramètres d'un repo (équipe, frameworks, podman…).
+"""`kiln set`: shows or changes a repo's settings (team, frameworks, podman…).
 
-Le repo est régénéré avec les nouvelles réponses, sans écraser les modifications locales : un
-framework retiré emporte ses fichiers, un framework ajouté apporte les siens, puis les verrous,
-les dépendances et la liste des règles non vérifiées suivent.
+The repo is rendered again with the new answers, without overwriting local changes: a removed
+framework takes its files away, an added framework brings its own, then the lock files, the
+dependencies and the list of unverified rules follow.
 """
 
 import shutil
@@ -61,19 +61,17 @@ def show_settings(root: Path) -> None:
         if key in answers:
             print(f"{ui.paint(f'{key:<{width}}', ui.STONE)}  {answers[key]}")
     print()
-    ui.note("Changer : kiln set clé=valeur [clé=valeur…], sur une branche, arbre propre.")
+    ui.note("Change: kiln set key=value [key=value…], on a branch, clean tree.")
 
 
 def parse_assignments(assignments: list[str]) -> dict[str, object]:
-    """`clé=valeur` lus comme du YAML (`true`, `[a, b]`) ; une équipe peut s'écrire `a,b`."""
+    """`key=value` read as YAML (`true`, `[a, b]`); a team can be written `a,b`."""
     parsed: dict[str, object] = {}
     for assignment in assignments:
         old_key, separator, raw_value = assignment.partition("=")
         key = renames.ANSWER_KEYS.get(old_key, old_key)  # names before kiln 0.4.0 still work
         if not separator or key not in SETTABLE_KEYS:
-            raise KilnError(
-                f"« {assignment} » : attendu clé=valeur, clés : {', '.join(SETTABLE_KEYS)}"
-            )
+            raise KilnError(f'"{assignment}": expected key=value, keys: {", ".join(SETTABLE_KEYS)}')
         if key in LIST_KEYS and not raw_value.startswith("["):
             parsed[key] = [login.strip() for login in raw_value.split(",") if login.strip()]
         else:
@@ -87,7 +85,7 @@ def apply_settings(root: Path, assignments: list[str]) -> None:
     changes = parse_assignments(assignments)
     require_tools("git", "uv")
     check_working_branch(root)
-    step("Paramètres : " + ", ".join(f"{key}={value}" for key, value in changes.items()))
+    step("Settings: " + ", ".join(f"{key}={value}" for key, value in changes.items()))
     previous_stack = load_stack(root)
     apply_template(root, changes)
     stack = load_stack(root)
@@ -103,8 +101,8 @@ def apply_settings(root: Path, assignments: list[str]) -> None:
 
 
 def remove_replaced_artifacts(root: Path, previous: Stack, current: Stack) -> None:
-    """Produits de build d'un framework remplacé (`.nuxt`, `node_modules`, `.venv`…), qui
-    gêneraient les outils du nouveau ; jamais de données ni de `.env`."""
+    """Build outputs of a replaced framework (`.nuxt`, `node_modules`, `.venv`…), which would
+    get in the way of the new one's tools; never data nor `.env`."""
     replaced = [
         (BACKEND_DIR, previous.backend) if previous.backend != current.backend else None,
         (FRONTEND_DIR, previous.frontend) if previous.frontend != current.frontend else None,
@@ -118,4 +116,4 @@ def remove_replaced_artifacts(root: Path, previous: Stack, current: Stack) -> No
                 path.unlink()
             else:
                 continue
-            print(f"Retiré : {directory}/{artifact} ({framework})")
+            print(f"Removed: {directory}/{artifact} ({framework})")

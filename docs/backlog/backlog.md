@@ -165,18 +165,6 @@ every promotion.
 - [ ] Fix the cause, or let `kiln update` resolve by itself a conflict that only moves the
   `@<tag>` of kiln's workflows.
 
-### T-19 · kiln has no pre-push hook: mypy errors reach `develop`
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-16
-- **Effort**: XS · **Owner**: Claude · **Due**: —
-- **Origin**: CI of `develop` red after `feat/waivers`, 16 October 2026
-
-`base:fusion` says typing runs before the push (pre-push hook), but kiln's own checkout has
-none (`.git/hooks/` only has samples): 4 mypy errors in the waiver tests reached `develop` and
-made its CI red. Give kiln the same pre-push hook as the generated repos (`uv run mypy src
-tests`), installed by `kiln install`.
-
 ### T-05 · Check the first real run of the workflows on GitHub
 - **Type**: task
 - **Status**: blocked — waiting for GitHub billing (CI stopped)
@@ -256,6 +244,7 @@ see https://github.com/antoine-tena/kiln/issues/40.
 
 ## ✅ Done
 
+- **2026-10-16** · T-19 · kiln has no pre-push hook — `.pre-commit-config.yaml` (ruff at commit, mypy before push), set by `kiln install` (chore/pre-push-kiln) · opened 2026-10-16
 - **2026-10-16** · T-16 · A failed `kiln update --all` leaves a worktree that blocks the next
   run — a worktree with no change and no commit of its own is removed after the failure and
   before the next run; one with work in it is kept and named (`fix/update-reseau`) · opened 2026-10-16

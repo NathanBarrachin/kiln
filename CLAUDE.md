@@ -78,6 +78,10 @@ aux étapes de mineure ; une faille de sécurité sort tout de suite.
 - **la mineure ne monte que pour une étape** décidée par antoine (par exemple kiln tout en
   anglais) : `kiln version --minor` ; Claude peut la proposer quand un groupe de tickets
   forme une étape (permis par antoine le 16 octobre 2026), jamais la décider ;
+- **étapes décidées** (antoine, 16 octobre 2026) : v0.5.0 lancement public, v0.6.0 Claude
+  travaille seul dans le repo (`/kiln:feature`, `kiln ci --fix`), v0.7.0 kiln pour les équipes
+  (monorepos, profils d'entreprise), v1.0.0 promesse de stabilité, juste avant les modules de la
+  communauté (T-69) qui s'appuieront sur l'API de kiln ; le plan de `docs/backlog/` les porte ;
 - **un changement cassant** reste marqué au commit (`feat!:` ou `BREAKING CHANGE`), ouvre la
   note de version dans `CHANGELOG.md`, et livre sa conversion dans `kiln update`. Est cassant
   ce qui touche l'API publique de kiln : commandes et options de la CLI, questions de

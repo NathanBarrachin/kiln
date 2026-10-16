@@ -148,23 +148,6 @@ kiln itself is all English; a generated repo is written in its team's language. 
 
 ## 🟡 Normal
 
-### T-18 · Promoting a release makes `kiln update` conflict on `ci.yml`
-- **Type**: bug
-- **Status**: todo
-- **Opened**: 2026-10-16
-- **Effort**: S · **Owner**: Claude · **Due**: —
-- **Origin**: `kiln update --all` to `v0.3.2-rc.2`, right after the promotion of `v0.3.1`
-
-annway, sweep and vision stopped on conflicts in `.github/workflows/ci.yml`, only on the
-`@<tag>` of kiln's workflows (`v0.3.1-rc.1` before, `v0.3.2-rc.2` after); resolved by hand by
-taking the new side. Lead: `v0.3.1` now sits on the same commit as `v0.3.1-rc.1`, so Copier's
-render of the old version may describe it as `v0.3.1` and no longer match the project's file
-(`kiln_ref` in `template/.github/workflows/ci.yml.jinja`, from `_commit`). It will come back at
-every promotion.
-- [ ] Reproduce in a test (template tagged `-rc.1`, then the release on the same commit).
-- [ ] Fix the cause, or let `kiln update` resolve by itself a conflict that only moves the
-  `@<tag>` of kiln's workflows.
-
 ### T-05 · Check the first real run of the workflows on GitHub
 - **Type**: task
 - **Status**: blocked — waiting for GitHub billing (CI stopped)
@@ -244,6 +227,7 @@ see https://github.com/antoine-tena/kiln/issues/40.
 
 ## ✅ Done
 
+- **2026-10-16** · T-18 · Promoting a release makes `kiln update` conflict on `ci.yml` — cause confirmed (Copier's old render takes the promoted tag from `git describe`); the three-way merge is redone with the project's tag, reproduced in a test (fix/conflit-promotion) · opened 2026-10-16
 - **2026-10-16** · T-19 · kiln has no pre-push hook — `.pre-commit-config.yaml` (ruff at commit, mypy before push), set by `kiln install` (chore/pre-push-kiln) · opened 2026-10-16
 - **2026-10-16** · T-16 · A failed `kiln update --all` leaves a worktree that blocks the next
   run — a worktree with no change and no commit of its own is removed after the failure and

@@ -7,13 +7,13 @@ from kiln import fleet
 from kiln.fleet import (
     MAX_FILES_PER_COMMIT,
     commit_in_batches,
-    conflicted_files,
     find_adopted,
     find_repos,
     integration_branch,
     template_state,
 )
 from kiln.shell import KilnError
+from kiln.update import conflicted_files
 
 
 def make_repo(root: Path, source: str) -> Path:

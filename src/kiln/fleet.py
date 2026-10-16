@@ -18,7 +18,7 @@ from kiln.check import run_checks
 from kiln.install import install_project
 from kiln.shell import KilnError, capture, require_tools, run, step
 from kiln.stack import ANSWERS_FILE, CHARTER_FILE, answers_if_any, load_stack, read_answers
-from kiln.update import update_project
+from kiln.update import conflicted_files, update_project
 from kiln.versions import latest_release, release_version
 
 KILN_SOURCE_MARKERS = ("antoine-tena/kiln", "antoine-tena/init-repo")
@@ -36,7 +36,6 @@ PREFERRED_INTEGRATION_BRANCH = "develop"
 MAX_FILES_PER_COMMIT = 10
 # pre-commit refuse de tourner tant que sa configuration modifiée n'est pas commitée.
 FIRST_COMMITTED = ".pre-commit-config.yaml"
-CONFLICT_MARKER = "<<<<<<< before updating"
 COMMIT_ATTEMPTS = 2
 
 
@@ -217,18 +216,6 @@ def _update_worktree(worktree: Path, *, allow_major: bool) -> list[str]:
         should_check=False,
     )
     return run_checks(worktree)
-
-
-def conflicted_files(worktree: Path) -> list[str]:
-    """Fichiers où Copier a laissé un conflit à résoudre à la main."""
-    found = subprocess.run(
-        ["git", "grep", "-l", "--untracked", CONFLICT_MARKER],
-        cwd=worktree,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    return found.stdout.split()
 
 
 def integration_branch(root: Path) -> str:

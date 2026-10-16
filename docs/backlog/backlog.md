@@ -23,7 +23,7 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-45.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-46.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -80,6 +80,7 @@ The other half of T-41: the expert sets anything in one command, the newcomer is
 - T-41 · Beginner with nothing to set, expert with everything settable (M)
 - T-40 · kiln tells you what is possible, once, at the right moment (M)
 - T-10 · Interface polish (S)
+- T-45 · Update reminders at the pace you choose (S)
 
 ### v0.4.3 · Instructions that fit the repo
 A script stops carrying a service's 400-line charter; rules load by path and by size.
@@ -485,6 +486,19 @@ lands on `develop`, before any candidate. Pinning it to a tag (`@v0.3.0`) would 
 the cost of a manual update on each release. The user's condition: never break annski.
 
 ## 🟡 Normal
+
+### T-45 · Update reminders at the pace you choose
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 16 October 2026
+
+Asking at every release annoys; letting users skip releases is worse in 0.x (each patch can
+break, skipped conversions pile up). So space the question, never the updates.
+- [ ] `kiln set update-reminders=each|daily|weekly` (machine setting, default from
+  `reminders.py`'s current backoff); when accepted, the repo goes to the latest release.
+- [ ] From 1.0 (strict semver): `update-level=patch|minor|all` to follow only some releases.
 
 ### T-44 · `/kiln:backlog plan`: group the open tickets into the next releases
 - **Type**: improvement

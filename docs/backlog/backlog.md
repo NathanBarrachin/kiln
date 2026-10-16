@@ -23,7 +23,7 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-122.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-123.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -148,141 +148,147 @@ because its breaking changes must land together.
 - T-33 · One promise everywhere: tagline, About, PyPI, social preview (S)
 - T-100 · Every error message links to its page in the docs (S)
 
-### v0.4.20 · Public launch
-Proposed as **v0.5.0**: the public stability promise starts here (antoine decides).
+### v0.5.0 · Public launch
+Milestone decided by antoine (16 October 2026): kiln opens to the public.
 - T-56 · A configurator on kiln's site, and a gallery (M)
 - T-55 · README in Chinese, Japanese, Spanish and Portuguese (S)
 - T-119 · GitHub Sponsors and `FUNDING.yml` (XS)
 - T-03 · Launch kiln publicly, then list it in the Claude Code directories (S)
 - T-12 · Homebrew formula in a tap (S) (blocked: demand)
 
-### v0.4.21 · kiln-bot: never lets it rot, even without you
+### v0.5.1 · kiln-bot: never lets it rot, even without you
 - T-59 · kiln-bot: `kiln update` as a scheduled pull request (L)
 
-### v0.4.22 · See before, undo after
+### v0.5.2 · See before, undo after
 - T-60 · `kiln update --dry-run` and `--undo` (M)
 
-### v0.4.23 · Framework upgrades done for you
+### v0.5.3 · Framework upgrades done for you
 - T-61 · `kiln migrate`: framework major upgrades done by Claude Code (L)
 
-### v0.4.24 · A supply chain you can trust
+### v0.5.4 · A supply chain you can trust
 - T-90 · Pinned actions, signed releases, OpenSSF Scorecard (M)
 - T-113 · `kiln audit --fix` (M)
 - T-102 · A licence chosen at `kiln new`, dependency licences checked (S)
 
-### v0.4.25 · Add a feature, not a pile of files
+### v0.5.5 · Add a feature, not a pile of files
 - T-62 · `kiln add <feature>` (L)
 
-### v0.4.26 · Accounts and mail
+### v0.5.6 · Accounts and mail
 - T-63 · Add-on `auth` (M)
 - T-64 · Add-on `email` (M)
 
-### v0.4.27 · Take payments, respect privacy
+### v0.5.7 · Take payments, respect privacy
 - T-65 · Add-on `payments` (M)
 - T-112 · GDPR kit (M)
 
-### v0.4.28 · A SaaS on day one
+### v0.5.8 · A SaaS on day one
 - T-66 · Project type `saas` (L)
 
-### v0.4.29 · Files and live updates
+### v0.5.9 · Files and live updates
 - T-109 · Add-on `storage` (M)
 - T-110 · Add-on `realtime` (M)
 
-### v0.4.30 · Search, in every language
+### v0.5.10 · Search, in every language
 - T-111 · Add-on `search` (M)
 - T-68 · Add-on `i18n` (M)
 
-### v0.4.31 · Claude closes the loop on a ticket
+### v0.6.0 · Claude closes the loop on a ticket
+Milestone decided by antoine (16 October 2026): Claude does the work in the repo, not only
+its setup.
 - T-72 · `/kiln:feature` and `/kiln:fix` (L)
 
-### v0.4.32 · Helpers and fast feedback for Claude
+### v0.6.1 · Helpers and fast feedback for Claude
 - T-73 · Subagents per stack (M)
 - T-77 · Tests in seconds after each edit (M)
 
-### v0.4.33 · Red to green without a human
+### v0.6.2 · Red to green without a human
 - T-76 · `kiln ci --fix` (M)
 - T-75 · `@claude` in pull requests and issues of generated repos (M)
 
-### v0.4.34 · Claude on a budget
+### v0.6.3 · Claude on a budget
 - T-78 · Context budget, measured and capped (M)
 - T-106 · What a feature cost: tokens per ticket and per repo (M)
 
-### v0.4.35 · kiln as tools for agents
+### v0.6.4 · kiln as tools for agents
 - T-71 · `kiln mcp`, with `--json` everywhere (M)
 
-### v0.4.36 · Autopilot
+### v0.6.5 · Autopilot
 - T-74 · `kiln autopilot` (L)
 
-### v0.4.37 · Packages: MCP servers and Python libraries
+### v0.6.6 · Packages: MCP servers and Python libraries
 - T-79 · Project type `mcp` (M)
 - T-81 · Project type `library` (M)
 
-### v0.4.38 · Agents with evals
+### v0.6.7 · Agents with evals
 - T-80 · Project type `agent` with evals in CI (L)
 
-### v0.4.39 · A TypeScript backend
+### v0.6.8 · A TypeScript backend
 - T-82 · A TypeScript backend: Hono and Drizzle (M)
 - T-108 · An API reference page served by every backend (S)
 
-### v0.4.40 · SvelteKit and React
+### v0.6.9 · SvelteKit and React
 - T-83 · SvelteKit and React (Vite) fronts (M)
 
-### v0.4.41 · Notebooks that cannot rot
+### v0.6.10 · Notebooks that cannot rot
 - T-115 · Analysis projects: DuckDB, notebooks run in CI (M)
 
-### v0.4.42 · See what production is doing
+### v0.6.11 · See what production is doing
 - T-67 · Add-on `observability` (M)
 - T-93 · Database safety: migration linting, seed data, anonymised dumps (M)
 
-### v0.4.43 · Production you can reach and restore
+### v0.6.12 · Production you can reach and restore
 - T-104 · A custom domain in one command (M)
 - T-105 · Backups of the hosted database, with a tested restore (M)
 
-### v0.4.44 · A preview for each pull request
+### v0.6.13 · A preview for each pull request
 - T-88 · A preview environment for each pull request (M)
 - T-97 · `kiln dev --share` (S)
 
-### v0.4.45 · Fronts tested like a user
+### v0.6.14 · Fronts tested like a user
 - T-92 · End-to-end, accessibility, performance budgets (M)
 
-### v0.4.46 · Secrets in one place, release notes written
+### v0.6.15 · Secrets in one place, release notes written
 - T-89 · `kiln secrets` (M)
 - T-103 · Changelog and release notes written from the commits (M)
 
-### v0.4.47 · A charter that fixes
+### v0.6.16 · A charter that fixes
 - T-91 · The charter fixes, annotates and accepts custom rules (L)
 
-### v0.4.48 · One repo, many services
+### v0.7.0 · One repo, many services
+Milestone decided by antoine (16 October 2026): kiln for teams and organisations.
 - T-86 · Monorepos: several services in one repo (L)
 
-### v0.4.49 · An organisation at a glance, under load
+### v0.7.1 · An organisation at a glance, under load
 - T-87 · Fleet dashboard for an organisation (M)
 - T-114 · Load tests for big services (M)
 
-### v0.4.50 · Your company's kiln
+### v0.7.2 · Your company's kiln
 - T-70 · Org profiles (L)
 
-### v0.4.51 · Team hygiene
+### v0.7.3 · Team hygiene
 - T-101 · Repo hygiene by size: templates, labels, CODEOWNERS, CONTRIBUTING (M)
 - T-120 · `kiln new --like <repo>` (S)
 
-### v0.4.52 · Add-ons from anyone
+### v1.0.0 · Add-ons from anyone
+Milestone decided by antoine (16 October 2026): the public stability promise, before others
+build on kiln's add-on API. From here, strict semver: breaking → major, `feat` → minor.
+- T-122 · `kiln version` proposes 1.0.0 (S)
 - T-69 · Community add-ons and stacks from any git repo (L)
 
-### v0.4.53 · A public roadmap and tutorials
+### v1.0.1 · A public roadmap and tutorials
 - T-58 · A public roadmap on GitHub Projects, Discussions open (M)
 - T-57 · A tutorial series: from idea to a live SaaS in an afternoon (M)
 
-### v0.4.54 · Go and Rust
+### v1.1.0 · Go and Rust
 - T-84 · Go and Rust backends (L)
 
-### v0.4.55 · Mobile apps
+### v1.2.0 · Mobile apps
 - T-85 · Mobile apps with Expo (L)
 
-### v0.4.56 · Windows without WSL
+### v1.3.0 · Windows without WSL
 - T-94 · Windows without WSL (L)
 
-### v0.4.57 · kiln in VS Code
+### v1.4.0 · kiln in VS Code
 - T-117 · A VS Code extension (L)
 
 ---
@@ -1657,6 +1663,21 @@ Every release is a reason to be seen again.
 
 - [ ] Removes the plugins, the status line setting, `~/.config/kiln/` and the tool itself,
   after listing them; repos are left untouched (`kiln eject` is for them).
+
+### T-122 · `kiln version` proposes 1.0.0
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: milestones decided by antoine, 16 October 2026 (v0.5.0, v0.6.0, v0.7.0, v1.0.0)
+
+In 0.x, `kiln version --minor` only moves to the next minor (`release.py`): nothing proposes
+leaving 0.x.
+- [ ] `kiln version --stable` proposes `1.0.0` from any 0.x release, says what changes from then
+  on (strict semver, breaking → major) and refuses without a `## v1.0.0` note that states the
+  promise (what is public API, how long a major is supported).
+- [ ] `kiln version` reads the milestones of `docs/backlog/` and says "the next release is the
+  v0.6.0 milestone" instead of proposing a patch.
 
 ## ⚪ Background — long-running work, debt and ideas
 

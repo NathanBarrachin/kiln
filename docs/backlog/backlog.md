@@ -35,6 +35,7 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
 - **Effort**: XS (under an hour), S (half a day), M (one or two days), L (more).
 - **Releases**: the `## 🚀 Releases` section at the top places every open ticket in a planned
   release (`/kiln:backlog plan`); numbers are planned, not promised, until the candidate is cut.
+  About three releases a week (`CLAUDE.md`, "Versions"): one or two tickets each.
 - **Closing a ticket**: remove it from its section and add a line at the top of the "✅ Done"
   log: `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.
 - **Locations quoted are hints, not addresses.**
@@ -50,202 +51,238 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
 Candidate tagged (`v0.3.4-rc.1`): frozen.
 - T-22 · Release v0.3.4 and promote v0.3.3 (S)
 
-### v0.3.5 · Releases that run themselves
-Shipping is a dozen manual steps; after this, `kiln version` drives the plan and the promotions,
-and each promotion is announced.
+### v0.3.5 · A GitHub Release at each promotion
+Shipping is a dozen manual steps; `kiln version` does them, and each promotion is announced.
 - T-29 · GitHub Release at each promotion, `kiln version` does the mechanical steps (M)
-- T-44 · `/kiln:backlog plan`, read by `kiln version` and `/kiln:release` (M)
 - T-118 · Each promoted release announced on Bluesky and dev.to (S)
 - T-14 · Promote v0.3.1, the first release on PyPI (XS) (blocked: antoine, old token)
 - T-05 · Check the first real run of the workflows on GitHub (XS) (blocked: GitHub billing)
 - T-04 · Decide whether annski quotes kiln's workflows at a tag (XS) (blocked: antoine)
 
+### v0.3.6 · Three releases a week without bothering anyone
+The plan drives the releases, and users are asked once a week at most, whatever the pace.
+- T-45 · Update reminders at the pace you choose (S)
+- T-44 · `/kiln:backlog plan`, read by `kiln version` and `/kiln:release` (M)
+
 ### v0.4.0 · kiln speaks English
-The milestone decided by antoine: every rename at once, converted by `kiln update`.
+The milestone decided by antoine: every rename at once, converted by `kiln update`; kept whole
+because its breaking changes must land together.
 ⚠ breaking: CLI names, `copier.yml` questions, charter rule IDs, workflow inputs, skill names.
 - T-23 · kiln in English (L)
 - T-25 · Plugin `kiln` with English skills, released with kiln (M)
 - T-08 · Copier migrations for breaking releases (M)
-- T-27 · The edit hook checks only the edited file (S)
 
-### v0.4.1 · Nothing to trip on for a beginner
-A first project without a question to answer, a flow to learn, a French default to undo or a
-missing tool to hunt for.
+### v0.4.1 · Start light: a small repo, a simple git flow
 ⚠ breaking: the size question goes away.
 - T-39 · Start light, grow with the repo (M)
 - T-42 · The git flow grows with the size (M)
+
+### v0.4.2 · A first project with nothing to undo
 - T-36 · `kiln new` recommends the stack, the user decides (S)
 - T-31 · Neutral defaults instead of AnnSki's (S)
 - T-28 · Quiet session hook outside kiln repos (S)
+- T-27 · The edit hook checks only the edited file (S)
+
+### v0.4.3 · No missing piece to hunt for
 - T-98 · Tab completion for zsh and fish (S)
 - T-99 · `kiln doctor --fix` (S)
-
-### v0.4.2 · Everything settable, and you find it
-The other half of T-41: the expert sets anything in one command, the newcomer is told when it
-matters and why.
-- T-41 · Beginner with nothing to set, expert with everything settable (M)
-- T-40 · kiln tells you what is possible, once, at the right moment (M)
-- T-95 · `kiln why` and `/kiln:onboard` (M)
-- T-10 · Interface polish (S)
-- T-45 · Update reminders at the pace you choose (S)
 - T-116 · An accessible CLI: `NO_COLOR`, `--plain` (S)
 
-### v0.4.3 · Instructions that fit the repo, for any agent
-A script stops carrying a service's 400-line charter; rules load by path and by size, other
-coding agents read them too, and Claude hears when they change.
+### v0.4.4 · Everything settable, and you find it
+- T-41 · Beginner with nothing to set, expert with everything settable (M)
+- T-10 · Interface polish (S)
+
+### v0.4.5 · kiln tells you what is possible, and why
+- T-40 · kiln tells you what is possible, once, at the right moment (M)
+- T-95 · `kiln why` and `/kiln:onboard` (M)
+
+### v0.4.6 · Instructions that fit the repo
 ⚠ breaking: generated tree (`.claude/rules/kiln/`).
 - T-24 · Generated instructions in `.claude/rules/kiln/`, by path and by size (L)
-- T-52 · `AGENTS.md` too: ready for every coding agent (M)
 - T-107 · After `kiln update`, Claude is told what changed in its rules (S)
 
-### v0.4.4 · From idea to live app
-Every project type deploys from `kiln new`, on docker or podman, with a live example to prove it.
+### v0.4.7 · Read by every coding agent
+- T-52 · `AGENTS.md` too: ready for every coding agent (M)
+
+### v0.4.8 · Run locally with what you have
 - T-37 · Docker or podman: the engine the machine has (M)
+- T-51 · SQLite first, PostgreSQL when the project grows (M)
+
+### v0.4.9 · From idea to live app
 - T-32 · Every project type deployable from `kiln new` (L)
+
+### v0.4.10 · Living proof, online
 - T-35 · A site and an example app made by kiln, online (M)
 
-### v0.4.5 · Your existing repo, welcome
-The second door: adopt a repo as it is, say what kiln does not know, give it a fine README.
+### v0.4.11 · Your existing repo, welcome
 - T-34 · kiln for the repo you already have (M)
 - T-38 · `kiln adopt` reports the technologies kiln does not know yet (M)
+
+### v0.4.12 · Java, and a README worth reading
 - T-07 · Better support for Java projects (M)
 - T-43 · A skill that helps write a fine README, like kiln's own (M)
 
-### v0.4.6 · Try kiln with nothing installed
-A visitor gets from the README to a running project in minutes: one install line, a container
-in the browser, the project described in a sentence, no database to set up.
+### v0.4.13 · Try kiln with nothing installed
 - T-49 · `kiln bootstrap`: from a bare machine to the first repo (M)
 - T-48 · A devcontainer in every repo, kiln in Codespaces (M)
-- T-96 · `kiln new "…"`: the project described in a sentence (M)
-- T-51 · SQLite first, PostgreSQL when the project grows (M)
 
-### v0.4.7 · Any repo scored, any repo free to leave
-The launch hook: useful on any repo in one command, and the answer to "what if I want out?".
+### v0.4.14 · A project in one sentence and thirty seconds
+- T-96 · `kiln new "…"`: the project described in a sentence (M)
+- T-50 · `kiln new` in under 30 seconds, and offline (M)
+
+### v0.4.15 · Any repo scored out of 100
 - T-46 · `kiln score`: any repo graded out of 100, with a badge (L)
+
+### v0.4.16 · Free to leave
 - T-47 · `kiln eject`: leave kiln cleanly in one command (M)
 - T-121 · `kiln uninstall`: the machine left as it was (S)
 
-### v0.4.8 · Every release proven on real repos
-Reliability a team can rely on before the launch brings strangers in.
+### v0.4.17 · Every release proven on real repos
 - T-54 · Upgrade paths, full end-to-end, Claude Code versions (L)
 
-### v0.4.9 · Proof in numbers
-The benchmark and the speed the launch post stands on.
+### v0.4.18 · Proof in numbers
 - T-53 · kiln vs Claude Code alone, measured and published (L)
-- T-50 · `kiln new` in under 30 seconds, and offline (M)
 
-### v0.4.10 · Public launch
-Proposed as **v0.5.0**: the public stability promise starts here (antoine decides).
-- T-33 · One promise everywhere: tagline, About, PyPI, social preview (S)
+### v0.4.19 · Docs ready for strangers
 - T-30 · README, English reference in `docs/`, demo of `kiln new` (M)
+- T-33 · One promise everywhere: tagline, About, PyPI, social preview (S)
+- T-100 · Every error message links to its page in the docs (S)
+
+### v0.4.20 · Public launch
+Proposed as **v0.5.0**: the public stability promise starts here (antoine decides).
 - T-56 · A configurator on kiln's site, and a gallery (M)
 - T-55 · README in Chinese, Japanese, Spanish and Portuguese (S)
-- T-100 · Every error message links to its page in the docs (S)
 - T-119 · GitHub Sponsors and `FUNDING.yml` (XS)
 - T-03 · Launch kiln publicly, then list it in the Claude Code directories (S)
 - T-12 · Homebrew formula in a tap (S) (blocked: demand)
 
-### v0.4.11 · Never lets it rot, even without you
-The repo stays current while nobody looks, and every change can be previewed and undone.
+### v0.4.21 · kiln-bot: never lets it rot, even without you
 - T-59 · kiln-bot: `kiln update` as a scheduled pull request (L)
+
+### v0.4.22 · See before, undo after
 - T-60 · `kiln update --dry-run` and `--undo` (M)
 
-### v0.4.12 · Upgrades and vulnerabilities fixed for you
-Where repos really rot: the framework major that breaks the code, the advisory nobody fixes.
+### v0.4.23 · Framework upgrades done for you
 - T-61 · `kiln migrate`: framework major upgrades done by Claude Code (L)
+
+### v0.4.24 · A supply chain you can trust
+- T-90 · Pinned actions, signed releases, OpenSSF Scorecard (M)
 - T-113 · `kiln audit --fix` (M)
+- T-102 · A licence chosen at `kiln new`, dependency licences checked (S)
 
-### v0.4.13 · Add a feature, not a pile of files
-Features that `kiln update` keeps current, starting with the one every app needs.
+### v0.4.25 · Add a feature, not a pile of files
 - T-62 · `kiln add <feature>` (L)
-- T-63 · Add-on `auth` (M)
 
-### v0.4.14 · A SaaS on day one
-Mail, payments, then the project type that bundles them.
+### v0.4.26 · Accounts and mail
+- T-63 · Add-on `auth` (M)
 - T-64 · Add-on `email` (M)
+
+### v0.4.27 · Take payments, respect privacy
 - T-65 · Add-on `payments` (M)
+- T-112 · GDPR kit (M)
+
+### v0.4.28 · A SaaS on day one
 - T-66 · Project type `saas` (L)
 
-### v0.4.15 · Features every product grows into
+### v0.4.29 · Files and live updates
 - T-109 · Add-on `storage` (M)
 - T-110 · Add-on `realtime` (M)
+
+### v0.4.30 · Search, in every language
 - T-111 · Add-on `search` (M)
 - T-68 · Add-on `i18n` (M)
 
-### v0.4.16 · Claude closes the loop on a ticket
-From a ticket to a reviewed merge, with fast feedback at each edit.
+### v0.4.31 · Claude closes the loop on a ticket
 - T-72 · `/kiln:feature` and `/kiln:fix` (L)
+
+### v0.4.32 · Helpers and fast feedback for Claude
 - T-73 · Subagents per stack (M)
 - T-77 · Tests in seconds after each edit (M)
 
-### v0.4.17 · Red to green without a human, on a budget
-CI fixed by Claude, pull requests reviewed by it, and what that costs in context and tokens.
+### v0.4.33 · Red to green without a human
 - T-76 · `kiln ci --fix` (M)
 - T-75 · `@claude` in pull requests and issues of generated repos (M)
+
+### v0.4.34 · Claude on a budget
 - T-78 · Context budget, measured and capped (M)
 - T-106 · What a feature cost: tokens per ticket and per repo (M)
 
-### v0.4.18 · kiln as a tool for agents
+### v0.4.35 · kiln as tools for agents
 - T-71 · `kiln mcp`, with `--json` everywhere (M)
+
+### v0.4.36 · Autopilot
 - T-74 · `kiln autopilot` (L)
 
-### v0.4.19 · Build for AI
-The projects Claude Code users build most, with tests and evals as a matter of course.
+### v0.4.37 · Packages: MCP servers and Python libraries
 - T-79 · Project type `mcp` (M)
+- T-81 · Project type `library` (M)
+
+### v0.4.38 · Agents with evals
 - T-80 · Project type `agent` with evals in CI (L)
 
-### v0.4.20 · More kinds of projects
-JavaScript developers get a backend and two more fronts; Python authors a library type, analysts
-notebooks that cannot rot.
+### v0.4.39 · A TypeScript backend
 - T-82 · A TypeScript backend: Hono and Drizzle (M)
-- T-83 · SvelteKit and React (Vite) fronts (M)
-- T-81 · Project type `library` (M)
-- T-115 · Analysis projects: DuckDB, notebooks run in CI (M)
 - T-108 · An API reference page served by every backend (S)
 
-### v0.4.21 · Production you can see, reach and restore
+### v0.4.40 · SvelteKit and React
+- T-83 · SvelteKit and React (Vite) fronts (M)
+
+### v0.4.41 · Notebooks that cannot rot
+- T-115 · Analysis projects: DuckDB, notebooks run in CI (M)
+
+### v0.4.42 · See what production is doing
 - T-67 · Add-on `observability` (M)
 - T-93 · Database safety: migration linting, seed data, anonymised dumps (M)
-- T-105 · Backups of the hosted database, with a tested restore (M)
-- T-104 · A custom domain in one command (M)
 
-### v0.4.22 · Ship every pull request with confidence
-A preview to click, a front tested like a user, secrets in one place, release notes written.
+### v0.4.43 · Production you can reach and restore
+- T-104 · A custom domain in one command (M)
+- T-105 · Backups of the hosted database, with a tested restore (M)
+
+### v0.4.44 · A preview for each pull request
 - T-88 · A preview environment for each pull request (M)
-- T-92 · End-to-end, accessibility, performance budgets (M)
-- T-89 · `kiln secrets` (M)
-- T-103 · Changelog and release notes written from the commits (M)
 - T-97 · `kiln dev --share` (S)
 
-### v0.4.23 · Secure and compliant, provably
-- T-90 · Pinned actions, signed releases, OpenSSF Scorecard (M)
-- T-91 · The charter fixes, annotates and accepts custom rules (L)
-- T-112 · GDPR kit (M)
-- T-102 · A licence chosen at `kiln new`, dependency licences checked (S)
+### v0.4.45 · Fronts tested like a user
+- T-92 · End-to-end, accessibility, performance budgets (M)
 
-### v0.4.24 · Huge repos, many repos, heavy traffic
+### v0.4.46 · Secrets in one place, release notes written
+- T-89 · `kiln secrets` (M)
+- T-103 · Changelog and release notes written from the commits (M)
+
+### v0.4.47 · A charter that fixes
+- T-91 · The charter fixes, annotates and accepts custom rules (L)
+
+### v0.4.48 · One repo, many services
 - T-86 · Monorepos: several services in one repo (L)
+
+### v0.4.49 · An organisation at a glance, under load
 - T-87 · Fleet dashboard for an organisation (M)
 - T-114 · Load tests for big services (M)
 
-### v0.4.25 · Your company's kiln
-A team bends kiln to its ways without forking it.
+### v0.4.50 · Your company's kiln
 - T-70 · Org profiles (L)
+
+### v0.4.51 · Team hygiene
 - T-101 · Repo hygiene by size: templates, labels, CODEOWNERS, CONTRIBUTING (M)
 - T-120 · `kiln new --like <repo>` (S)
 
-### v0.4.26 · An ecosystem around kiln
-Others build on kiln, see where it goes, and learn it from tutorials.
+### v0.4.52 · Add-ons from anyone
 - T-69 · Community add-ons and stacks from any git repo (L)
+
+### v0.4.53 · A public roadmap and tutorials
 - T-58 · A public roadmap on GitHub Projects, Discussions open (M)
 - T-57 · A tutorial series: from idea to a live SaaS in an afternoon (M)
 
-### v0.4.27 · Beyond Python and JavaScript
+### v0.4.54 · Go and Rust
 - T-84 · Go and Rust backends (L)
+
+### v0.4.55 · Mobile apps
 - T-85 · Mobile apps with Expo (L)
 
-### v0.4.28 · kiln where you work: Windows and VS Code
+### v0.4.56 · Windows without WSL
 - T-94 · Windows without WSL (L)
+
+### v0.4.57 · kiln in VS Code
 - T-117 · A VS Code extension (L)
 
 ---
@@ -773,8 +810,12 @@ first question, and the most striking demo.
 
 Asking at every release annoys; letting users skip releases is worse in 0.x (each patch can
 break, skipped conversions pile up). So space the question, never the updates.
-- [ ] `kiln set update-reminders=each|daily|weekly` (machine setting, default from
-  `reminders.py`'s current backoff); when accepted, the repo goes to the latest release.
+- [ ] `kiln set update-reminders=each|daily|weekly` (machine setting, default `weekly`: kiln
+  ships about three releases a week, antoine's call of 16 October 2026, so `each` would ask
+  three times a week); when accepted, the repo goes to the latest release in one step, with
+  one short note per release crossed, breaking changes first.
+- [ ] A release that changes nothing for this repo (its stack untouched, plugins only) is
+  applied without a question at the next `kiln update`, never counted as a reminder.
 - [ ] From 1.0 (strict semver): `update-level=patch|minor|all` to follow only some releases.
 
 ### T-44 · `/kiln:backlog plan`: group the open tickets into the next releases

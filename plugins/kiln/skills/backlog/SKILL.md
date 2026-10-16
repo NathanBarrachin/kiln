@@ -64,8 +64,8 @@ groupings freely each time, as long as the result follows these rules.
   (`v0.4.1 · Nothing to trip on for a beginner`), never a list of contents or `misc`. Look for
   links across priorities: a 🟡 ticket that completes a 🟠 one goes with it.
 - **No useless release.** A release that only holds a stray XS ticket or a vague theme is
-  merged into a neighbour; a release too big to ship within about a week is split along a
-  real seam. Urgent fixes (a 🔴 bug) may stand alone.
+  merged into a neighbour; a release too big to ship within the cadence the repo's
+  `CLAUDE.md` sets (about a week when it says nothing) is split along a real seam. Urgent fixes (a 🔴 bug) may stand alone.
 - **Order**: what blocks first, then 🔴 then 🟠 then the rest; within that, the release that
   makes the north star of the header closest comes first.
 - **Numbers are planned, not promised.** In 0.x each release bumps the patch; a group that

@@ -3,7 +3,7 @@
 Le style (`kiln set statusline=…`, clé du poste) est lu par le script du plugin `base` à chaque
 affichage ; kiln ne touche à la `statusLine` de `~/.claude/settings.json` que pour y poser son
 script ou l'en retirer, jamais avec `perso`. Les réglages du repo vivent dans les réponses de
-kiln (`statusline_ci`, `url_sante_prod`), donc partagés par l'équipe, et sont posés en
+kiln (`statusline_ci`, `prod_health_url`), donc partagés par l'équipe, et sont posés en
 `git config statusline.*` à chaque `kiln install`, `kiln new` et `kiln set`.
 """
 
@@ -28,7 +28,7 @@ def apply_statusline_settings(root: Path) -> None:
     answers = answers_if_any(root)
     show_ci = answers.get("statusline_ci", True) is not False
     run(["git", "config", "statusline.ci", "true" if show_ci else "false"], root)
-    prod_url = str(answers.get("url_sante_prod") or "")
+    prod_url = str(answers.get("prod_health_url") or "")
     if prod_url:
         run(["git", "config", "statusline.prod-url", prod_url], root)
 

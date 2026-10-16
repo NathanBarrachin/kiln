@@ -139,7 +139,7 @@ def _print_status(code_dir: Path, root: Path, state: str) -> set[str]:
     branch = capture(["git", "branch", "--show-current"], root)
     is_dirty = bool(capture(["git", "status", "--porcelain"], root))
     stack = load_stack(root)
-    size = answers_if_any(root).get("envergure", "?")
+    size = answers_if_any(root).get("size", "?")
     tree_state = "modifié" if is_dirty else "propre"
     print(
         " ",

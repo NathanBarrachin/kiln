@@ -68,7 +68,7 @@ def install_project(root: Path) -> None:
     run(["pre-commit", "install"], root)
     apply_statusline_settings(root)
     ensure_statusline(config)
-    command_name = answers_if_any(root).get("nom", "<commande>")
+    command_name = answers_if_any(root).get("name", "<commande>")
     ui.success(f"Prêt. Lancer le projet : {_launch_hint(stack, command_name)}")
 
 

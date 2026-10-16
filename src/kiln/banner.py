@@ -114,7 +114,7 @@ def _project_summary(root: Path) -> str:
         return root.name
     frameworks = [name for name in (stack.backend, stack.frontend) if name != NO_FRAMEWORK]
     pile = " + ".join(frameworks) + (", podman" if stack.has_podman else "")
-    parts = [str(answers.get("nom", root.name)), str(answers.get("envergure", "")), pile]
+    parts = [str(answers.get("name", root.name)), str(answers.get("size", "")), pile]
     return " · ".join(part for part in parts if part)
 
 

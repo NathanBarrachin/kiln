@@ -177,3 +177,54 @@ CHARTER_RULES: Mapping[str, str] = {
 def rule_id(name: str) -> str:
     """A rule identifier under its current name, whatever the name it is cited by."""
     return RULE_IDS.get(name, name)
+
+
+# Answers of `.copier-answers.yml` (and keys of `kiln set`): key → new key, value → new value.
+ANSWER_KEYS: Mapping[str, str] = {
+    "boussole": "north_star",
+    "branche_deploiement": "deploy_branch",
+    "date_creation": "created",
+    "deploiement": "deploy",
+    "domaine_api": "api_domain",
+    "envergure": "size",
+    "equipe": "team",
+    "front_deploiement": "frontend_deploy",
+    "nom": "name",
+    "proprietaire": "owner",
+    "titre": "title",
+    "type_projet": "project_type",
+    "url_sante_prod": "prod_health_url",
+    "url_site": "site_url",
+    "vps_hote": "vps_host",
+}
+ANSWER_VALUES: Mapping[str, Mapping[str, str]] = {
+    "backend": {"aucun": "none"},
+    "frontend": {"aucun": "none"},
+    "deploy": {"aucun": "none"},
+    "frontend_deploy": {"aucun": "none"},
+    "project_type": {"tableau": "dashboard", "analyse": "analysis", "outil": "cli"},
+}
+
+
+def answers(values: Mapping[str, object]) -> dict[str, object]:
+    """Answers under today's names, whatever the release of kiln that wrote them."""
+    renamed: dict[str, object] = {}
+    for key, value in values.items():
+        name = ANSWER_KEYS.get(key, key)
+        if name in renamed and key != name:
+            continue  # the current key wins over its old name
+        old_values = ANSWER_VALUES.get(name, {})
+        renamed[name] = old_values.get(value, value) if isinstance(value, str) else value
+    return renamed
+
+
+def legacy_answers(values: Mapping[str, object]) -> dict[str, object]:
+    """Answers under the names of before kiln 0.4.0, to render a template of that time (frozen
+    files, the conversion of `kiln update`)."""
+    legacy_keys = {new: old for old, new in ANSWER_KEYS.items()}
+    legacy = {}
+    for key, value in answers(values).items():
+        old_values = {new: old for old, new in ANSWER_VALUES.get(key, {}).items()}
+        legacy_value = old_values.get(value, value) if isinstance(value, str) else value
+        legacy[legacy_keys.get(key, key)] = legacy_value
+    return legacy

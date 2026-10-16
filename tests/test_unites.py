@@ -82,10 +82,9 @@ def test_major_bounds_keep_the_major() -> None:
 
 
 def test_team_accepts_a_comma_list() -> None:
-    assert parse_assignments(["equipe=a, b", "podman=true"]) == {
-        "equipe": ["a", "b"],
-        "podman": True,
-    }
+    assert parse_assignments(["team=a, b", "podman=true"]) == {"team": ["a", "b"], "podman": True}
+    # Names of before kiln 0.4.0 still work.
+    assert parse_assignments(["equipe=a", "frontend=aucun"]) == {"team": ["a"], "frontend": "none"}
 
 
 def test_unknown_key_is_refused() -> None:
@@ -159,7 +158,7 @@ def test_adopted_repo_stack_comes_from_its_files(tmp_path: Path) -> None:
 
 def test_adopted_repo_declares_its_size_in_its_charter(tmp_path: Path) -> None:
     (tmp_path / "charte.toml").write_text('envergure = "flame"\nexclus = []\n')
-    assert answers_if_any(tmp_path) == {"envergure": "flame"}
+    assert answers_if_any(tmp_path) == {"size": "flame"}
 
 
 def test_logo_draws_two_pixel_rows_per_line(monkeypatch: pytest.MonkeyPatch) -> None:

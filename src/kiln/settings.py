@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml  # fourni par copier
 
-from kiln import ui
+from kiln import renames, ui
 from kiln.check import check_project
 from kiln.deps import lock_dependencies, sync_dependencies
 from kiln.rules import write_unverified_rules
@@ -20,28 +20,38 @@ from kiln.statusline import apply_statusline_settings
 from kiln.update import apply_template, check_working_branch, report_changes
 
 SETTABLE_KEYS = (
-    "envergure",
-    "nom",
-    "titre",
+    "size",
+    "name",
+    "title",
     "description",
-    "proprietaire",
-    "equipe",
-    "type_projet",
+    "language",
+    "language_comments",
+    "language_commits",
+    "language_docs",
+    "language_tickets",
+    "language_ui",
+    "owner",
+    "team",
+    "project_type",
     "backend",
     "frontend",
     "podman",
+    "java_package",
+    "timezone",
     "serena",
-    "deploiement",
-    "vps_hote",
-    "domaine_api",
-    "url_site",
-    "branche_deploiement",
-    "front_deploiement",
-    "boussole",
+    "deploy",
+    "vps_host",
+    "api_domain",
+    "site_url",
+    "deploy_branch",
+    "frontend_deploy",
+    "north_star",
     "statusline_ci",
-    "url_sante_prod",
+    "prod_health_url",
 )
-LIST_KEYS = frozenset({"equipe"})
+LIST_KEYS = frozenset({"team"})
+# A language set per use turns the per-use questions on (`language_custom`).
+PER_USE_LANGUAGES = frozenset(key for key in SETTABLE_KEYS if key.startswith("language_"))
 
 
 def show_settings(root: Path) -> None:
@@ -58,7 +68,8 @@ def parse_assignments(assignments: list[str]) -> dict[str, object]:
     """`clé=valeur` lus comme du YAML (`true`, `[a, b]`) ; une équipe peut s'écrire `a,b`."""
     parsed: dict[str, object] = {}
     for assignment in assignments:
-        key, separator, raw_value = assignment.partition("=")
+        old_key, separator, raw_value = assignment.partition("=")
+        key = renames.ANSWER_KEYS.get(old_key, old_key)  # names before kiln 0.4.0 still work
         if not separator or key not in SETTABLE_KEYS:
             raise KilnError(
                 f"« {assignment} » : attendu clé=valeur, clés : {', '.join(SETTABLE_KEYS)}"
@@ -67,7 +78,9 @@ def parse_assignments(assignments: list[str]) -> dict[str, object]:
             parsed[key] = [login.strip() for login in raw_value.split(",") if login.strip()]
         else:
             parsed[key] = yaml.safe_load(raw_value) if raw_value else ""
-    return parsed
+        if key in PER_USE_LANGUAGES:
+            parsed["language_custom"] = True
+    return renames.answers(parsed)
 
 
 def apply_settings(root: Path, assignments: list[str]) -> None:

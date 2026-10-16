@@ -15,6 +15,7 @@ from pathlib import Path
 
 import yaml  # fourni par copier
 
+from kiln import renames
 from kiln.charter import config as charter
 from kiln.shell import KilnError
 
@@ -29,7 +30,7 @@ MAVEN_BACKENDS = frozenset({"java"})
 MAVEN_WRAPPER = "./mvnw"
 PYTHON_FRONTENDS = frozenset({"streamlit", "dash"})
 PNPM_FRONTENDS = frozenset({"nuxt", "next", "astro"})
-NO_FRAMEWORK = "aucun"
+NO_FRAMEWORK = "none"
 
 # Projets générés avant le choix des frameworks : Django et Nuxt, seule stack d'alors.
 LEGACY_BACKEND = "django"
@@ -167,7 +168,8 @@ def read_answers(root: Path) -> dict[str, object]:
             "(check, dev, install et contrat marchent quand même, pile déduite des fichiers)"
         )
     loaded = yaml.safe_load(answers_path.read_text())
-    return dict(loaded) if isinstance(loaded, dict) else {}
+    # Under today's names, whatever the release of kiln that wrote them.
+    return renames.answers(loaded) if isinstance(loaded, dict) else {}
 
 
 def answers_if_any(root: Path) -> dict[str, object]:
@@ -175,7 +177,7 @@ def answers_if_any(root: Path) -> dict[str, object]:
     if (root / ANSWERS_FILE).exists():
         return read_answers(root)
     size = charter.load(root).get("size")
-    return {"envergure": size} if size else {}
+    return {"size": size} if size else {}
 
 
 def stack_from_answers(answers: Mapping[str, object]) -> Stack:

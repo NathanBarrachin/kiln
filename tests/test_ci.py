@@ -155,9 +155,9 @@ def test_a_failed_job_makes_the_verdict_fail() -> None:
 
 
 def _ci_green(repo: Path, fake_bin: Path, sha: str) -> subprocess.CompletedProcess[str]:
-    script = next(Path(__file__).parent.parent.glob("template/*/ops/lib/ci-verte.sh"))
+    script = next(Path(__file__).parent.parent.glob("template/*/ops/lib/green-ci.sh"))
     return subprocess.run(
-        ["bash", "-c", '. "$1"; ci_verte "$2"', "ci-verte", str(script), sha],
+        ["bash", "-c", '. "$1"; ci_is_green "$2"', "green-ci", str(script), sha],
         cwd=repo,
         env={"PATH": f"{fake_bin}:/usr/bin:/bin", "HOME": str(repo)},
         capture_output=True,
@@ -179,7 +179,7 @@ def test_deploy_gate_accepts_a_kiln_ci_success_only(tmp_path: Path) -> None:
     (fake_bin / "gh").chmod(0o755)
     refused = _ci_green(clone, fake_bin, sha)
     assert refused.returncode == 1
-    assert "kiln ci « jamais rejoué »" in refused.stderr
+    assert 'kiln ci "never replayed"' in refused.stderr
     failed = Verdict(sha, (JobOutcome("a", False, "pytest"),), (), datetime.now().astimezone(), 1)
     record_verdict(clone, failed, should_push=False)
     assert _ci_green(clone, fake_bin, sha).returncode == 1
@@ -187,7 +187,7 @@ def test_deploy_gate_accepts_a_kiln_ci_success_only(tmp_path: Path) -> None:
     record_verdict(clone, passed, should_push=True)
     accepted = _ci_green(clone, fake_bin, sha)
     assert accepted.returncode == 0, accepted.stderr
-    assert "CI rejouée par kiln ci, verte" in accepted.stdout
+    assert "CI replayed by kiln ci, green" in accepted.stdout
 
 
 @pytest.mark.skipif(shutil.which("wslpath") is None, reason="WSL seulement")

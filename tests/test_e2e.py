@@ -18,6 +18,8 @@ from pathlib import Path
 import copier
 import pytest
 
+from kiln import renames
+
 REPO = Path(__file__).resolve().parent.parent
 TIMEOUT = 1800
 pytestmark = pytest.mark.e2e
@@ -28,11 +30,11 @@ STACKS = [
     ("fastapi", "next"),
     ("fastapi", "dash"),
     ("data", "streamlit"),
-    ("cli", "aucun"),
-    ("java", "aucun"),
-    ("aucun", "astro"),
+    ("cli", "none"),
+    ("java", "none"),
+    ("none", "astro"),
 ]
-UPGRADED_STACKS = [("django", "nuxt"), ("fastapi", "aucun"), ("data", "streamlit")]
+UPGRADED_STACKS = [("django", "nuxt"), ("fastapi", "none"), ("data", "streamlit")]
 PNPM_FRONTENDS = {"nuxt", "next", "astro"}
 
 
@@ -78,15 +80,20 @@ def assert_succeeded(completed: subprocess.CompletedProcess[str]) -> None:
     assert completed.returncode == 0, completed.stdout[-6000:] + completed.stderr[-3000:]
 
 
+# A French project too: its user-facing texts change, its checks must not.
+LANGUAGES = {("fastapi", "dash"): "fr", ("cli", "none"): "fr"}
+
+
 @pytest.mark.parametrize(("backend", "frontend"), STACKS)
 def test_a_new_project_passes_its_own_checks(
     tmp_path: Path, kiln_env: dict[str, str], backend: str, frontend: str
 ) -> None:
     require_tools(backend, frontend)
+    language = LANGUAGES.get((backend, frontend), "en")
 
     created = run_kiln(
         "new", "demo", "--no-github", "--backend", backend, "--frontend", frontend,
-        cwd=tmp_path, env=kiln_env,
+        "--language", language, cwd=tmp_path, env=kiln_env,
     )  # fmt: skip
     assert_succeeded(created)
     assert_succeeded(run_kiln("check", cwd=tmp_path / "demo", env=kiln_env))
@@ -112,7 +119,8 @@ def make_old_project(destination: Path, tag: str, backend: str, frontend: str) -
     copier.run_copy(
         str(REPO),
         destination,
-        data={"nom": "demo", "backend": backend, "frontend": frontend},
+        # The answers under the names the template of that release knows.
+        data=renames.legacy_answers({"name": "demo", "backend": backend, "frontend": frontend}),
         vcs_ref=tag,
         defaults=True,
         quiet=True,
@@ -151,3 +159,10 @@ def test_a_project_of_an_earlier_release_updates_cleanly(
         check=False,
     ).stdout
     assert conflicts == "", f"conflicts left by the update: {conflicts}"
+    # A project of kiln 0.3 comes out converted to kiln 0.4's names.
+    answers = (project / ".copier-answers.yml").read_text()
+    assert "name: demo" in answers and "language: fr" in answers and "nom:" not in answers
+    assert (project / "charter.toml").is_file() and not (project / "charte.toml").exists()
+    assert "## Repo map" in (project / "CLAUDE.md").read_text()
+    assert not (project / "backend/CLAUDE.md").exists()
+    assert (project / ".claude/rules/kiln/charter.md").is_file()

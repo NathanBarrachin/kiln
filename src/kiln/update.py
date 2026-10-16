@@ -10,7 +10,7 @@ import copier
 from copier.errors import UserMessageError
 from plumbum import ProcessExecutionError
 
-from kiln import ui
+from kiln import migrations, ui
 from kiln.backlog import migrate_legacy_backlog
 from kiln.check import check_project
 from kiln.contract import generate_api_contract
@@ -99,10 +99,12 @@ def apply_template(root: Path, answers: Mapping[str, object] | None = None) -> N
     """Modèle réappliqué (révision la plus récente, réponses éventuellement changées), sans
     écraser les modifications locales : les conflits sont marqués dans les fichiers. Les
     fichiers figés (`kiln-waivers.toml`) sont laissés tels quels."""
+    previous_answers = migrations.raw_answers(root)
     try:
         copier.run_update(
             root,
-            data=dict(answers or {}),
+            # Under today's names: a project of kiln 0.3 wrote its answers in French.
+            data=migrations.answers_for_update(root, answers or {}),
             vcs_ref=template_revision(_template_source(root)),
             use_prereleases=follows_candidates(),
             exclude=frozen_files(root),
@@ -117,6 +119,9 @@ def apply_template(root: Path, answers: Mapping[str, object] | None = None) -> N
     except ProcessExecutionError as error:
         raise KilnError(git_failure(error)) from error
     # Après Copier, qui exige un arbre propre et réécrit le fichier de réponses.
+    source = _template_source(root)
+    for converted in migrations.convert(root, previous_answers, source, template_revision(source)):
+        ui.note(f"kiln 0.4: {converted}.")
     resolve_kiln_ref_conflicts(root)
     replace_legacy_source(root)
     if migrate_legacy_backlog(root):

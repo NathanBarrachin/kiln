@@ -31,7 +31,7 @@ from kiln.versions import follows_candidates
 BACKLOG_DIR = Path("docs") / "backlog"
 DEFAULT_SIZE = "ember"
 # Stack la plus légère du modèle : seuls ses fichiers communs (le suivi) sont repris.
-RENDER_STACK = {"backend": "cli", "frontend": "aucun"}
+RENDER_STACK = {"backend": "cli", "frontend": "none"}
 
 CHARTER = """\
 # Rules checked by kiln's `charter` command (`charter --detail`): after each edit (hook of
@@ -98,7 +98,7 @@ def copy_backlog(root: Path, template: str | None) -> None:
         copier.run_copy(
             source,
             rendered,
-            data={"nom": project_name(root), **RENDER_STACK},
+            data={"name": project_name(root), **RENDER_STACK},
             vcs_ref=template_revision(source),
             use_prereleases=follows_candidates(),
             defaults=True,

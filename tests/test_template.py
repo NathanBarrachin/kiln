@@ -9,20 +9,20 @@ import yaml
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent
 ANSWERS = {
-    "nom": "demo",
-    "titre": "Démo",
+    "name": "demo",
+    "title": "Demo",
     "description": "Projet de démonstration.",
-    "proprietaire": "antoine-tena",
-    "equipe": ["antoine-tena", "NathanBarrachin"],
+    "owner": "antoine-tena",
+    "team": ["antoine-tena", "NathanBarrachin"],
 }
-BACKENDS = ("django", "fastapi", "data", "cli", "java", "aucun")
-FRONTENDS = ("nuxt", "next", "astro", "streamlit", "dash", "aucun")
+BACKENDS = ("django", "fastapi", "data", "cli", "java", "none")
+FRONTENDS = ("nuxt", "next", "astro", "streamlit", "dash", "none")
 STACKS = [
-    (back, front) for back in BACKENDS for front in FRONTENDS if (back, front) != ("aucun",) * 2
+    (back, front) for back in BACKENDS for front in FRONTENDS if (back, front) != ("none",) * 2
 ]
 # Un outil en ligne de commande ou un backend Java seuls n'ont rien à conteneuriser : copier
 # refuse podman.
-PODMAN_STACKS = [stack for stack in STACKS if stack not in {("cli", "aucun"), ("java", "aucun")}]
+PODMAN_STACKS = [stack for stack in STACKS if stack not in {("cli", "none"), ("java", "none")}]
 JSON_FILES = (".vscode/settings.json", ".vscode/extensions.json", ".claude/settings.json")
 
 
@@ -59,13 +59,13 @@ def test_every_stack_renders_valid_files(tmp_path: Path, backend: str, frontend:
     ]
     assert not [path for path in rendered if path.suffix == ".jinja"]
     assert not [path for path in rendered if path.suffix != ".ico" and "{%" in path.read_text()]
-    tomllib.loads((project_dir / "charte.toml").read_text())
+    tomllib.loads((project_dir / "charter.toml").read_text())
     yaml.safe_load((project_dir / ".github/workflows/ci.yml").read_text())
     yaml.safe_load((project_dir / ".pre-commit-config.yaml").read_text())
     for name in JSON_FILES:
         json.loads((project_dir / name).read_text())
-    assert (project_dir / "backend").is_dir() == (backend != "aucun")
-    assert (project_dir / "frontend").is_dir() == (frontend != "aucun")
+    assert (project_dir / "backend").is_dir() == (backend != "none")
+    assert (project_dir / "frontend").is_dir() == (frontend != "none")
 
 
 @pytest.mark.parametrize(("backend", "frontend"), PODMAN_STACKS)
@@ -85,19 +85,20 @@ def test_podman_adds_containers_for_every_stack(
 
 
 def test_stack_advice_follows_project_type(tmp_path: Path) -> None:
-    project_dir = generate(tmp_path / "demo", type_projet="tableau")
+    project_dir = generate(tmp_path / "demo", project_type="dashboard")
 
     answers = yaml.safe_load((project_dir / ".copier-answers.yml").read_text())
     assert (answers["backend"], answers["frontend"]) == ("data", "streamlit")
 
 
-@pytest.mark.parametrize(("envergure", "has_podman"), [("ember", False), ("flame", True)])
-def test_envergure_sets_podman_default(tmp_path: Path, envergure: str, has_podman: bool) -> None:
-    project_dir = generate(tmp_path / "demo", envergure=envergure)
+@pytest.mark.parametrize(("size", "has_podman"), [("ember", False), ("flame", True)])
+def test_size_sets_podman_default(tmp_path: Path, size: str, has_podman: bool) -> None:
+    project_dir = generate(tmp_path / "demo", size=size)
 
     answers = yaml.safe_load((project_dir / ".copier-answers.yml").read_text())
-    assert (answers["envergure"], answers["podman"]) == (envergure, has_podman)
-    assert f"**{envergure.capitalize()}**" in (project_dir / "CLAUDE.md").read_text()
+    assert (answers["size"], answers["podman"]) == (size, has_podman)
+    project_rules = (project_dir / ".claude/rules/kiln/project.md").read_text()
+    assert f"**{size.capitalize()}**" in project_rules
 
 
 def test_vue_templates_keep_their_mustaches(tmp_path: Path) -> None:
@@ -105,18 +106,19 @@ def test_vue_templates_keep_their_mustaches(tmp_path: Path) -> None:
 
     health_component = (project_dir / "frontend/app/components/HealthStatus.vue").read_text()
     assert "{{ health?.status }}" in health_component
+    assert "{{ BACKEND_DOWN }}" in health_component
 
 
 def test_backlog_is_always_there(tmp_path: Path) -> None:
-    project_dir = generate(tmp_path / "demo", boussole="la démo en ligne", backend="fastapi")
+    project_dir = generate(tmp_path / "demo", north_star="the demo online", backend="fastapi")
 
     backlog = (project_dir / "docs/backlog/backlog.md").read_text()
-    assert "North star: **la démo en ligne**." in backlog
+    assert "North star: **the demo online**." in backlog
     assert "- **Type**: task" in backlog
     assert "docs/backlog/" in (project_dir / "CLAUDE.md").read_text()
     assert not (project_dir / "docs/a-faire").exists()
     urgent = (project_dir / "docs/backlog/urgent.md").read_text()
-    # La status line compte les lignes qui commencent par une case ouverte : aucune au départ.
+    # The status line counts lines starting with an open box: none at first.
     assert not [line for line in urgent.splitlines() if line.lstrip().startswith("- [ ]")]
 
 
@@ -142,7 +144,8 @@ def test_fastapi_front_keeps_its_plain_fetch(tmp_path: Path) -> None:
 def test_data_stack_accepts_numeric_arrays_and_trained_models(tmp_path: Path) -> None:
     project_dir = generate(tmp_path / "demo", backend="data", frontend="streamlit")
 
-    rules = (project_dir / "backend/CLAUDE.md").read_text()
+    rules = (project_dir / ".claude/rules/kiln/data.md").read_text()
+    assert rules.startswith('---\npaths:\n  - "backend/**"\n---\n')
     assert "NumPy" in rules
     assert "`data/models/`" in rules
     attributes = (project_dir / ".gitattributes").read_text()
@@ -156,7 +159,7 @@ def test_readme_sections_start_on_their_own_line(
     project_dir = generate(tmp_path / "demo", backend=backend, frontend=frontend)
 
     readme = (project_dir / "README.md").read_text()
-    assert "\n\n## Suivi du travail\n" in readme
+    assert "\n\n## Work tracking\n" in readme
     assert all(line.startswith("## ") for line in readme.splitlines() if "## " in line)
 
 
@@ -171,18 +174,18 @@ def test_ci_runs_for_main_and_develop(tmp_path: Path) -> None:
 
 
 def test_tool_project_gets_a_command_line_package(tmp_path: Path) -> None:
-    # Une description longue ne doit pas déborder dans le code (E501 au premier commit).
-    long_description = "Un outil dont la description dépasse largement cent caractères. " * 3
+    # A long description must not overflow into the code (E501 at the first commit).
+    long_description = "A tool whose description goes well beyond a hundred characters. " * 3
     project_dir = generate(
-        tmp_path / "demo", type_projet="outil", envergure="flame", description=long_description
+        tmp_path / "demo", project_type="cli", size="flame", description=long_description
     )
 
     answers = yaml.safe_load((project_dir / ".copier-answers.yml").read_text())
-    assert (answers["backend"], answers["frontend"], answers["podman"]) == ("cli", "aucun", False)
+    assert (answers["backend"], answers["frontend"], answers["podman"]) == ("cli", "none", False)
     pyproject = tomllib.loads((project_dir / "backend/pyproject.toml").read_text())
     assert pyproject["project"]["scripts"] == {"demo": "demo.cli:main"}
     assert (project_dir / "backend/demo/cli.py").is_file()
-    assert "[CLI-MINCE]" in (project_dir / "backend/CLAUDE.md").read_text()
+    assert "[THIN-CLI]" in (project_dir / ".claude/rules/kiln/cli.md").read_text()
     assert not (project_dir / "compose.yaml").exists()
     python_lines = [
         line
@@ -193,45 +196,45 @@ def test_tool_project_gets_a_command_line_package(tmp_path: Path) -> None:
 
 
 def test_java_backend_gets_a_maven_project(tmp_path: Path) -> None:
-    project_dir = generate(tmp_path / "demo", nom="demo-app", backend="java", frontend="aucun")
+    project_dir = generate(tmp_path / "demo", name="demo-app", backend="java", frontend="none")
 
     backend_dir = project_dir / "backend"
     pom = (backend_dir / "pom.xml").read_text()
     assert "<artifactId>demo-app</artifactId>" in pom
-    assert "<main.class>fr.demoapp.Main</main.class>" in pom
-    assert (backend_dir / "src/main/java/fr/demoapp/Main.java").is_file()
-    assert (backend_dir / "src/test/java/fr/demoapp/greeting/GreetingServiceTest.java").is_file()
+    assert "<main.class>io.github.antoinetena.demoapp.Main</main.class>" in pom
+    package_dir = "io/github/antoinetena/demoapp"
+    assert (backend_dir / f"src/main/java/{package_dir}/Main.java").is_file()
+    service_test = f"src/test/java/{package_dir}/greeting/GreetingServiceTest.java"
+    assert (backend_dir / service_test).is_file()
     assert (backend_dir / "mvnw").stat().st_mode & 0o111
     wrapper = (backend_dir / ".mvn/wrapper/maven-wrapper.properties").read_text()
     assert "distributionSha256Sum=" in wrapper
-    assert "[JAVA-MODERNE]" in (backend_dir / "CLAUDE.md").read_text()
+    assert "[MODERN-JAVA]" in (project_dir / ".claude/rules/kiln/java.md").read_text()
     workflow = yaml.safe_load((project_dir / ".github/workflows/ci.yml").read_text())
     assert workflow["jobs"]["backend"]["uses"].startswith(
         "antoine-tena/kiln/.github/workflows/maven.yml@"
     )
-    # Rien à auditer par uv ni pnpm : pas de job de sécurité vide.
-    assert "securite" not in workflow["jobs"]
-    charter = tomllib.loads((project_dir / "charte.toml").read_text())
-    assert ".java" in charter["cliquets"]["taille-fichier"]["suffixes"]
-    booleans_rule = next(
-        line
-        for line in (project_dir / "CLAUDE.md").read_text().splitlines()
-        if line.startswith("- **[BOOLEENS]**")
-    )
-    assert "en Java" in booleans_rule
+    # Nothing for uv or pnpm to audit: no empty security job.
+    assert "security" not in workflow["jobs"]
+    charter = tomllib.loads((project_dir / "charter.toml").read_text())
+    assert ".java" in charter["ratchets"]["file-size"]["suffixes"]
+    charter_rules = (project_dir / ".claude/rules/kiln/charter.md").read_text()
+    booleans_rule = charter_rules.split("**[BOOLEANS]**", 1)[1].split("\n- ", 1)[0]
+    assert "in Java" in booleans_rule
     assert "Python" not in booleans_rule
 
 
-def test_team_gets_kiln_marketplace_and_base_plugin(tmp_path: Path) -> None:
-    project_dir = generate(tmp_path / "demo", backend="java", frontend="aucun")
+def test_team_gets_kiln_marketplace_and_plugin(tmp_path: Path) -> None:
+    project_dir = generate(tmp_path / "demo", backend="java", frontend="none")
 
     settings = json.loads((project_dir / ".claude/settings.json").read_text())
     assert settings["extraKnownMarketplaces"]["kiln"]["source"] == {
         "source": "github",
         "repo": "antoine-tena/kiln",
+        "ref": "main",
     }
     assert settings["extraKnownMarketplaces"]["kiln"]["autoUpdate"] is True
-    assert settings["enabledPlugins"] == {"base@kiln": True}
+    assert settings["enabledPlugins"] == {"kiln@kiln": True}
 
 
 def test_a_released_template_pins_its_workflows_to_its_version(tmp_path: Path) -> None:
@@ -243,7 +246,7 @@ def test_a_released_template_pins_its_workflows_to_its_version(tmp_path: Path) -
     )
 
     workflow = yaml.safe_load((tmp_path / "demo/.github/workflows/ci.yml").read_text())
-    assert workflow["jobs"]["contrat"]["uses"].endswith("contrat-api.yml@v9.9.9")
+    assert workflow["jobs"]["api-contract"]["uses"].endswith("api-contract.yml@v9.9.9")
 
 
 def test_a_project_without_owner_has_no_codeowners_nor_team(tmp_path: Path) -> None:
@@ -251,12 +254,61 @@ def test_a_project_without_owner_has_no_codeowners_nor_team(tmp_path: Path) -> N
     copier.run_copy(
         str(TEMPLATE_DIR),
         project_dir,
-        data={"nom": "demo", "backend": "fastapi", "frontend": "aucun"},
+        data={"name": "demo", "backend": "fastapi", "frontend": "none"},
         defaults=True,
         vcs_ref="HEAD",
         quiet=True,
     )
 
     assert not (project_dir / ".github/CODEOWNERS").exists()
-    assert "## Équipe" not in (project_dir / "README.md").read_text()
-    assert "proprietaire: ''" in (project_dir / ".copier-answers.yml").read_text()
+    assert "## Team" not in (project_dir / "README.md").read_text()
+    assert "owner: ''" in (project_dir / ".copier-answers.yml").read_text()
+
+
+def rule_files(project_dir: Path) -> set[str]:
+    return {path.name for path in (project_dir / ".claude/rules/kiln").glob("*.md")}
+
+
+def test_the_size_chooses_the_rules(tmp_path: Path) -> None:
+    spark = generate(tmp_path / "spark", size="spark", backend="cli", frontend="none")
+    blaze = generate(tmp_path / "blaze", size="blaze", podman=True)
+
+    assert rule_files(spark) == {"project.md", "charter.md", "python.md", "cli.md"}
+    assert rule_files(blaze) >= {"django.md", "nuxt.md", "production.md", "security.md"}
+    django_rules = (blaze / ".claude/rules/kiln/django.md").read_text()
+    assert "[RLS]" in django_rules and "[OUTBOX]" in django_rules
+    ember_django = generate(tmp_path / "ember", size="ember")
+    assert "[OUTBOX]" not in (ember_django / ".claude/rules/kiln/django.md").read_text()
+
+
+def test_rules_load_by_path_and_claude_md_stays_short(tmp_path: Path) -> None:
+    project_dir = generate(tmp_path / "demo")
+
+    for name in ("django.md", "nuxt.md", "python.md"):
+        text = (project_dir / ".claude/rules/kiln" / name).read_text()
+        assert text.startswith("---\npaths:\n"), name
+    for name in ("project.md", "charter.md"):
+        assert not (project_dir / ".claude/rules/kiln" / name).read_text().startswith("---")
+    assert len((project_dir / "CLAUDE.md").read_text().splitlines()) < 60
+    assert not (project_dir / "backend/CLAUDE.md").exists()
+
+
+def test_the_project_language_rules_what_people_read(tmp_path: Path) -> None:
+    french = generate(tmp_path / "fr", language="fr", backend="fastapi", frontend="streamlit")
+    english = generate(tmp_path / "en", backend="fastapi", frontend="streamlit")
+
+    assert "Talk with the user in French" in (french / ".claude/rules/kiln/project.md").read_text()
+    assert "## Démarrage rapide" in (french / "README.md").read_text()
+    assert "## Quick start" in (english / "README.md").read_text()
+    french_texts = (french / "frontend/dashboard/constants.py").read_text()
+    assert "Le backend ne répond pas" in french_texts
+    assert "does not answer" in (english / "frontend/dashboard/constants.py").read_text()
+
+
+def test_a_language_per_use(tmp_path: Path) -> None:
+    project_dir = generate(
+        tmp_path / "demo", language="fr", language_custom=True, language_commits="en"
+    )
+
+    project_rules = (project_dir / ".claude/rules/kiln/project.md").read_text()
+    assert "English" in project_rules.split("Commit messages:", 1)[1][:12]

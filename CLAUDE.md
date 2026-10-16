@@ -38,9 +38,9 @@ un dossier ou un module.
   d'accueil `docs/assets/kiln-accueil.svg`. Référence complète en français : `README.fr.md`.
 - `docs/backlog/` : suivi du travail, en anglais (skill `base:backlog`), dont la prochaine
   promotion de version ; `docs/assets/` : images de la vitrine.
-- `tests/` : `test_modele.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
+- `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal), `test_unites.py`,
-  `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_deploiement.py`, `test_statusline.py` (choix du
+  `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_deployment.py`, `test_statusline.py` (choix du
   poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_garde_branche.py` (hook garde-branche), `test_adopt.py`,
   `test_relances.py`, `test_hook_kiln_a_jour.py` ; `conftest.py` : config git du poste écartée, identité de test.
 

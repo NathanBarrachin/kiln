@@ -1,4 +1,4 @@
-"""Déploiement sur un serveur à soi (`deploiement=vps`) : config/vps, scripts/ops et la doc."""
+"""Deployment on a server of one's own (`deploy=vps`): config/vps, scripts/ops and the doc."""
 
 import json
 import subprocess
@@ -7,14 +7,14 @@ from pathlib import Path
 import copier
 import pytest
 import yaml
-from test_modele import generate
+from test_template import generate
 
 VPS_ANSWERS = {
     "podman": True,
-    "deploiement": "vps",
-    "vps_hote": "root@203.0.113.7",
-    "domaine_api": "api.demo.fr",
-    "url_site": "https://www.demo.fr",
+    "deploy": "vps",
+    "vps_host": "root@203.0.113.7",
+    "api_domain": "api.demo.example.com",
+    "site_url": "https://demo.example.com",
 }
 SERVER_SCRIPTS = ("deploy-remote", "backup", "restore-test", "heal", "setup-deploy-user")
 
@@ -27,18 +27,18 @@ def test_vps_brings_server_files_scripts_and_docs(tmp_path: Path) -> None:
         "host": "root@203.0.113.7",
         "remotePath": "/opt/demo",
         "branch": "develop",
-        "apiUrl": "https://api.demo.fr",
-        "siteUrl": "https://www.demo.fr",
+        "apiUrl": "https://api.demo.example.com",
+        "siteUrl": "https://demo.example.com",
     }
     compose = yaml.safe_load((project_dir / "config/vps/compose.yaml").read_text())
     assert set(compose["services"]) == {"db", "backend"}
     assert compose["services"]["backend"]["read_only"] is True
-    assert "api.demo.fr {" in (project_dir / "config/vps/Caddyfile").read_text()
+    assert "api.demo.example.com {" in (project_dir / "config/vps/Caddyfile").read_text()
     for unit in ("backup", "restore-test", "heal"):
         assert (project_dir / f"config/vps/demo-{unit}.timer").is_file()
         service = (project_dir / f"config/vps/demo-{unit}.service").read_text()
         assert f"ExecStart=/usr/local/sbin/demo-{unit}" in service
-    assert (project_dir / "docs/exploitation/production.md").is_file()
+    assert (project_dir / "docs/operations/production.md").is_file()
 
 
 @pytest.mark.parametrize(
@@ -50,7 +50,7 @@ def test_vps_scripts_are_valid_executable_bash(tmp_path: Path, script: str) -> N
     path = generate(tmp_path / "demo", **VPS_ANSWERS) / script
 
     assert path.stat().st_mode & 0o100
-    # Les formats de podman ({{.Names}}) survivent au rendu du modèle.
+    # podman's formats ({{.Names}}) survive the rendering of the template.
     assert "{%" not in path.read_text()
     subprocess.run(["bash", "-n", str(path)], check=True)
 
@@ -66,7 +66,7 @@ def test_no_vps_files_without_deployment(tmp_path: Path) -> None:
 
     assert not (project_dir / "config").exists()
     assert not (project_dir / "scripts/ops").exists()
-    assert not (project_dir / "docs/exploitation").exists()
+    assert not (project_dir / "docs/operations").exists()
 
 
 def test_vps_requires_podman(tmp_path: Path) -> None:
@@ -74,7 +74,7 @@ def test_vps_requires_podman(tmp_path: Path) -> None:
         copier.run_copy(
             str(Path(__file__).resolve().parent.parent),
             tmp_path / "demo",
-            data={**VPS_ANSWERS, "podman": False, "nom": "demo"},
+            data={**VPS_ANSWERS, "podman": False, "name": "demo"},
             defaults=True,
             vcs_ref="HEAD",
             quiet=True,
@@ -92,10 +92,10 @@ def test_backend_image_serves_gunicorn_without_migrating(tmp_path: Path) -> None
 
 
 def test_vercel_brings_only_the_front_deployment(tmp_path: Path) -> None:
-    project_dir = generate(tmp_path / "demo", front_deploiement="vercel")
+    project_dir = generate(tmp_path / "demo", frontend_deploy="vercel")
 
     ops = project_dir / "scripts/ops"
-    assert sorted(path.name for path in ops.rglob("*.sh")) == ["ci-verte.sh", "deploy-frontend.sh"]
+    assert sorted(path.name for path in ops.rglob("*.sh")) == ["deploy-frontend.sh", "green-ci.sh"]
     script = ops / "deploy-frontend.sh"
     assert script.stat().st_mode & 0o111
     subprocess.run(["bash", "-n", str(script)], check=True)

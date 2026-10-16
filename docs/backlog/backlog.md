@@ -422,19 +422,20 @@ the cost of a manual update on each release. The user's condition: never break a
 
 ### T-44 · `/kiln:backlog plan`: group the open tickets into the next releases
 - **Type**: improvement
-- **Status**: todo
+- **Status**: in progress — branch feat/backlog-plan, since 2026-10-16
 - **Opened**: 2026-10-16
 - **Effort**: M · **Owner**: Claude · **Due**: —
 - **Origin**: antoine, 16 October 2026
 
 Deciding which tickets ship together is done by hand. A `plan` mode of the backlog skill (not
 a new skill: one name less to learn, T-41) proposes the next releases.
-- [ ] Read open tickets: priority, effort, status, dependencies (`blocked — waiting for T-xx`).
-- [ ] Group them into releases: dependencies first, one theme per release, small releases
+- [x] Read open tickets: priority, effort, status, dependencies (`blocked — waiting for T-xx`).
+- [x] Group them into releases: dependencies first, one theme per release, small releases
   (each one bumps the patch); breaking changes flagged, they open the release note.
-- [ ] May propose a minor bump when a group forms a milestone (allowed by antoine,
+- [x] May propose a minor bump when a group forms a milestone (allowed by antoine,
   16 October 2026); antoine decides.
-- [ ] Once agreed, write the plan into the backlog ("Next releases" section); `kiln version`
+- [x] Once agreed, write the plan into the backlog ("🚀 Next releases" section).
+- [ ] `kiln version`
   and `/kiln:release` say what is missing before the next candidate.
 
 ### T-43 · A skill that helps write a fine README, like kiln's own

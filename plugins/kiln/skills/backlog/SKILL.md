@@ -1,7 +1,7 @@
 ---
 name: backlog
-description: Pick the next ticket from docs/backlog/backlog.md, add a ticket (bug, improvement, idea, task), or record a ticket as started or done, in a repo that tracks its work this way. Use when the user asks what to do next, wants to note something to do or an idea, or after starting or finishing a ticket.
-argument-hint: "[T-NN | new <what> | start T-NN | done T-NN]"
+description: Pick the next ticket from docs/backlog/backlog.md, add a ticket (bug, improvement, idea, task), record a ticket as started or done, or plan which tickets go into the next releases, in a repo that tracks its work this way. Use when the user asks what to do next, wants to note something to do or an idea, after starting or finishing a ticket, or when they ask what the next versions should contain.
+argument-hint: "[T-NN | new <what> | start T-NN | done T-NN | plan]"
 ---
 
 In a repo without `docs/backlog/backlog.md`, say so and offer to set it up: a kiln repo has it
@@ -45,6 +45,22 @@ increment it), the type that fits (`idea` when nothing is decided yet), `todo`, 
 line `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`. A
 half-done ticket stays in place: tick the steps done, write what is left. Keep the style and
 tone of the file.
+
+**`plan`**: group the open tickets into the next releases. Read every open ticket (priority,
+effort, status, `blocked — waiting for T-xx`) and the versioning rules of the repo's
+`CLAUDE.md`, then propose 2 to 4 releases, in order:
+- a ticket comes after those it waits for; a ticket blocked on the user goes nowhere until
+  they answer (list it apart);
+- one theme per release, small releases (a few days of effort at most): in 0.x each release
+  bumps the patch;
+- a breaking change (CLI, `copier.yml` questions, generated tree, workflow inputs, skill and
+  hook names, charter rule IDs) is flagged: it opens the release note and needs its conversion
+  in `kiln update`;
+- a group that forms a milestone may be proposed as a minor bump, saying why; the user decides.
+For each release: the number, the tickets (ID, title, effort), one sentence on why they go
+together. Nothing is written before the user agrees; then keep a `## 🚀 Next releases` section
+just above 🔴 critical (one line per release: number, tickets, theme) and update it when a
+ticket closes or the plan changes.
 
 An ID is never reused. Changes are committed on the work branch, never on the integration
 branch. Never copy a ticket into `rejected.md` without an explicit decision from the user.

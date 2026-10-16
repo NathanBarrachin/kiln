@@ -22,7 +22,7 @@ North star: **kiln v0.3.0 public, adopted by every generated repo**.
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-21.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-22.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -78,8 +78,8 @@ Claude drafts the texts. Elsewhere, Claude posts directly on antoine's accounts,
 asks, then gives the links.
 - [x] Accounts with an API key, ready (16 October 2026): dev.to (`.devto/`, user
   `antoine-tena`) and Bluesky (`.bluesky/`, `antoine-tena.bsky.social`, app password).
-- [ ] On launch day: article on dev.to, post on Bluesky; fosstodon and Hashnode if antoine
-  creates them.
+- [ ] On launch day: article on dev.to, post on Bluesky (Mastodon dropped, antoine's call,
+  16 October 2026).
 - [ ] A demo of `kiln new` at the top of the README (GIF or asciinema, issue #38).
 - [ ] Show HN (https://news.ycombinator.com/submit), suggested title "Show HN: Kiln – make
   Claude Code build production-grade repos, and keep them that way".
@@ -154,6 +154,17 @@ kiln itself is all English; a generated repo is written in its team's language. 
 - [ ] Ship in the same release as T-06 and the backlog rename.
 
 ## 🟡 Normal
+
+### T-21 · Credit #41 in the notes of the next release
+- **Type**: task
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: XS · **Owner**: Claude · **Due**: —
+- **Origin**: PR #41 merged into `develop` (squash `648d498`), 16 October 2026
+
+The next candidate's `CHANGELOG.md` entry (cut by `base:version`) has the line: `kiln
+completion bash`, a bash completion script built from the parser (#41, thanks
+@HarshRajSinghania).
 
 ### T-05 · Check the first real run of the workflows on GitHub
 - **Type**: task

@@ -8,7 +8,7 @@ branche `release/vX.Y.Z`, avant sa première candidate.
 ## v0.3.3 — 2026-10-16
 - `kiln completion bash` : script de complétion tiré des commandes et options de kiln, à activer par `eval "$(kiln completion bash)"` dans `~/.bashrc` (#41, merci @HarshRajSinghania).
 - Skill `good-first-issues` : garde ouvertes sur GitHub quelques issues pour débutants, tirées du backlog et réservées aux contributeurs extérieurs.
-- Correctifs : `kiln update` ne s'arrête plus sur un conflit dans `ci.yml` après la promotion d'une version (seul le `@<tag>` des workflows de kiln différait) ; `base:worktree` ne bute plus sur un repo sans fichier `.env`.
+- Correctifs : `kiln update` ne s'arrête plus sur un conflit dans `ci.yml` après la promotion d'une version (seul le `@<tag>` des workflows de kiln différait) ; `base:worktree` ne bute plus sur un repo sans fichier `.env` ; la mise à jour d'un kiln installé depuis un dossier retire aussi l'ancien outil `kiln`.
 
 ## v0.3.2 — 2026-10-16
 - `kiln adopt` fait suivre kiln à un repo existant, sans le régénérer ; le skill `adoption` trie avec l'utilisateur ce que la charte y trouve à redire, et l'ouverture de session le propose dans un repo à soi qui ne suit pas encore kiln.

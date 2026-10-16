@@ -32,7 +32,7 @@ def home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Un poste avec le catalogue kiln déclaré là où Claude Code le range."""
     monkeypatch.setenv("HOME", str(tmp_path))
     kiln = tmp_path / "kiln"
-    (kiln / "plugins" / "base" / "scripts").mkdir(parents=True)
+    (kiln / "plugins" / "kiln" / "scripts").mkdir(parents=True)
     (kiln / "plugins" / "kiln" / "scripts" / "statusline.py").write_text("")
     plugins = tmp_path / ".claude" / "plugins"
     plugins.mkdir(parents=True)

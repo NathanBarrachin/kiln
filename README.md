@@ -25,9 +25,9 @@ from going stale on day ninety. **kiln** brings all four. Built on
 [Copier](https://copier.readthedocs.io), it generates the repo, wires Claude Code into it, and
 keeps every repo you own current:
 
-- 🧱 **`kiln new`** — asks what you are building, recommends a stack, and generates a complete
-  repo: code, tests, linters, CI, pre-commit, containers, a `CLAUDE.md` for AI agents, a GitHub
-  repo with protected branches.
+- 🧱 **`kiln new`** — three questions (what you are building, its size, your language), then
+  a complete repo: code, tests, linters, CI, pre-commit, containers, a `CLAUDE.md` for AI
+  agents, a GitHub repo with protected branches.
 - 🎛️ **`kiln set`** — change your mind later. `kiln set frontend=nuxt podman=true` re-renders
   the repo; a removed framework takes its files with it.
 - 🔄 **`kiln update`** — pull template improvements *and* dependency upgrades into an existing

@@ -93,7 +93,7 @@ Main obstacle to adoption outside France and to the Claude Code directories. Dec
 instructions in English for every project, the project's language only rules what is human
 (conversation, comments, commits, docs, UI texts); every rename at once, converted by
 `kiln update`; v0.4.0 is the milestone.
-- [ ] Command: messages, help, `kiln set` keys; English command and option names
+- [x] Command: messages, help, `kiln set` keys; English command and option names
   (`contrat` → `contract`, `--poste` → `--global`, `ci --sauter` → `--skip`…), old ones
   accepted and flagged until the next minor.
 - [ ] `copier.yml`: English questions and keys (`envergure` → `size`, `proprietaire` →
@@ -111,7 +111,7 @@ instructions in English for every project, the project's language only rules wha
 
 ### T-03 · Launch kiln publicly, then list it in the Claude Code directories
 - **Type**: task
-- **Status**: blocked — waiting for T-23 to T-26 and T-30
+- **Status**: blocked — waiting for T-23 to T-25 and T-30
 - **Opened**: 2026-10-15
 - **Effort**: S · **Owner**: antoine · **Due**: —
 - **Origin**: GitHub showcase, 15 October 2026; "Claude Code's workshop" positioning,
@@ -169,17 +169,6 @@ Public users of the catalogue got `develop` live, and skills are called `/base:f
 - [ ] Plugin versions = kiln version, bumped by the release; generated repos pin the
   catalogue to `main` (`ref`), the released state.
 - [ ] Hooks and skills in English; git config keys in English, old ones still read.
-
-### T-26 · A friendlier `kiln new`
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-16
-- **Effort**: M · **Owner**: Claude · **Due**: —
-- **Origin**: free mandate, 16 October 2026
-
-About fifteen Copier questions today. Target: name, what you are building (the stack
-follows), size, language; everything else by default or by option. Ends on what to do next
-(`cd my-app`, `kiln dev`, `claude`, a first prompt to try) and how to get Claude Code.
 
 ### T-30 · README, English reference in `docs/`, demo of `kiln new`
 - **Type**: task
@@ -311,6 +300,7 @@ has even when the repo edited it; its content is still in the last commit.
 
 ## ✅ Done
 
+- **2026-10-16** · T-26 · A friendlier `kiln new` — three questions (what you are building, size, language), the rest by default or option, `--all-questions` for the whole questionnaire; ends on the next steps and a first prompt (feat/cli-en) · opened 2026-10-16
 - **2026-10-16** · T-09 · Tests running in the main tree during a merge — `.claude/worktrees/` in kiln's `.gitignore`, so a template copied from a dirty tree never sees the nested worktrees (fix/first-run) · opened 2026-10-15
 - **2026-10-16** · T-06, T-13 · Translation and project language — merged into T-23 · opened 2026-10-15
 - **2026-10-16** · T-21 · Credit #41 in the notes of the next release — line in the `v0.3.3` entry of `CHANGELOG.md` (release/v0.3.3) · opened 2026-10-16

@@ -30,8 +30,7 @@ un dossier ou un module.
   remonté en issue ou PR), `token` (jeton d'un service dans `.<service>/`), `contribution` (PR
   d'un contributeur extérieur), `good-first-issues` ; `hooks/` (dont `reminders.py`, espacement
   des questions de mise à jour) ; `scripts/statusline.py`), `django/`, `nuxt/`, `vps/`,
-  `stripe/`, `serena/` ; `base/scripts/statusline.py` : renvoi de l'ancien chemin de la status
-  line.
+  `stripe/`, `serena/` ; `base/` : renvois des anciens chemins des hooks et scripts (sessions ouvertes, status line).
 - `.github/workflows/` : workflows réutilisables appelés par les repos générés, plus ceux de
   kiln (`kiln.yml` contrôles, `pypi.yml` publication du paquet `kiln-cli` au tag promu) ;
   `actions/` : actions composites (`charte`, `services`).
@@ -102,7 +101,8 @@ l'outil), `release.py` (`kiln version`).
 `uv run pytest -q` (réparti sur tous les cœurs par pytest-xdist : une vingtaine de secondes ;
 `-n 0` pour un seul processus, au débogage), `uv run ruff check`
 et `uv run ruff format --check`. Le crochet pre-commit de kiln (`.pre-commit-config.yaml`, posé par
-`kiln install`) lance ruff à chaque commit et mypy avant chaque push. Claude Code fait tourner les plugins depuis une
-copie en cache (`~/.claude/plugins/cache/kiln/<plugin>/<version>`), rafraîchie au lancement quand
-la `version` de `plugin.json` monte : la monter à chaque changement d'un plugin. Seule la status
-line lit `plugins/` en direct (d'où le renvoi `plugins/base/scripts/statusline.py`).
+`kiln install`) lance ruff à chaque commit et mypy avant chaque push. Le catalogue étant déclaré en dossier local sur le poste
+d'antoine, les sessions ouvertes appellent les hooks et la status line **dans l'arbre principal**
+(`~/code/kiln/plugins/…`) : un fichier retiré ou renommé casse aussitôt chaque session (hook
+introuvable = outil bloqué). Un chemin de plugin qui change garde donc un renvoi à l'ancien
+(`plugins/base/`, vérifié par `test_plugins.py`).

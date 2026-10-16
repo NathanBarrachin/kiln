@@ -67,7 +67,8 @@ changements cassants en tête des notes, migration automatique), pas la numérot
 - **chaque version monte le correctif**, nouveautés et changements cassants compris (`v0.3.1`,
   `v0.3.2`… `v0.3.192` s'il le faut) ;
 - **la mineure ne monte que pour une étape** décidée par antoine (par exemple kiln tout en
-  anglais) : `kiln version --minor` ; ne jamais la proposer d'office ;
+  anglais) : `kiln version --minor` ; Claude peut la proposer quand un groupe de tickets
+  forme une étape (permis par antoine le 16 octobre 2026), jamais la décider ;
 - **un changement cassant** reste marqué au commit (`feat!:` ou `BREAKING CHANGE`), ouvre la
   note de version dans `CHANGELOG.md`, et livre sa conversion dans `kiln update`. Est cassant
   ce qui touche l'API publique de kiln : commandes et options de la CLI, questions de

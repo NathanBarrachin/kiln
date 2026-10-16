@@ -41,7 +41,7 @@ FRONTENDS = ("nuxt", "next", "astro", "streamlit", "dash", "aucun")
 
 # Écran d'accueil : commandes par section ; le rôle de chacune vient de son aide argparse.
 COMMAND_GROUPS = (
-    ("Projet", ("new", "adopt", "install", "update", "set", "waive")),
+    ("Projet", ("new", "adopt", "install", "publish", "update", "set", "waive")),
     ("Au quotidien", ("dev", "check", "ci", "contrat", "doctor", "completion")),
     ("Tous les repos", ("status", "update --all", "version")),
 )
@@ -83,6 +83,7 @@ def build_parser() -> argparse.ArgumentParser:
     adopt_parser.add_argument("--size", choices=SIZES, help="envergure du projet (défaut : ember)")
     adopt_parser.add_argument("--template", help="source du modèle (chemin ou URL git)")
     commands.add_parser("install", help="préparer le poste après un clone")
+    commands.add_parser("publish", help="créer le dépôt GitHub privé et protéger ses branches")
     _add_update_command(commands)
     dev_parser = commands.add_parser("dev", help="lancer le projet en local")
     dev_parser.add_argument("--containers", action="store_true", help="toute la pile dans podman")
@@ -296,6 +297,8 @@ def dispatch(arguments: argparse.Namespace) -> None:
         )
     elif arguments.command == "install":
         install.install_project(root)
+    elif arguments.command == "publish":
+        new.publish_project(root)
     elif arguments.command == "update":
         update.update_project(
             root,

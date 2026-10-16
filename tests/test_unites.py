@@ -8,7 +8,7 @@ import pytest
 from packaging.version import Version
 from plumbum import ProcessExecutionError
 
-from kiln import cli, ui
+from kiln import cli, github, ui
 from kiln.banner import LOGO, _project_summary, render_logo
 from kiln.config import UserConfig
 from kiln.deps import _major_bounds
@@ -410,3 +410,13 @@ def test_update_refuses_to_take_a_repo_back_to_an_older_kiln(
 
     with pytest.raises(KilnError, match="plus récent que l'outil"):
         check_tool_not_older(tmp_path)
+
+
+def test_without_gh_the_project_is_created_without_github(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr("kiln.github.shutil.which", lambda _: None)
+
+    assert github.can_publish() is False
+    assert github.login() is None
+    assert "kiln publish" in capsys.readouterr().out

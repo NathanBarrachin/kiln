@@ -311,6 +311,7 @@ def test_promoted_candidate_does_not_conflict_on_kiln_workflow_refs(
 
     def release(tag: str, steps: str) -> None:
         (template / "ci.yml.jinja").write_text(
+            "# version de kiln ({{ _copier_answers._commit }})\n"
             "jobs:\n  python:\n    uses: antoine-tena/kiln/.github/workflows/python.yml"
             "@{{ _copier_answers._commit }}\n" + steps
         )

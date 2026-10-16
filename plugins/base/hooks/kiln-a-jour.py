@@ -188,7 +188,11 @@ def tool_update_command(install: tuple[str, str] | None, tag: str) -> str:
         return f'{legacy}uv tool install --force "{PYPI_NAME}=={version}" && {plugins}'
     if install is None or install[0] in ("git", "pypi"):
         return f'{legacy}uv tool install --force "git+{KILN_GIT_URL}@{tag}" && {plugins}'
-    return f'git -C "{install[1]}" pull --ff-only && uv tool install --reinstall "{install[1]}"'
+    # L'ancien outil retiré après le pull : un pull refusé ne laisse pas le poste sans kiln.
+    return (
+        f'git -C "{install[1]}" pull --ff-only && {legacy}'
+        f'uv tool install --reinstall "{install[1]}"'
+    )
 
 
 # --- Repo : de quelle version du modèle part-il ? ---

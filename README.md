@@ -144,7 +144,7 @@ make the opinions yours.
 | `kiln version` | In kiln's own repo: latest public release, candidates (age, adopting repos, ready to promote) and the number the next release should take. |
 | `kiln doctor` | Check the machine (git, uv, gh login, pnpm, podman, Java, pre-commit, kiln release, Claude plugin) and the current repo; each problem comes with the command that fixes it. Changes nothing. |
 | `kiln ci [commit]` | Replay the repo's GitHub CI locally against throwaway PostgreSQL/Redis, and push the verdict as a git note. |
-| `kiln contrat` | Django + Nuxt: export `openapi.json` and regenerate the front's API types. |
+| `kiln contract` | Django + Nuxt: export `openapi.json` and regenerate the front's API types. |
 | `kiln completion bash` | Print a bash completion script built from the parser; enable it with `eval "$(kiln completion bash)"` in `~/.bashrc`. |
 | `charte` | Check the repo against its `charte.toml` (`--detail`, `types`, `couverture`). |
 

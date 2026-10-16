@@ -23,7 +23,7 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-42.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-43.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -171,6 +171,8 @@ and the plugins are the door for everyone else, but the README hides them.
 - [ ] `kiln adopt` shows, at the end, the three things it found and what it set up.
 - [ ] The plugins alone (`claude plugin marketplace add antoine-tena/kiln`) are useful outside
   kiln repos, and the README says which.
+- [ ] `kiln adopt` à la carte: the charter alone by default; backlog, branch flow, status line
+  each one `kiln set` away, never imposed on an existing repo.
 
 ### T-35 · Living proof: a site and an example app made by kiln, online
 - **Type**: task
@@ -283,10 +285,33 @@ command, findable without the docs.
   `kiln set`, `kiln waive` or a machine setting; what is not becomes a ticket.
 - [ ] `kiln new --all-questions` presented as "expert mode" in the help and the README.
 - [ ] Generated README: a short "Your choices" section listing the stack and how to change it.
+- [ ] Every refusal (hook, charter, branch guard, pre-commit) says why in one line and the one
+  command that lifts it (`kiln waive …`, `kiln set …`), like ruff or prettier: opinionated,
+  never a dead end.
+- [ ] Every session question can be switched off for good on the machine:
+  `kiln set --global reminders=off` (updates, adoption, promotion of T-39, tips of T-40).
+
+### T-42 · The git flow grows with the size: branch → main first, develop and candidates later
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-16
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: "kiln forces too much" review, 16 October 2026
+
+`develop`, release branches, `-rc` candidates and a worktree per branch are antoine's way of
+working; a newcomer alone on a weekend project expects a branch merged into `main`. Decided by
+Claude (16 October 2026), with T-39: `spark` and `ember` use the GitHub flow (work branch →
+`main`, never a direct commit on `main`: the one guard that stays); `flame` and `blaze` get
+`develop`, release branches and candidates. Worktrees stay how Claude works (parallel
+sessions), never something the human has to learn.
+- [ ] Template, skills (`merge`, `release`), branch guard and status line read the flow from
+  the size; moving up to `flame` creates `develop` and says what changes.
+- [ ] mypy stays before each push (CI minutes are limited, see T-05; with its cache it is fast)
+  and its message says how to skip once (`--no-verify` is not offered: `SKIP=mypy`).
 
 ### T-03 · Launch kiln publicly, then list it in the Claude Code directories
 - **Type**: task
-- **Status**: blocked — waiting for T-23 to T-25, T-30, T-32 to T-37 and T-39 to T-41
+- **Status**: blocked — waiting for T-23 to T-25, T-27, T-30, T-32 to T-37 and T-39 to T-42
 - **Opened**: 2026-10-15
 - **Effort**: S · **Owner**: antoine · **Due**: —
 - **Origin**: GitHub showcase, 15 October 2026; "Claude Code's workshop" positioning,
@@ -420,7 +445,9 @@ public issues show visitors that kiln has users.
 
 `controle-fichier.py` runs the whole charter after every edit: on a big repo, seconds per
 edit. The hook runs the bans on the edited file only; ratchets and floors run at commit and in
-CI.
+CI. Kept as a check after each edit (decided by Claude, 16 October 2026): it is feedback to
+Claude, which fixes at once, not a block on the human, and it is the heart of the guardrails;
+it only has to be fast (under 200 ms) and say how to waive.
 
 ### T-28 · Quiet session hook outside kiln repos
 - **Type**: improvement

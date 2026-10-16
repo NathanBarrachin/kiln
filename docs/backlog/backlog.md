@@ -72,7 +72,14 @@ candidate followed by annway, sweep and vision.
   16 October 2026
 
 antoine's goal: lots of stars. Directories take projects that already have users: the launch
-comes first. Posts are made by antoine, never without them; Claude drafts the texts.
+comes first. Hacker News and Reddit: posted by antoine (no API for HN, Reddit vets new apps),
+Claude drafts the texts. Elsewhere, Claude posts directly on antoine's accounts, with no review
+(antoine's call, 16 October 2026), saying the text is written with Claude where the platform
+asks, then gives the links.
+- [x] Accounts with an API key, ready (16 October 2026): dev.to (`.devto/`, user
+  `antoine-tena`) and Bluesky (`.bluesky/`, `antoine-tena.bsky.social`, app password).
+- [ ] On launch day: article on dev.to, post on Bluesky; fosstodon and Hashnode if antoine
+  creates them.
 - [ ] A demo of `kiln new` at the top of the README (GIF or asciinema, issue #38).
 - [ ] Show HN (https://news.ycombinator.com/submit), suggested title "Show HN: Kiln – make
   Claude Code build production-grade repos, and keep them that way".

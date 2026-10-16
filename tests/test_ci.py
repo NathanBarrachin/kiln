@@ -143,15 +143,15 @@ def test_verdict_goes_to_origin_and_comes_back(tmp_path: Path) -> None:
     note = read_verdict(other, sha)
     assert note is not None
     assert note.splitlines()[0] == SUCCESS_LINE
-    assert "durée : 1 min 15 s" in note
-    assert "non rejoués : infra (pas rejoué)" in note
+    assert "duration: 1 min 15 s" in note
+    assert "not replayed: infra (pas rejoué)" in note
 
 
 def test_a_failed_job_makes_the_verdict_fail() -> None:
     outcomes = (JobOutcome("a", is_success=True), JobOutcome("b", False, "pytest"))
     verdict = Verdict("0" * 40, outcomes, (), datetime.now().astimezone(), 1)
     assert verdict.render().splitlines()[0] == FAILURE_LINE
-    assert "b ÉCHEC (pytest)" in verdict.render()
+    assert "b FAILED (pytest)" in verdict.render()
 
 
 def _ci_green(repo: Path, fake_bin: Path, sha: str) -> subprocess.CompletedProcess[str]:

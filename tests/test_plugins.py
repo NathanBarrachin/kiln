@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text())
 PLUGINS = [plugin["name"] for plugin in MARKETPLACE["plugins"]]
-# Ce qui renvoie à un skill (`base:fusion`) : la charte et les fichiers générés, les plugins
+# Ce qui renvoie à un skill (`/kiln:merge`) : la charte et les fichiers générés, les plugins
 # eux-mêmes, les messages de la commande, la documentation.
 CITING = ("template", "plugins", "src", "README.md", "README.fr.md", "CONTRIBUTING.md", "CLAUDE.md")
 TEXT_SUFFIXES = {".md", ".py", ".jinja", ".json", ".yml", ".yaml", ".toml", ".sh", ".txt"}

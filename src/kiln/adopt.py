@@ -5,7 +5,7 @@ un repo qui a la sienne. L'adoption pose seulement ce qui n'en dépend pas, sans
 fichier existant :
 - `charte.toml` : l'envergure et les règles valables partout (uv et podman, pas de renvoi
   d'audit), que la commande `charte` vérifie après chaque édition (hook du plugin `base`) ;
-- `docs/backlog/` : le suivi du travail (skill `base:backlog`), tiré du modèle.
+- `docs/backlog/` : le suivi du travail (skill `/kiln:backlog`), tiré du modèle.
 
 Le repo devient « adopté » (charte sans réponses Copier) : `kiln status`, `check`, `dev`,
 `install` et `doctor` le servent ; `kiln update` le laisse, faute de réponses à réappliquer.
@@ -71,7 +71,7 @@ def adopt_project(root: Path, *, size: str = DEFAULT_SIZE, template: str | None 
         ui.note("Aucun écart.")
     else:
         ui.note("Écarts ci-dessus : les corriger, ou retirer leur règle de charter.toml.")
-    ui.note("Relire, commiter, puis fusionner (skill base:fusion).")
+    ui.note("Relire, commiter, puis fusionner (skill /kiln:merge).")
 
 
 def check_adoptable(root: Path) -> None:

@@ -8,7 +8,7 @@
   une candidate d'une version plus récente existe : la suivante prête, pas un délai, évite le
   correctif d'urgence. Les repos du dossier de code disent qui l'a déjà adoptée.
 
-Lecture seule : les tags et les fusions se font par la skill `base:version` (CLAUDE.md, Versions).
+Lecture seule : les tags et les fusions se font par la skill `/kiln:release` (CLAUDE.md, Versions).
 """
 
 import datetime

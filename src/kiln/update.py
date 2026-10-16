@@ -244,7 +244,7 @@ def report_changes(root: Path) -> None:
     print()
     ui.note(
         "Relire le diff (conflits marqués <<<<<<<), commiter, puis fusionner dans develop "
-        "(skill base:fusion)."
+        "(skill /kiln:merge)."
     )
 
 

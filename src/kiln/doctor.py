@@ -23,7 +23,9 @@ from kiln.versions import installed_version, latest_release, release_version, up
 
 PROBE_TIMEOUT = 5
 CLAUDE_SETTINGS = Path.home() / ".claude" / "settings.json"
-BASE_PLUGIN = "base@kiln"
+BASE_PLUGIN = "kiln@kiln"
+# Its name before kiln 0.4, until Claude Code applies the catalogue's renames.
+LEGACY_BASE_PLUGIN = "base@kiln"
 GITHUB_LOGIN_URL = "https://github.com/login/device"
 LABEL_WIDTH = 16
 
@@ -165,7 +167,8 @@ def _claude_plugin() -> Finding:
         settings = json.loads(CLAUDE_SETTINGS.read_text())
     except OSError, ValueError:
         settings = {}
-    if settings.get("enabledPlugins", {}).get(BASE_PLUGIN):
+    plugins = settings.get("enabledPlugins", {})
+    if plugins.get(BASE_PLUGIN) or plugins.get(LEGACY_BASE_PLUGIN):
         return Finding(Level.OK, "plugin Claude", f"{BASE_PLUGIN} activé")
     return Finding(
         Level.WARN,
@@ -228,7 +231,7 @@ def _template(root: Path) -> Finding:
             Level.WARN,
             "modèle",
             f"{commit}, {latest} disponible",
-            "kiln update, sur une branche (skill base:maj-kiln)",
+            "kiln update, sur une branche (skill /kiln:update)",
         )
     return Finding(Level.OK, "modèle", f"{commit} (à jour)")
 

@@ -5,6 +5,14 @@
     "KILN_BACKEND_DIR": "{{ 'backend' if backend != 'none' else '' }}",
     "KILN_FRONTEND_DIR": "{{ 'frontend' if frontend != 'none' else '' }}",
     "KILN_TEST_ENV": "{{ 'backend/.env' if backend in ['django', 'fastapi'] else '' }}"
+{%- if deploy == 'vps' %},
+    "KILN_VPS": "{{ vps_host }}",
+    "KILN_VPS_DIR": "/opt/{{ name }}",
+    "KILN_VPS_BACKUPS": "/root/backups",
+    "KILN_SITE": "{{ site_url }}",
+    "KILN_API_HEALTH": "{{ prod_health_url or 'https://' ~ api_domain ~ '/api/health' }}",
+    "KILN_PROD_DOC": "docs/operations/production.md"
+{%- endif %}
   },
 {#- kiln's marketplace, on GitHub (public repository), at `main`, the state of its latest release:
     Claude Code offers it with its plugins to whoever opens the repo, then updates them in the
@@ -20,7 +28,7 @@
       "autoUpdate": true
     }
   },
-{%- set plugins = ['kiln@kiln'] + (['django@kiln'] if backend == 'django' else []) + (['nuxt@kiln'] if frontend == 'nuxt' else []) + (['serena@kiln'] if serena else []) %}
+{%- set plugins = ['kiln@kiln'] + (['django@kiln'] if backend == 'django' else []) + (['nuxt@kiln'] if frontend == 'nuxt' else []) + (['vps@kiln'] if deploy == 'vps' else []) + (['serena@kiln'] if serena else []) %}
   "enabledPlugins": {
 {%- for plugin in plugins %}
     "{{ plugin }}": true{{ "," if not loop.last }}

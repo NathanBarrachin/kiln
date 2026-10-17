@@ -63,18 +63,24 @@ n'avancent que par `kiln update`, qui convertit ce qui casse. Le numéro date un
 la note de version qui dit ce qui change. De Next.js, on prend la discipline (candidates,
 changements cassants en tête des notes, migration automatique), pas la numérotation.
 
-**Rythme** (choix d'antoine, 17 octobre 2026) : **une version tous les deux jours**. Mesuré sur
-kiln : 341 commits et 4 versions publiques dans sa première semaine ; les efforts des tickets (XS à
-L) sont comptés en temps humain, Claude Code va cinq à huit fois plus vite. Une version = environ
-une journée de vrai travail (trois à six tickets), le plan de `docs/backlog/` se découpe à cette
-taille ; le second jour absorbe les dépassements (un ticket L qui déborde) et laisse chaque
-candidate tourner sur les repos du canal `internal` avant sa promotion (promue 45 minutes après sa
-sortie, une candidate n'a rien vérifié). Ce qui évite de déranger les utilisateurs, c'est de
-grouper la question : `kiln update` passe d'un coup toutes les versions en retard (une note par
-version traversée), le rappel en session ne revient qu'au rythme réglé par `kiln set
-update-reminders` (une fois par semaine par défaut, T-45), et kiln-bot (T-59) rendra la mise à jour
-gratuite. Les changements cassants restent groupés aux étapes ; une faille de sécurité sort tout
-de suite.
+**Rythme** (choix d'antoine, 17 octobre 2026) : **une version tous les deux jours**. kiln se
+développe avec un seul forfait Claude Code Pro, dont le quota de la semaine repart le mardi à 8 h
+(heure de Paris) : il a tenu 42 heures de session la semaine du 6 octobre et 33 celle du 13 octobre
+(limite atteinte le vendredi à 14 h 03), tous projets confondus, et une fenêtre de 5 heures
+s'épuise en 2 h à 3 h 30 de travail. Les efforts des tickets se comptent donc en temps de session
+Claude Code (XS moins d'un quart d'heure, S une demi-heure, M une heure, L deux à trois heures),
+mesuré sur kiln : le 16 octobre, 9,3 heures de session ont livré quatre promotions et le passage à
+l'anglais, une vingtaine de fois les anciennes estimations en temps humain (antoine, 17 octobre
+2026 : un forfait Pro, et il code très vite avec Claude Code). kiln planifie sur 25 heures de
+session par semaine, soit environ 7 par version, quota lissé sur la semaine (environ 5 heures par
+jour, tous projets) : épuisé le vendredi, il laisse sans budget les versions du samedi et du lundi.
+Le second jour d'une version absorbe les dépassements et laisse la candidate tourner sur le canal
+`internal` avant sa promotion (promue 45 minutes après sa sortie, une candidate n'a rien vérifié).
+Ce qui évite de déranger les utilisateurs, c'est de grouper la question : `kiln update` passe d'un
+coup toutes les versions en retard (une note par version traversée), le rappel en session ne
+revient qu'au rythme réglé par `kiln set update-reminders` (une fois par semaine par défaut, T-45),
+et kiln-bot (T-59) rendra la mise à jour gratuite. Les changements cassants restent groupés aux
+étapes ; une faille de sécurité sort tout de suite.
 
 `vMAJEUR.MINEUR.CORRECTIF`. En 0.x (aujourd'hui) :
 - **chaque version monte le correctif**, nouveautés et changements cassants compris (`v0.3.1`,
@@ -83,9 +89,18 @@ de suite.
   anglais) : `kiln version --minor` ; Claude peut la proposer quand un groupe de tickets
   forme une étape (permis par antoine le 16 octobre 2026), jamais la décider ;
 - **étapes décidées** (antoine, 16 octobre 2026) : v0.5.0 lancement public, v0.6.0 Claude
-  travaille seul dans le repo (`/kiln:feature`, `kiln ci --fix`), v0.7.0 kiln pour les équipes
-  (monorepos, profils d'entreprise), v1.0.0 promesse de stabilité, juste avant les modules de la
-  communauté (T-69) qui s'appuieront sur l'API de kiln ; le plan de `docs/backlog/` les porte ;
+  travaille seul dans le repo, v0.7.0 kiln pour les équipes et les organisations, v1.0.0 promesse
+  de stabilité, juste avant les modules de la communauté (T-69) qui s'appuieront sur l'API de
+  kiln ; le plan de `docs/backlog/` les porte. Leur contenu suit la vision du 17 octobre 2026
+  (`docs/vision/`, branche `docs/project-vision`, brouillon interne) : v0.5.0 note n'importe quel
+  repo Django ou Nuxt face à la grille et le corrige par script, v0.6.0 Claude comble seul les
+  écarts que le script laisse, v0.7.0 profils de structure et flottes de repos (associations,
+  universités, PME ; pas encore les grandes entreprises), v1.0.0 format de la grille stable pour
+  les paquets de règles de la communauté ;
+- **lancement public** (date fixée le 17 octobre 2026 à la demande d'antoine) : **mercredi
+  11 novembre 2026 à 16 h** (heure de Paris), sur tous les forums le même après-midi (T-03),
+  seulement si la v0.5.0 est promue et que la barre de T-03 tient le lundi 9 novembre à 20 h ;
+  sinon le mercredi suivant, même heure. La date bouge, jamais la barre ;
 - **un changement cassant** reste marqué au commit (`feat!:` ou `BREAKING CHANGE`), ouvre la
   note de version dans `CHANGELOG.md`, et livre sa conversion dans `kiln update`. Est cassant
   ce qui touche l'API publique de kiln : commandes et options de la CLI, questions de

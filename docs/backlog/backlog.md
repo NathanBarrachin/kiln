@@ -35,8 +35,8 @@ reliable for a team with huge repos** (free mandate given by antoine, 16 October
 - **Effort**: XS (under an hour), S (half a day), M (one or two days), L (more).
 - **Releases**: the `## 🚀 Releases` section at the top places every open ticket in a planned
   release (`/kiln:backlog plan`); numbers are planned, not promised, until the candidate is cut.
-  One release a day (`CLAUDE.md`, "Versions"): about a day of real work each, three to six
-  tickets; efforts are estimated in human time, Claude Code goes five to eight times faster.
+  One release every two days (`CLAUDE.md`, "Versions"): about a day of real work each, three to
+  six tickets, the second day for overruns and for the candidate to run; efforts are estimated in human time, Claude Code goes five to eight times faster.
 - **Closing a ticket**: remove it from its section and add a line at the top of the "✅ Done"
   log: `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.
 - **Locations quoted are hints, not addresses.**
@@ -768,7 +768,8 @@ first question, and the most striking demo.
 Asking at every release annoys; letting users skip releases is worse in 0.x (each patch can
 break, skipped conversions pile up). So space the question, never the updates.
 - [ ] `kiln set update-reminders=each|daily|weekly` (machine setting, default `weekly`: kiln
-  ships a release a day, antoine's call of 17 October 2026, so `each` would ask every day);
+  ships a release every two days, antoine's call of 17 October 2026, so `each` would ask every
+  other day);
   when accepted, the repo goes to the latest release in one step, with
   one short note per release crossed, breaking changes first.
 - [ ] A release that changes nothing for this repo (its stack untouched, plugins only) is

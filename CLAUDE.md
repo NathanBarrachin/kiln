@@ -63,14 +63,18 @@ n'avancent que par `kiln update`, qui convertit ce qui casse. Le numéro date un
 la note de version qui dit ce qui change. De Next.js, on prend la discipline (candidates,
 changements cassants en tête des notes, migration automatique), pas la numérotation.
 
-**Rythme** (choix d'antoine, 16 octobre 2026) : environ **trois versions par semaine**, comme uv
-(31 versions en 90 jours à l'automne 2026). Une version = un ou deux tickets, une à deux journées
-de travail ; le plan de `docs/backlog/` se découpe à cette taille. Ce qui évite de déranger les
-utilisateurs, ce n'est pas d'espacer les versions mais de grouper la question : `kiln update` passe
-d'un coup toutes les versions en retard (une note par version traversée), le rappel en session ne
-revient qu'au rythme réglé par `kiln set update-reminders` (une fois par semaine par défaut,
-T-45), et kiln-bot (T-59) rendra la mise à jour gratuite. Les changements cassants restent groupés
-aux étapes de mineure ; une faille de sécurité sort tout de suite.
+**Rythme** (choix d'antoine, 17 octobre 2026) : **une version par jour**, comme Claude Code
+(74 versions en 90 jours à l'automne 2026). Mesuré sur kiln : 341 commits et 4 versions publiques
+dans sa première semaine ; les efforts des tickets (XS à L) sont comptés en temps humain, Claude
+Code va cinq à huit fois plus vite. Une version = environ une journée de vrai travail (trois à six
+tickets), le plan de `docs/backlog/` se découpe à cette taille. Une par jour, pas davantage :
+chaque candidate tourne ainsi une journée sur les repos du canal `internal` avant sa promotion
+(promue 45 minutes après sa sortie, une candidate n'a rien vérifié). Ce qui évite de déranger les
+utilisateurs, c'est de grouper la question : `kiln update` passe d'un coup toutes les versions en
+retard (une note par version traversée), le rappel en session ne revient qu'au rythme réglé par
+`kiln set update-reminders` (une fois par semaine par défaut, T-45), et kiln-bot (T-59) rendra la
+mise à jour gratuite. Les changements cassants restent groupés aux étapes ; une faille de sécurité
+sort tout de suite.
 
 `vMAJEUR.MINEUR.CORRECTIF`. En 0.x (aujourd'hui) :
 - **chaque version monte le correctif**, nouveautés et changements cassants compris (`v0.3.1`,

@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-143.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-146.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -85,6 +85,7 @@ rule on two axes, browsable with `kiln grid`.
 - T-123 · The grid as data: one small file per rule, on two axes (M)
 - T-124 · The reference repo's rules sorted on the two axes (M)
 - T-133 · The other templates frozen while Django and Nuxt reach the top (XS)
+- T-143 · Decide the name before the launch: kiln, despite Kiln-AI (XS) (antoine decides)
 
 ### v0.4.2 · Any repo scored against the best, in seconds
 Candidate Sat 24 Oct. The launch hook: `uvx kiln-cli score` on the repo people already have,
@@ -150,6 +151,7 @@ comes first; these tickets give way to it.
 - T-91 · Findings where people look: SARIF in pull requests and code scanning (M)
 - T-54 · Every candidate proven on real upgrade paths (M)
 - T-77 · Tests in seconds after each edit: only those the change touches (M)
+- T-144 · Checks as fast as they are precise: oxlint, TypeScript 7, ty or pyrefly, measured (M)
 
 ### v0.5.6 · The grid grows, and stays current
 - T-141 · Grid v2: the themes after the launch (L)
@@ -159,6 +161,7 @@ comes first; these tickets give way to it.
 - T-55 · README in Chinese, Japanese, Spanish and Portuguese (S)
 - T-57 · A tutorial series: bring a Django repo up to date in an afternoon (M)
 - T-58 · A public roadmap on GitHub Projects (M)
+- T-145 · A public benchmark: Claude Code with and without kiln (M)
 - T-12 · Homebrew formula in a tap (S) (blocked: demand)
 
 ### v0.6.0 · Claude closes the gaps alone
@@ -275,7 +278,9 @@ reviewed in a pull request, and read by Claude one rule at a time.
   standards, readability, slimming, versions), `theme`, `scope` (universal, language,
   framework, tool, domain, with its name), `level` (adopt, trial, assess, hold), `regime`
   (strict, ratchet, review), `profiles`, `why` in one line, `sources` (URL, kind, date
-  checked), `detector`, `fixer`, `since`.
+  checked), `detector`, `fixer`, `since`; `switch_when`, what makes its level change ("Node 26:
+  adopt once it is LTS, 28 October"), read by T-140; `settings`, what a project sets on a
+  universal rule (the time zone of "dates stored in UTC").
 - [ ] Themes from the vision's closed list: structure, code standards, API and typing,
   architecture, data and migrations, background tasks, concurrency, cache, errors and logs,
   application security, personal data, supply chain, tests, performance, front and
@@ -329,6 +334,23 @@ stacks done fully prove more than eight done halfway.
   maintained."
 - [ ] The end-to-end matrix keeps them; their score is measured (T-130), not required at 100.
 
+### T-143 · Decide the name before the launch: kiln, despite Kiln-AI
+- **Type**: task
+- **Status**: todo
+- **Opened**: 2026-10-18
+- **Effort**: XS · **Owner**: Claude for the facts, antoine for the decision · **Due**: 2026-10-31
+- **Origin**: vision of 17 October 2026, risk 7 ("the name: collision with Kiln-AI, and `kiln`
+  is taken on PyPI")
+
+A name changed after the launch loses the stars, links and posts that point at the old one;
+changed before, it costs a session. Today the repo is `kiln`, the package `kiln-cli`, and
+Kiln-AI/Kiln (over 5,000 stars) comes first for "kiln" on GitHub.
+- [ ] Claude lays out the facts on one page: who answers to "kiln" on GitHub, PyPI, npm and in
+  search engines; what a rename would touch (package, command, `kiln:*` plugins, workflows
+  quoted by tag, conversions by `kiln update`); two or three free names checked on GitHub and
+  PyPI.
+- [ ] antoine decides, before T-33 rewrites the tagline and T-30 the README.
+
 ### T-125 · Grid v1: the rules kiln launches with
 - **Type**: improvement
 - **Status**: todo
@@ -353,6 +375,10 @@ for the universal, Python, TypeScript, Django and Nuxt scopes.
   company, a university lab): SLO, feature flags and other large-company methods are not
   counted; T-39 brings the other profiles.
 - [ ] Each draft of T-124 that makes the cut gets its sources and leaves `assess`.
+- [ ] A rule launches `strict` only when it raises no false positive on the reference repo and
+  the university repo (local copies), `review` until then (doctrine 7: an imprecise rule is
+  worse than none; ruff's "ambiguous characters" on the reference repo were French
+  typography).
 
 ### T-46 · `kiln score`: any repo measured against the grid in seconds, no tokens
 - **Type**: improvement
@@ -461,6 +487,10 @@ Claude pays to think, not to search, which is also what a Pro quota can afford.
   of characterization tests when the code it touches has none (old repos break when modernized
   blind); the checks, then `kiln score --rule ID` to prove the gap is gone; one commit per item;
   it stops and asks when a product decision is involved.
+- [ ] Approximate detectors (a generic name, a file doing several things, SQL built from
+  strings) flag candidates marked "to confirm": Claude confirms or dismisses each in one look
+  at the place quoted; a dismissal is remembered, never flagged again, and counted as a false
+  positive of the rule (T-38).
 - [ ] A gap is closed only when it leaves the score and the checks stay green.
 - [ ] Each fix logged (rule, kind of change) for T-137.
 
@@ -601,6 +631,9 @@ token, so it runs in CI for free on any public repo.
   theme generated from the rule files: the Technology Radar that applies itself), update,
   charter, plugins, workflows, versions. `README.fr.md` shrinks to a French summary pointing
   there. Closes #37 and #38 (another good first issue opened instead).
+- [ ] A comparison page, facts only: what Dependabot and Renovate, Copier and cruft,
+  sp-repo-review, OpenRewrite, AWS Transform and Claude Code's `/doctor` do, and what kiln adds
+  (from the vision's market table); the r/Python Showcase format asks for it (T-03).
 - [ ] `kiln new` second: "Starting a repo? It starts at 100."
 - [ ] The default branch becomes `main` with v0.5.0, so the repo page and `claude plugin
   marketplace add` show what `uvx kiln-cli` installs; pull requests still go to `develop`
@@ -838,6 +871,24 @@ Claude Code learns from fast feedback; a full suite after each edit is too slow 
   `kiln check` and CI.
 - [ ] Offered to Claude as the default test command in the generated rules.
 
+### T-144 · Checks as fast as they are precise: oxlint, TypeScript 7, ty or pyrefly, measured
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-18
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: vision of 17 October 2026, doctrine 11 ("the fastest, at equal precision"; on the
+  reference repo: ruff 0.4 s, the charter 1.1 s, mypy 22.6 s, eslint 42.3 s)
+
+A slow check ends up not being run, and the time goes into the tools, not into kiln's code.
+- [ ] Each candidate measured on a local copy of the reference repo against the tool it would
+  replace, for time and for what it finds: oxlint next to eslint (2.7 s, fewer rules, weak on Vue
+  templates), TypeScript 7's native compiler for the type check, ty or pyrefly next to mypy on
+  Django code.
+- [ ] Each one a grid rule (T-123): `trial` in the template only when it finds at least what the
+  old tool found on the rules it covers, `assess` otherwise; the measurement kept as its source.
+- [ ] kiln's own rules written as ast-grep patterns where a pattern can say them; Rust only where
+  a measurement shows kiln's code is the slow part.
+
 ### T-141 · Grid v2: the themes after the launch
 - **Type**: improvement
 - **Status**: todo
@@ -855,7 +906,8 @@ Claude Code learns from fast feedback; a full suite after each edit is too slow 
 - [ ] Git and docs: issue and pull request templates, CODEOWNERS, a licence and the
   dependencies' licences checked, release notes written from the commits.
 - [ ] AI-assisted development: `AGENTS.md` for every agent, the context loaded at session start
-  measured and capped, MCP servers pinned, narrow permissions.
+  measured and capped, MCP servers pinned, narrow permissions, a tool that reads code symbol
+  by symbol (Serena, an LSP) so a file's size matters less.
 - [ ] Business domain, as universal rules with project settings: money in cents, dates stored
   in UTC, personal data out of the logs.
 
@@ -952,8 +1004,8 @@ money module leaves 3 surviving mutants out of 16.
   and session time counted; a test is kept only if it passes five times in a row and kills a
   mutant or adds coverage.
 - [ ] If the number is net, the recipe joins `/kiln:modernize`: coverage and survivors measured
-  by script, Claude on the holes only, the rest thrown away unread; coverage and survivors as
-  ratchets.
+  by script (mutmut for Python, Stryker for TypeScript), Claude on the holes only, the rest
+  thrown away unread; coverage and survivors as ratchets.
 
 ### T-136 · Test generators that cost no tokens, in the template
 - **Type**: improvement
@@ -963,7 +1015,7 @@ money module leaves 3 surviving mutants out of 16.
 - **Origin**: vision of 17 October 2026 (generators without a model first)
 
 - [ ] Schemathesis on the Django Ninja API, Hypothesis for the pure computations (prices,
-  dates), snapshot tests to freeze behaviour before a modernization, the Playwright recorder for
+  dates) with CrossHair as its engine, snapshot tests to freeze behaviour before a modernization, the Playwright recorder for
   the Nuxt journeys; each wired in the template and in `kiln check`, and each a rule of the grid
   (T-141).
 
@@ -1088,6 +1140,9 @@ issues off). The official homebrew-core requires an already known project.
 
 - [ ] `kiln score` gains the slimming pillar: unused dependencies (deptry, knip), dead code
   (vulture), measured on the reference repo and on the study's repos.
+- [ ] The upkeep ahead, next to it: how many dependency releases the repo will absorb in a year,
+  how many breaking, which ends of life are coming (libyear measures the lag behind; this
+  measures what is coming), and how much removing the unused dependencies lowers it.
 - [ ] The number decides the rest: "−22 % of lines, −9 dependencies, same behaviour" is worth
   building; a few percent is not.
 
@@ -1106,6 +1161,21 @@ No open tool removes existing code with a proof.
 - [ ] Replacing a dependency by the part actually used comes second, after measurements: the
   most striking, and the riskiest.
 
+### T-145 · A public benchmark: Claude Code with and without kiln
+- **Type**: idea
+- **Status**: todo
+- **Opened**: 2026-10-18
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: vision of 17 October 2026, ideas in reserve ("a public benchmark, Claude Code with
+  and without kiln, that could serve as proof")
+
+T-53 measures one hypothesis (small files); this one measures the whole promise.
+- [ ] The same tasks given to headless Claude Code on a repo before and after `kiln fix` and
+  `/kiln:modernize`: red CIs, tokens, rules broken, tasks done; its cost on the Pro quota said
+  before it runs, stopped at the budget.
+- [ ] Published with its method and script whatever the result; after T-53, which sets the
+  method.
+
 ### T-69 · Community grid packs from any git repo
 - **Type**: idea
 - **Status**: todo
@@ -1123,6 +1193,10 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-18** · Backlog checked against the vision of 17 October 2026 — three tickets
+  (T-143 the name, T-144 faster checks, T-145 the benchmark), details added to T-123, T-125,
+  T-129, T-30, T-135, T-136, T-138 and T-141; two ideas in reserve declined for now
+  ([rejected.md](rejected.md)) (docs/backlog-vision-gaps)
 - **2026-10-17** · Backlog rewritten from the vision of 17 October 2026 — kiln keeps repos up to
   date with the best practices and easy for Claude to read, Django and Nuxt first; efforts in
   Claude Code session time on the Pro plan; plan dated up to the launch of v0.5.0 on

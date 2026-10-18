@@ -28,7 +28,7 @@ jobs:
   backend-quality:
     uses: antoine-tena/kiln/.github/workflows/django.yml@v0.3.0
     with:
-      base: annski
+      base: demo
       postgres: docker.io/library/postgres:18-alpine
       mypy: false
       env: |
@@ -104,7 +104,7 @@ def test_django_plan_keeps_the_project_inputs(tmp_path: Path) -> None:
     assert plan.services.postgres == "docker.io/library/postgres:18-alpine"
     assert plan.services.redis == DEFAULTS["django"]["redis"]
     # `base`, its name before kiln 0.4.0, still names the database.
-    assert plan.services.database == "annski"
+    assert plan.services.database == "demo"
 
 
 def test_workflow_names_of_before_0_4_are_still_replayed() -> None:

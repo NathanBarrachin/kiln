@@ -47,13 +47,13 @@ def test_the_project_additions_to_a_generated_file_are_found() -> None:
 
 def test_legacy_answers_get_their_new_names_and_the_team_of_that_time(tmp_path: Path) -> None:
     (tmp_path / ".copier-answers.yml").write_text(
-        "_commit: v0.3.3\nnom: annway\nenvergure: flame\nbackend: java\nfrontend: aucun\n"
+        "_commit: v0.3.3\nnom: myapp\nenvergure: flame\nbackend: java\nfrontend: aucun\n"
     )
 
     data = migrations.answers_for_update(tmp_path, {"podman": True})
 
-    assert data["name"] == "annway" and data["size"] == "flame" and data["frontend"] == "none"
-    assert data["language"] == "fr" and data["java_package"] == "fr.annway" and data["podman"]
+    assert data["name"] == "myapp" and data["size"] == "flame" and data["frontend"] == "none"
+    assert data["language"] == "fr" and data["java_package"] == "fr.myapp" and data["podman"]
     assert "nom" not in data
 
 

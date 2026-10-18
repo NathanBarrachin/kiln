@@ -106,7 +106,7 @@ def render_logo() -> list[str]:
 
 
 def _project_summary(root: Path) -> str:
-    """Project name, size and frameworks: `annski · flame · django + nuxt, podman`."""
+    """Project name, size and frameworks: `demo · flame · django + nuxt, podman`."""
     try:
         answers = answers_if_any(root)
         stack = load_stack(root)

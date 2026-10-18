@@ -139,7 +139,7 @@ le feu du four :
 |---|---|
 | `spark` | un script, un outil perso, une analyse ponctuelle |
 | `ember` | une petite app ou un site, une ou deux personnes, peu d'enjeu (par défaut) |
-| `flame` | une app en production, de vrais utilisateurs, plusieurs contributeurs (AnnSki) |
+| `flame` | une app en production, de vrais utilisateurs, plusieurs contributeurs |
 | `blaze` | plusieurs équipes ou services, de gros enjeux |
 
 L'envergure est écrite dans le `CLAUDE.md` du projet et règle les valeurs par défaut des
@@ -171,7 +171,7 @@ du `pom.xml` se changent à la main.
 ## Déploiement sur un serveur à soi
 
 `deploiement=vps` (`kiln new --vps root@<adresse>`, ou `kiln set deploiement=vps` plus tard), pour
-un backend Django avec podman, ajoute la production reprise d'AnnSki :
+un backend Django avec podman, ajoute une production éprouvée :
 
 - `config/vps/` : pile de production (PostgreSQL et gunicorn, système de fichiers en lecture
   seule), Caddyfile (TLS automatique), script de bascule exécuté en root sur le serveur (une image

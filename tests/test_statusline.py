@@ -122,7 +122,7 @@ def test_integration_branch_is_not_counted_as_unmerged(tmp_path: Path) -> None:
 
 def sample(script: ModuleType) -> object:
     item, status = script.Item, script.Status()
-    status.repo = [[item("annski", role="title"), item("⎇ develop")], [item("~2", 1)]]
+    status.repo = [[item("demo", role="title"), item("⎇ develop")], [item("~2", 1)]]
     status.session = [[item("Opus", role="strong")], [item("ctx", 0, gauge=34.0)]]
     status.tasks = [[item("65 tasks"), item(f"urgent{X}10", 3), item(f"blocked{X}14", short="")]]
     status.env = [

@@ -37,8 +37,8 @@ def load_hook() -> ModuleType:
 def hook(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     """The hook on a fake kiln repo, without real network or installed tool."""
     module = load_hook()
-    monkeypatch.setattr(module, "git_root", lambda cwd: tmp_path / "annway")
-    monkeypatch.setattr(module, "kiln_repo", lambda cwd: (tmp_path / "annway", "8e6427b"))
+    monkeypatch.setattr(module, "git_root", lambda cwd: tmp_path / "myapp")
+    monkeypatch.setattr(module, "kiln_repo", lambda cwd: (tmp_path / "myapp", "8e6427b"))
     monkeypatch.setattr(module, "installed_kiln", lambda: ("git", "ancien"))
     monkeypatch.setattr(module, "fetch_changelog", lambda tag: CHANGELOG)
     return module
@@ -112,8 +112,8 @@ def test_up_to_date_tool_asks_only_for_the_repo(
 
     message = hook.instructions(".", {}, release=released())
 
-    assert message.startswith("kiln v0.4.0 is out; annway starts from 8e6427b")
-    monkeypatch.setattr(hook, "kiln_repo", lambda cwd: (Path("annway"), "v0.4.0"))
+    assert message.startswith("kiln v0.4.0 is out; myapp starts from 8e6427b")
+    monkeypatch.setattr(hook, "kiln_repo", lambda cwd: (Path("myapp"), "v0.4.0"))
     assert hook.instructions(".", {}, release=released()) == ""
 
 
@@ -236,7 +236,7 @@ def test_without_colors_the_notice_is_one_line(
 ) -> None:
     monkeypatch.setenv("NO_COLOR", "1")
     monkeypatch.setattr(hook, "installed_kiln", lambda: ("git", "nouveau"))
-    monkeypatch.setattr(hook, "kiln_repo", lambda cwd: (Path("annway"), "v0.3.4"))
+    monkeypatch.setattr(hook, "kiln_repo", lambda cwd: (Path("myapp"), "v0.3.4"))
 
     found = hook.offer(".", {}, release=released())
 
@@ -302,7 +302,7 @@ def test_the_question_only_says_the_move(hook: ModuleType) -> None:
     message = hook.instructions(".", {}, release=released())
 
     assert '"Update kiln to v0.4.0?"' in message
-    assert '"Update annway from 8e6427b to v0.4.0?"' in message
+    assert '"Update myapp from 8e6427b to v0.4.0?"' in message
     assert "the charter is in English" not in message
     assert 'If "Update": skill `/kiln:update` with the argument `tool`' in message
 

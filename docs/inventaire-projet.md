@@ -1,15 +1,15 @@
-# Inventaire d'AnnSki (liste de contrôle pour un nouveau projet)
+# Inventaire du projet de référence (liste de contrôle pour un nouveau projet)
 
-Inventaire de ce qu'AnnSki a fini par réunir, à reprendre dès le premier jour du prochain
-projet. Repéré le 2026-10-01, revu le 2026-10-13, dans `~/code/association/annski`. **Aucun secret ici** : seulement les noms et
+Inventaire de ce que le projet de référence a fini par réunir, à reprendre dès le premier jour du prochain
+projet. Repéré le 2026-10-01, revu le 2026-10-13. **Aucun secret ici** : seulement les noms et
 les emplacements. Les jetons se recréent, ils ne se copient pas.
 
 ## 1. Consignes pour Claude
-| Élément | Rôle dans AnnSki | À reprendre |
+| Élément | Rôle dans le projet de référence | À reprendre |
 |---|---|---|
 | `CLAUDE.md` racine | Consignes + charte avec identifiants stables (`[VERROUS]`…) | Oui, la structure : règles à ID, trois régimes (stricte / cliquet / revue) |
 | `frontend/CLAUDE.md`, `backend/CLAUDE.md` | Charte par sous-projet, chargée quand on y travaille | Oui, dès qu'il y a deux codebases |
-| `annway/CLAUDE.md` | Sous-projet autonome | Modèle pour un sous-projet |
+| `<sous-projet>/CLAUDE.md` | Sous-projet autonome | Modèle pour un sous-projet |
 | Mémoire `~/.claude/projects/<repo>/memory/` | Préférences et faits durables | Repartir de zéro, mais reprendre les *feedback* (français, worktrees, pas de sessions parallèles…) |
 
 ## 2. `.claude/` du projet
@@ -22,7 +22,7 @@ Presque tout vient désormais de kiln : `kiln new` génère le
   `vue-testing-best-practices`, `polish` (`pile-nuxt`) ; `migration`, `regen-api`,
   `postgres-lecture` (`pile-django`) ; `deployer`, `prod-logs`, `prod-dump` (`vps-podman`).
   Status line : `~/.claude/statusline.py`.
-- Propre à AnnSki, à réécrire pour un autre projet : `annonce`, `design-system`, `dev`
+- Propre au projet de référence, à réécrire pour un autre projet : `annonce`, `design-system`, `dev`
   (lancement du front branché sur l'API de prod), `ci-local` (liste des contrôles de sa CI),
   `nouvelle-route` (conventions de sa charte back), `google` (Search Console par compte de
   service), `sauvegarde-medias` (rushs et vidéos vers R2), `squashmigrations`.
@@ -49,7 +49,7 @@ Convention à garder : un dossier caché par service à la racine, `token` + `co
 | `.healthchecks/` | Sondes de tâches planifiées |
 | `.google/` | Search Console (compte de service) |
 | `.vps/` | Accès au VPS |
-| `.annski/`, `.playwright/` | Comptes de test de Claude sur le site |
+| `.<projet>/`, `.playwright/` | Comptes de test de Claude sur le site |
 | `.backup/` | restic → R2 (`restic.password`, `token`) |
 | `.env.local` | Variables locales |
 | `~/.ssh/id_ed25519` | Clé SSH (VPS, GitHub) — personnelle, hors repo |
@@ -58,7 +58,7 @@ Convention à garder : un dossier caché par service à la racine, `token` + `co
 - `.github/workflows/` : `ci.yml`, `deploy.yml`, `mutation.yml`, mais GitHub Actions est
   coupé depuis le 12/10 : `kiln ci develop` rejoue la CI sur le poste et pose son verdict en
   note git, que le déploiement exige.
-- annski n'a pas été généré par kiln : `kiln check`, `dev`, `install` et `contrat` y marchent
+- Le projet de référence n'a pas été généré par kiln : `kiln check`, `dev`, `install` et `contrat` y marchent
   (pile déduite des fichiers), `kiln status` le marque « adopté », `update` ne s'y applique pas.
 - `.pre-commit-config.yaml`, `.gitattributes` (marque les fichiers générés), `.gitignore`, `.vercelignore`.
 - `scripts/ci/check_charter.py` + `charter_*.py` : la charte vérifiée par la CI, budgets « cliquet ».

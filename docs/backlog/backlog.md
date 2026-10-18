@@ -1,8 +1,8 @@
 # Backlog
 
 Everything left to do on kiln, in a single list ordered by priority. Started on
-**2026-10-15**, rewritten on **2026-10-17** from the vision of that day (internal draft,
-`docs/vision/` on the branch `docs/project-vision`). What is done is in the "✅ Done" section at
+**2026-10-15**, rewritten on **2026-10-17** from the vision of that day (`docs/vision/`;
+the measures of the two real repos stay private, see "Repos d'entraînement" in `CLAUDE.md`). What is done is in the "✅ Done" section at
 the bottom; what was turned down is in [rejected.md](rejected.md). **Nothing else is open.**
 
 North star: **kiln v0.5.0, launched publicly on Wednesday 11 November 2026: any Django or Nuxt

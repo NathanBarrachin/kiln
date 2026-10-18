@@ -39,12 +39,26 @@ un dossier ou un module.
   (MIT), `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` ; capture de l'écran
   d'accueil `docs/assets/kiln-accueil.svg`. Référence complète en français : `README.fr.md`.
 - `docs/backlog/` : suivi du travail, en anglais (skill `/kiln:backlog`), dont la prochaine
-  promotion de version ; `docs/assets/` : images de la vitrine.
+  promotion de version ; `docs/assets/` : images de la vitrine ; `docs/vision/` : l'idée de
+  projet, brouillon en français, un fichier par sujet (`README.md` sert d'index).
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal, anciens noms), `test_questions.py` (questions de `kiln new`), `test_unites.py`,
   `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_deployment.py`, `test_statusline.py` (choix du
   poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_branch_guard.py` (hook de garde de branche), `test_adopt.py`,
   `test_reminders.py`, `test_session_start.py` ; `conftest.py` : config git du poste écartée, identité de test.
+
+## Repos d'entraînement
+
+kiln s'entraîne sur deux repos réels mesurés le 17 octobre 2026 : le repo d'association (la
+référence Django + Nuxt, terrain d'entraînement de la grille, T-124, T-134 ; son chemin est dans
+les consignes globales du poste, jamais nommé ici) et un repo d'université (repo ordinaire, épreuve pour un repo que kiln n'a pas
+créé, T-131). **Le détail des mesures n'est pas public** (écarts de sécurité d'un site en production,
+vulnérabilités d'un projet tiers pas encore signalées à son équipe) : il est dans
+`docs/vision/etudes-de-cas.md` de la branche **locale** `docs/project-vision`, worktree
+`.claude/worktrees/docs-project-vision`. Le lire là (`git show
+docs/project-vision:docs/vision/etudes-de-cas.md`) ; ne jamais pousser ni fusionner cette
+branche, et n'écrire dans le repo public que des chiffres agrégés, sans rien qui identifie le
+projet d'université. On mesure toujours sur une copie locale, jamais dans le repo lui-même.
 
 ## Versions
 
@@ -92,7 +106,7 @@ et kiln-bot (T-59) rendra la mise à jour gratuite. Les changements cassants res
   travaille seul dans le repo, v0.7.0 kiln pour les équipes et les organisations, v1.0.0 promesse
   de stabilité, juste avant les modules de la communauté (T-69) qui s'appuieront sur l'API de
   kiln ; le plan de `docs/backlog/` les porte. Leur contenu suit la vision du 17 octobre 2026
-  (`docs/vision/`, branche `docs/project-vision`, brouillon interne) : v0.5.0 note n'importe quel
+  (`docs/vision/`, brouillon en français) : v0.5.0 note n'importe quel
   repo Django ou Nuxt face à la grille et le corrige par script, v0.6.0 Claude comble seul les
   écarts que le script laisse, v0.7.0 profils de structure et flottes de repos (associations,
   universités, PME ; pas encore les grandes entreprises), v1.0.0 format de la grille stable pour
@@ -126,7 +140,7 @@ publie sur PyPI le paquet `kiln-cli` par `pypi.yml`) :
 Chaque version, correctif compris, finit par `kiln update --all` : les repos générés citent leurs
 workflows au tag exact dont ils partent (`ci.yml`), et `kiln update` le fait avancer. Les
 workflows de kiln prennent leurs actions et la commande `charte` à leur propre commit
-(`job.workflow_sha`). Les dépôts adoptés (annski) citent les workflows en `@develop` et ne
+(`job.workflow_sha`). Les dépôts adoptés citent les workflows en `@develop` et ne
 reçoivent pas de `kiln update`. Modules : `versions.py` (tags, canaux, journal, version de
 l'outil), `release.py` (`kiln version`).
 

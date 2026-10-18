@@ -81,4 +81,10 @@ associations, companies of about 50 people and universities.
 - T-61 · `kiln migrate`: framework major upgrades done by Claude Code
 - T-113 · `kiln audit --fix`: vulnerable dependencies fixed on a branch
 
+**The vision's ideas in reserve** (17 October 2026), never opened as tickets: far from keeping
+small structures' repos up to date; back once the grid holds.
+- Living forks: one's changes kept as intentions with their tests, replayed on each upstream
+  release (`kiln update` for any open-source software)
+- A financial guarantee on merged code: trust sold as an insured product
+
 ## Dropped

@@ -1,6 +1,6 @@
 {
   "name": "serena",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Read-only Serena MCP server: navigate by symbols (definition, references, file outline) instead of reading whole files",
   "author": {
     "name": "antoine-tena"

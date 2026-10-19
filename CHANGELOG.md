@@ -6,6 +6,27 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 `release/vX.Y.Z` branch, rewritten before its first candidate. Names are those of their release:
 entries before v0.4.0 quote kiln's former French names.
 
+## v0.4.0 — 2026-10-19
+- **Breaking**: kiln speaks English. `kiln update` converts a generated project in one go, and the names of 0.3 are still read until the next minor.
+- **Breaking**: the template's questions are in English (`size`, `name`, `owner`, `team`, `project_type`…); `kiln update` hands Copier the new names and still reads the old answers.
+- **Breaking**: the charter is in English: `charte.toml` becomes `charter.toml` (bans, ratchets, floors) and rules take English identifiers. `kiln update` rewrites the file with its budgets and the project's own rules, and the rule identifiers cited in waivers and in the code; an adopted repo keeps its `charte.toml`, read under its French names, and `charte` stays an alias of the `charter` command.
+- **Breaking**: commands and options in English: `contrat` → `contract`, `set --poste` → `set --global`, `ci --sauter/--sans-pousser/--garder/--statut` → `--skip/--no-push/--keep/--status`; the old names still work, with a warning.
+- **Breaking**: kiln's instructions for Claude move to `.claude/rules/kiln/`: the project and charter rules always loaded, each stack's rules only when Claude touches its files, production and browser security rules from the `ember` size on. The root `CLAUDE.md` now belongs to the project; `kiln update` carries over what the project added to the old one.
+- **Breaking**: plugins renamed: `base`, `pile-django`, `pile-nuxt`, `vps-podman` become `kiln`, `django`, `nuxt`, `vps`, with English skill names (`/kiln:merge`, `/kiln:release`, `/kiln:cleanup`, `/kiln:review`, `/kiln:update`, `/kiln:adopt`, `/kiln:report`…). The catalogue moves existing installs to the new names, and the former hook and status line paths keep working.
+- **Breaking**: reusable workflows `charter.yml`, `security.yml` and `api-contract.yml`, with English inputs; `charte.yml`, `securite.yml` and `contrat-api.yml` stay as relays, and the old inputs are still accepted. The `kiln ci` note starts with `kiln ci: success` or `kiln ci: failure`; notes of 0.3 are still read.
+- **Breaking**: machine settings and status line styles in English (`channel=internal`, `plain`, `band`, `classic`…); the old keys and values are still read in `config.toml` and accepted by `kiln set`.
+- `kiln new` in three questions (what you build, the size, the team's language), then the next steps; `--all-questions` for the whole questionnaire.
+- Generated code, comments, scripts and workflows in English; what users read (pages, messages, README) follows the project's language.
+- The hook after each edit checks the edited file alone (`charter file`, about 0.15 s), and says how to waive a rule; ratchets and floors run at commit and in CI.
+- At session start, kiln's logo shows the new release and its main changes above a shorter update question.
+- `kiln version cut` and `kiln version promote`: kiln's own release in two commands, with a GitHub Release for each promoted version.
+- Only a release of kiln updates a repo: a kiln installed from a checkout ahead of its tag (or with changes, or from a branch) is refused by `kiln update`, `new` and `adopt`, with the command that installs the release, instead of mixing its code with an older template. `kiln --version` says what is installed, not what the checkout became since, and the session start replaces such a tool by the release.
+- `kiln update --rehearse` plays the update on a throwaway clone with its checks and only reports, the repo untouched; `kiln update --all --rehearse` does it for every repo.
+- At session start, Claude is told when the last CI of the integration branch is red, to say so before any new work.
+- `/kiln:merge` runs the repo's checks before merging and reads GitHub's verdict on the merge.
+- `kiln update` opens a ticket for what only the team can complete after an update (`After updating:` in a commit), and a backlog ticket can be reserved for one GitHub account.
+- `kiln version cut` waits for GitHub's CI of the release branch and tags only on green; `kiln version` and `promote` hold back a candidate whose CI is not green; a fix of a candidate bumps the plugins it touches.
+
 ## v0.3.4 — 2026-10-16
 - The template is never newer than the installed tool: `kiln update` applies the installed kiln release (conversions from one release to the next live in the tool), refuses to take a repo back to a release older than its own, and says when a newer release is out.
 - `kiln new` without `gh`, or outside a terminal without a login, creates the project locally, and `kiln publish` creates the GitHub repository afterwards. The default owner comes from the machine's settings or from the account logged in to gh; a project without a team has neither CODEOWNERS nor a "Team" section.

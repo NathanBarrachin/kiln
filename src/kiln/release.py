@@ -5,8 +5,9 @@
   (`kiln version --minor`). From 1.0, strict semver, like Next.js: breaking → major,
   `feat` → minor, the rest → patch.
 - **Promotion**: a candidate (`vX.Y.Z-rc.N`, the last of its version) goes public when a
-  candidate of a newer version exists: the next one ready, not a delay, avoids the emergency
-  fix. The repos of the code folder tell who already took it.
+  candidate of a newer version exists and GitHub's CI of its commit is green: the next one
+  ready, not a delay, avoids the emergency fix. The repos of the code folder tell who already
+  took it.
 
 Read only: `kiln version cut` and `kiln version promote` (shipping.py) tag and merge.
 """
@@ -19,7 +20,7 @@ from pathlib import Path
 
 from packaging.version import Version
 
-from kiln import ui
+from kiln import github_ci, ui
 from kiln.config import load_config
 from kiln.fleet import find_repos
 from kiln.shell import KilnError, capture
@@ -55,7 +56,8 @@ def show_release_status(root: Path, *, milestone: bool = False) -> None:
         print(f"    {ui.paint('none', ui.STONE)}")
     adopted = _adoption()
     for candidate in candidates:
-        verdict, ready = promotion_verdict(candidate, candidates)
+        ci = github_ci.verdict(root, capture(["git", "rev-list", "-n", "1", candidate.name], root))
+        verdict, ready = promotion_verdict(candidate, candidates, ci)
         mark = ui.paint("✓", ui.MOSS) if ready else ui.paint("·", ui.STONE)
         age = (now - candidate.created).days
         users = adopted.get(candidate.name, [])
@@ -134,7 +136,11 @@ def latest_candidates(tags: list[Tag]) -> list[Tag]:
     return [latest[final] for final in sorted(latest)]
 
 
-def promotion_verdict(candidate: Tag, candidates: list[Tag]) -> tuple[str, bool]:
+def promotion_verdict(candidate: Tag, candidates: list[Tag], ci: str) -> tuple[str, bool]:
+    """Ready when a newer candidate exists and GitHub's CI of this one is green (`ci`, from
+    `github_ci.verdict`)."""
+    if ci != github_ci.SUCCESS:
+        return f"CI not green ({ci}): not promotable", False
     if not any(other.version > candidate.version for other in candidates):
         return "waiting for a next release ready", False
     return f"ready: promote to v{candidate.version.base_version}", True

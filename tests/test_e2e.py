@@ -223,7 +223,9 @@ def test_a_project_of_an_earlier_release_updates_cleanly(
 def released_kiln(tmp_path_factory: pytest.TempPathFactory) -> dict[str, str]:
     """This checkout as users get a release: a clone tagged `RELEASE_UNDER_TEST`, installed by
     `uv tool install` in a tool folder of its own, and GitHub's address of kiln sent to the
-    clone by git (`url.insteadOf`). Only committed changes are under test."""
+    clone by git (`url.insteadOf`). Copier keeps a mirror of each remote template, by URL: a
+    cache of its own, or the workers would share one "GitHub" (and the machine's would keep the
+    fake tag). Only committed changes are under test."""
     root = tmp_path_factory.mktemp("released")
     clone = root / "kiln"
     head = subprocess.run(
@@ -251,6 +253,7 @@ def released_kiln(tmp_path_factory: pytest.TempPathFactory) -> dict[str, str]:
     } | {
         "GIT_CONFIG_GLOBAL": str(gitconfig),
         "GIT_CONFIG_NOSYSTEM": "1",
+        "COPIER_CACHE_DIR": str(root / "copier"),
         "XDG_CONFIG_HOME": str(config_dir.parent),
         "UV_TOOL_DIR": str(root / "tools"),
         "UV_TOOL_BIN_DIR": str(root / "bin"),
@@ -267,7 +270,8 @@ def test_every_release_updates_through_the_installed_tool(
 ) -> None:
     project = tmp_path / "demo"
     # Rendered from GitHub's address, as the project was then: `_src_path` is GitHub.
-    monkeypatch.setenv("GIT_CONFIG_GLOBAL", released_kiln["GIT_CONFIG_GLOBAL"])
+    for variable in ("GIT_CONFIG_GLOBAL", "COPIER_CACHE_DIR"):
+        monkeypatch.setenv(variable, released_kiln[variable])
     make_old_project(project, tag, *LIGHT_STACK, source=f"{GITHUB_TEMPLATE}.git")
     kiln = str(Path(released_kiln["UV_TOOL_BIN_DIR"]) / "kiln")
 

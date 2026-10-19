@@ -349,7 +349,7 @@ def fake_ci(
     hook: ModuleType, monkeypatch: pytest.MonkeyPatch, runs: list[dict[str, str]] | None
 ) -> None:
     """git says the integration branch is develop; gh lists `runs` (None: gh missing)."""
-    real_run = hook.run
+    real_run: Callable[..., subprocess.CompletedProcess[str]] = hook.run
 
     def run(*command: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
         if command[0] == "gh":

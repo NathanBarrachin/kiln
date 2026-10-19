@@ -305,9 +305,13 @@ def test_a_candidate_is_promoted_as_soon_as_the_next_is_ready() -> None:
     old = Tag("v0.3.0-rc.2", Version("0.3.0rc2"), now - datetime.timedelta(hours=2))
     young = Tag("v0.3.1-rc.1", Version("0.3.1rc1"), now - datetime.timedelta(hours=1))
 
-    assert promotion_verdict(old, [old, young])[1]
-    assert not promotion_verdict(young, [old, young])[1]
-    assert not promotion_verdict(old, [old])[1]
+    assert promotion_verdict(old, [old, young], "success")[1]
+    assert not promotion_verdict(young, [old, young], "success")[1]
+    assert not promotion_verdict(old, [old], "success")[1]
+    # A red or unfinished CI holds the candidate back, whatever comes after it.
+    for ci in ("failure", "running", "none"):
+        verdict, ready = promotion_verdict(old, [old, young], ci)
+        assert not ready and ci in verdict
     assert latest_candidates([old, young]) == [old, young]
 
 

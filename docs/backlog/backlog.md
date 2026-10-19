@@ -81,7 +81,6 @@ failed unseen); promoted when `v0.4.1-rc.1` is cut.
 ### v0.4.1 · The grid, as data
 Candidate Thu 22 Oct. The heart of the vision: what kiln holds as the best, one small file per
 rule on two axes, browsable with `kiln grid`.
-- T-146 · kiln moves the workflows' tag forward in adopted repos (S)
 - T-124 · The reference repo's rules sorted on the two axes (M)
 - T-133 · The other templates frozen while Django and Nuxt reach the top (XS)
 - T-143 · Decide the name before the launch: kiln, despite Kiln-AI (XS) (antoine decides)
@@ -208,22 +207,6 @@ exists.
 - [ ] antoine deletes it: https://pypi.org/manage/account/token/
 
 ## 🟠 Important
-
-### T-146 · kiln moves the workflows' tag forward in adopted repos
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-19
-- **Effort**: S · **Owner**: Claude · **Due**: —
-- **Origin**: T-04, antoine's decision of 19 October 2026 (adopted repos at a tag)
-
-An adopted repo now quotes kiln's reusable workflows at the tag of the last public release
-(`@vX.Y.Z`), so it never takes what lands on `develop` before a candidate. It gets no
-`kiln update`, so the tag only moves by hand.
-- [ ] `kiln update` in an adopted repo (or `kiln update --all`) moves only the
-  `antoine-tena/kiln/...@vX.Y.Z` references to the latest public release, after checking the
-  inputs it passes against the new workflows; nothing else is touched.
-- [ ] `kiln adopt` writes the references at the current public tag, never `@develop`.
-- [ ] `kiln status` shows the tag an adopted repo quotes, late or not.
 
 ### T-124 · The reference repo's rules sorted on the two axes
 - **Type**: task
@@ -1109,6 +1092,11 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-146 · kiln moves the workflows' tag forward in adopted repos —
+  `kiln update` (and `--all`, `--rehearse`) in an adopted repo moves only the
+  `antoine-tena/kiln/...@ref` references to the latest public release, after checking each
+  input against the workflow at that tag; `kiln adopt` does it at adoption, `kiln status` shows
+  the quoted tag (feat/adopted-tag) · opened 2026-10-19
 - **2026-10-19** · T-123 · The grid as data: one small file per rule, on two axes —
   `src/kiln/grid/` (format, closed lists, validation, facts of a repo, declarative detectors and
   Python checks, `kiln grid`), six `adopt` rules with sources checked on 19 October; each rule

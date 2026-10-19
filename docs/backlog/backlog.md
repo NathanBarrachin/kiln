@@ -81,7 +81,6 @@ failed unseen); promoted when `v0.4.1-rc.1` is cut.
 ### v0.4.1 · The grid, as data
 Candidate Thu 22 Oct. The heart of the vision: what kiln holds as the best, one small file per
 rule on two axes, browsable with `kiln grid`.
-- T-123 · The grid as data: one small file per rule, on two axes (M)
 - T-146 · kiln moves the workflows' tag forward in adopted repos (S)
 - T-124 · The reference repo's rules sorted on the two axes (M)
 - T-133 · The other templates frozen while Django and Nuxt reach the top (XS)
@@ -225,42 +224,6 @@ An adopted repo now quotes kiln's reusable workflows at the tag of the last publ
   inputs it passes against the new workflows; nothing else is touched.
 - [ ] `kiln adopt` writes the references at the current public tag, never `@develop`.
 - [ ] `kiln status` shows the tag an adopted repo quotes, late or not.
-
-### T-123 · The grid as data: one small file per rule, on two axes
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-17
-- **Effort**: M · **Owner**: Claude · **Due**: —
-- **Origin**: vision of 17 October 2026 ("the reference grid", next steps 2 and 6); T-95's
-  `kiln why` merged here
-
-The grid is what kiln holds as the best way to work today, and the product's hard core:
-everything else (score, fix, roadmap, bot) reads it. Written as data, it can be scored, tested,
-reviewed in a pull request, and read by Claude one rule at a time.
-- [ ] One TOML file per rule, `grid/<theme>/<RULE-ID>.toml` (decided by Claude, 17 October 2026:
-  `tomllib` is in the standard library, the charter already speaks TOML, and small files named
-  after their content are what Claude reads best). Fields: `id`, `title`, `pillar` (methods,
-  standards, readability, slimming, versions), `theme`, `scope` (universal, language,
-  framework, tool, domain, with its name), `level` (adopt, trial, assess, hold), `regime`
-  (strict, ratchet, review), `profiles`, `why` in one line, `sources` (URL, kind, date
-  checked), `detector`, `fixer`, `since`; `switch_when`, what makes its level change ("Node 26:
-  adopt once it is LTS, 28 October"), read by T-140; `settings`, what a project sets on a
-  universal rule (the time zone of "dates stored in UTC").
-- [ ] Themes from the vision's closed list: structure, code standards, API and typing,
-  architecture, data and migrations, background tasks, concurrency, cache, errors and logs,
-  application security, personal data, supply chain, tests, performance, front and
-  accessibility, containers, operations, observability, CI/CD, git and versions, docs and
-  tracking, AI-assisted development, business domain. Sources weighed in the doctrine's order:
-  official docs and release notes, security advisories, measured studies, adoption data, blogs.
-- [ ] Detectors declarative first: a file present, a key in TOML, YAML or JSON, a regex, an
-  ast-grep pattern, a charter rule; Python only when no pattern can say it (doctrine 11: the
-  fastest at equal precision).
-- [ ] Tests: unique IDs, closed lists respected, every `adopt` rule with a source checked in the
-  last six months, every detector and fixer named exists.
-- [ ] `kiln grid` lists the rules (`--theme`, `--scope`, `--level`); `kiln grid RULE-ID` shows
-  one: why, sources, how it is detected and fixed, how to waive it.
-- [ ] The charter stays the engine of the strict and ratchet regimes in kiln repos; the grid
-  points at its rules for the code standards pillar.
 
 ### T-124 · The reference repo's rules sorted on the two axes
 - **Type**: task
@@ -1146,6 +1109,10 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-123 · The grid as data: one small file per rule, on two axes —
+  `src/kiln/grid/` (format, closed lists, validation, facts of a repo, declarative detectors and
+  Python checks, `kiln grid`), six `adopt` rules with sources checked on 19 October; each rule
+  needs a passing and a failing example (feat/grid-data) · opened 2026-10-17
 - **2026-10-19** · T-152 · A private repo's CI runs on the machine — answer `ci_runner`
   (`local` by default, `github` for a public repo, picked from the visibility by `kiln update`),
   `ci.yml` without push triggers, `/kiln:merge` runs `kiln ci`, the status line and the session

@@ -183,7 +183,9 @@ def bump_changed_plugins(tree: Path, since: str | None) -> list[str]:
         plugin = manifest.parents[1]
         if since is not None:
             relative = str(plugin.relative_to(tree))
-            if not capture(["git", "diff", "--name-only", since, "HEAD", "--", relative], tree):
+            changed = capture(["git", "diff", "--name-only", since, "HEAD", "--", relative], tree)
+            # Unchanged, or its number already moved since: nothing to bump.
+            if not changed or str(manifest.relative_to(tree)) in changed.splitlines():
                 continue
         data = json.loads(manifest.read_text("utf-8"))
         if "version" not in data:
@@ -205,6 +207,15 @@ def _tag_candidate(root: Path, version: str, tags: list[Tag]) -> None:
         raise KilnError(f"uncommitted changes in {tree}: commit them first")
     if DRAFT_MARKER in (tree / CHANGELOG).read_text("utf-8"):
         raise KilnError(f"the v{version} entry of {CHANGELOG} is still a draft ({tree})")
+    # A fix of a candidate that touches a plugin moves its number: Claude Code only reinstalls
+    # a plugin whose version moved, the machines would keep the candidate's old hooks.
+    previous = _last_candidate(version, tags)
+    if previous is not None:
+        bumped = bump_changed_plugins(tree, previous)
+        if bumped:
+            run(["git", "add", "-A", "plugins"], tree)
+            run(["git", "commit", "-q", "-m", "chore(release): plugins of the fix bumped"], tree)
+            ui.note("plugins bumped: " + ", ".join(bumped))
     # The release worktree has its own environment, not the one `uv run kiln` may have set.
     env = {key: value for key, value in os.environ.items() if key != "VIRTUAL_ENV"}
     for check in CHECKS:
@@ -228,6 +239,14 @@ def _tag_candidate(root: Path, version: str, tags: list[Tag]) -> None:
     run(["git", "tag", "-a", name, "-m", f"Release candidate {name}"], tree)
     run(["git", "push", "-q", "origin", f"release/v{version}", name], tree)
     ui.success(f"{name} pushed: the internal channel follows it (kiln update --all, with consent)")
+
+
+def _last_candidate(version: str, tags: list[Tag]) -> str | None:
+    """The latest `-rc.N` of `version` already tagged, if any."""
+    candidates = [
+        tag for tag in tags if tag.version.is_prerelease and tag.version.base_version == version
+    ]
+    return max(candidates, key=lambda tag: tag.version).name if candidates else None
 
 
 # --- promote -----------------------------------------------------------------------------------

@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-146.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-147.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -73,13 +73,13 @@ waits for is v0.5.0.
 Candidate `v0.4.0-rc.1` cut on Mon 19 Oct (promoted v0.3.4). The milestone decided by antoine, merged in `develop`
 on 16 October; what is left is small. ⚠ breaking: CLI names, `copier.yml` questions, charter
 rule IDs, workflow inputs, plugin and skill names, all converted by `kiln update`.
-- T-04 · Decide whether the adopted repo quotes kiln's workflows at a tag (XS) (blocked: antoine)
 - T-14 · Delete the old PyPI token (XS) (blocked: antoine)
 
 ### v0.4.1 · The grid, as data
 Candidate Thu 22 Oct. The heart of the vision: what kiln holds as the best, one small file per
 rule on two axes, browsable with `kiln grid`.
 - T-123 · The grid as data: one small file per rule, on two axes (M)
+- T-146 · kiln moves the workflows' tag forward in adopted repos (S)
 - T-124 · The reference repo's rules sorted on the two axes (M)
 - T-133 · The other templates frozen while Django and Nuxt reach the top (XS)
 - T-143 · Decide the name before the launch: kiln, despite Kiln-AI (XS) (antoine decides)
@@ -206,6 +206,22 @@ exists.
 - [ ] antoine deletes it: https://pypi.org/manage/account/token/
 
 ## 🟠 Important
+
+### T-146 · kiln moves the workflows' tag forward in adopted repos
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-19
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: T-04, antoine's decision of 19 October 2026 (adopted repos at a tag)
+
+An adopted repo now quotes kiln's reusable workflows at the tag of the last public release
+(`@vX.Y.Z`), so it never takes what lands on `develop` before a candidate. It gets no
+`kiln update`, so the tag only moves by hand.
+- [ ] `kiln update` in an adopted repo (or `kiln update --all`) moves only the
+  `antoine-tena/kiln/...@vX.Y.Z` references to the latest public release, after checking the
+  inputs it passes against the new workflows; nothing else is touched.
+- [ ] `kiln adopt` writes the references at the current public tag, never `@develop`.
+- [ ] `kiln status` shows the tag an adopted repo quotes, late or not.
 
 ### T-123 · The grid as data: one small file per rule, on two axes
 - **Type**: improvement
@@ -712,18 +728,6 @@ layouts directly.
 - [ ] The result published either way; the readability rules of the grid follow it (a rule the
   measurement does not support goes back to `assess`).
 
-### T-04 · Decide whether the adopted repo quotes kiln's workflows at a tag
-- **Type**: task
-- **Status**: todo
-- **Opened**: 2026-10-15
-- **Effort**: XS · **Owner**: antoine · **Due**: —
-- **Origin**: move to semver, 15 October 2026
-
-The adopted repo (no template) quotes the workflows at `@develop`: it gets everything that lands
-on `develop`, before any candidate, and `develop` will move a lot until the launch. Pinning it to
-a tag would protect it, at the cost of a manual update on each release. The user's condition:
-never break the adopted repo.
-
 ### T-05 · Check the first real run of the workflows on GitHub
 - **Type**: task
 - **Status**: blocked — waiting for GitHub billing (CI stopped)
@@ -1139,6 +1143,9 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-04 · Decide whether the adopted repo quotes kiln's workflows at a tag —
+  antoine: at a tag. The reference repo quotes `@v0.3.4` (inputs and charter checked
+  compatible), the tag moved by hand until T-146 · opened 2026-10-15
 - **2026-10-19** · T-23 · Finish kiln in English: the changelog, then the candidate — every
   `CHANGELOG.md` entry in English, the v0.4.0 note with its breaking changes first;
   `v0.4.0-rc.1` cut with `kiln version cut`, `v0.3.4` promoted with `kiln version promote`

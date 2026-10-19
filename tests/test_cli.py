@@ -137,3 +137,18 @@ def test_a_long_release_note_wraps_instead_of_being_cut(
         "What's", "new", *words.split(), "v0.4.1", "2026-10-19"
     ]  # fmt: skip
     assert all(len(line) <= 50 for line in text.splitlines())
+
+
+def test_code_spans_of_a_release_note_show_in_colour_without_backticks(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(ui, "is_styled", lambda stream=None: True)
+    monkeypatch.setattr(ui, "_columns", lambda: 100)
+
+    ui.panel("What's new", ["- new answer (`ci_runner`), set by `kiln set ci_runner=github`."])
+
+    out = capsys.readouterr().out
+    text = re.sub(r"\033\[[\d;]*m", "", out)
+    assert "`" not in text
+    assert "new answer (ci_runner), set by kiln set ci_runner=github." in text
+    assert ui.paint("ci_runner", ui.GLOW) in out and ui.paint("set", ui.GLOW) in out

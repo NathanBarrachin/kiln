@@ -35,7 +35,8 @@ Talk to the user in their language.
 6. Right after the merge, what kiln cannot guess: when the releases crossed ask for it,
    `kiln update` opened a 🔴 ticket `Finish the kiln update to vX.Y.Z` in
    `docs/backlog/backlog.md` (it says its ID), one box per action. Do it now with the user: ask
-   for what only they know (a member's GitHub login, a choice), make the changes on a branch,
+   for what only they know (their own GitHub login, a choice; never another member's: each one
+   does theirs in their own session), make the changes on a branch,
    then close the ticket (`/kiln:backlog done T-NN`); a box they put off stays open
    in the ticket.
 

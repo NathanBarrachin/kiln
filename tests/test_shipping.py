@@ -168,3 +168,24 @@ def test_draft_carries_what_repos_must_do_after_updating() -> None:
         "- Owner reserved",
         "- **After updating**: give each owner's @login",
     ]
+
+
+def test_a_fix_of_a_candidate_bumps_the_plugins_it_touches(repo: Path) -> None:
+    publish(repo, "feat: one")
+    shipping.cut(repo)
+    tree = repo / ".claude/worktrees/release-v0.1.1"
+    rewrite_draft(tree)
+    shipping.cut(repo)
+    manifest = tree / "plugins/kiln/.claude-plugin/plugin.json"
+    tagged = manifest.read_text()
+
+    (tree / "plugins/kiln/hook.py").write_text("fixed\n")
+    git(tree, "add", "-A")
+    git(tree, "commit", "-qm", "fix: the hook")
+    shipping.cut(repo)
+
+    assert "v0.1.1-rc.2" in git(repo, "ls-remote", "--tags", "origin")
+    assert manifest.read_text() != tagged
+    assert git(tree, "log", "-1", "--format=%s", "v0.1.1-rc.2") == (
+        "chore(release): plugins of the fix bumped"
+    )

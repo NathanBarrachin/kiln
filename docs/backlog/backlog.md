@@ -82,8 +82,6 @@ CI on the machine, both READMEs complete and checked. Promoted when `v0.4.2-rc.1
 ### v0.4.2 · Any repo scored against the best, in seconds
 Candidate Sat 24 Oct. The launch hook: `uvx kiln-cli score` on the repo people already have,
 without a token.
-- T-14 · Delete the old PyPI token (XS) (blocked: antoine)
-- T-143 · Decide the name before the launch: kiln, despite Kiln-AI (XS) (antoine decides; facts in `docs/vision/nom.md`)
 - T-125 · Grid v1: the rules kiln launches with (L)
 - T-46 · `kiln score`: any repo measured against the grid in seconds, no tokens (L)
 
@@ -190,36 +188,7 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 
 ## 🔴 Critical
 
-### T-14 · Delete the old PyPI token
-- **Type**: task
-- **Status**: blocked — waiting for antoine (delete the old token)
-- **Opened**: 2026-10-16
-- **Effort**: XS · **Owner**: antoine · **Due**: —
-- **Origin**: promotion of v0.3.0, 16 October 2026
-
-`kiln-cli` is published with a token scoped to the project (`.pypi/token`, `PYPI_TOKEN`
-secret), used since the promotion of `v0.3.2`. The account-wide token made before it still
-exists.
-- [ ] antoine deletes it: https://pypi.org/manage/account/token/
-
 ## 🟠 Important
-
-### T-143 · Decide the name before the launch: kiln, despite Kiln-AI
-- **Type**: task
-- **Status**: blocked — waiting for antoine (the decision; facts in `docs/vision/nom.md`)
-- **Opened**: 2026-10-18
-- **Effort**: XS · **Owner**: Claude for the facts, antoine for the decision · **Due**: 2026-10-31
-- **Origin**: vision of 17 October 2026, risk 7 ("the name: collision with Kiln-AI, and `kiln`
-  is taken on PyPI")
-
-A name changed after the launch loses the stars, links and posts that point at the old one;
-changed before, it costs a session. Today the repo is `kiln`, the package `kiln-cli`, and
-Kiln-AI/Kiln (over 5,000 stars) comes first for "kiln" on GitHub.
-- [x] Claude lays out the facts on one page (`docs/vision/nom.md`, 19 October 2026): who answers to "kiln" on GitHub, PyPI, npm and in
-  search engines; what a rename would touch (package, command, `kiln:*` plugins, workflows
-  quoted by tag, conversions by `kiln update`); two or three free names checked on GitHub and
-  PyPI.
-- [ ] antoine decides, before T-33 rewrites the tagline and T-30 the README.
 
 ### T-125 · Grid v1: the rules kiln launches with
 - **Type**: improvement
@@ -1051,6 +1020,11 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-143 · Decide the name before the launch — antoine keeps **kiln**, after
+  the facts of `docs/vision/nom.md` (Kiln-AI, two agent tools of the same name, `kiln` taken on
+  PyPI and npm); the package stays `kiln-cli` · opened 2026-10-18
+- **2026-10-19** · T-14 · Delete the old PyPI token — done by antoine: only the `kiln-cli`
+  token scoped to the project remains, the one `pypi.yml` publishes with · opened 2026-10-16
 - **2026-10-19** · T-124 · The reference repo's rules sorted on the two axes — its 108 named
   rules and 15 backend pillars, plus what lives outside its charter (operations, structure,
   tracking), read only and anonymized, merged where they repeat into 105 draft rules

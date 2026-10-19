@@ -66,6 +66,9 @@ testpaths = ["tests"]
 # bout en bout (lents, en réseau) ne tournent que demandés : `uv run pytest -m e2e`.
 addopts = "-n auto -m 'not e2e'"
 markers = ["e2e: end to end, slow and networked (uv run pytest -m e2e)"]
+# A deprecation is a failure to come: it fails the tests now (an escape in copier.yml slipped
+# through as a warning).
+filterwarnings = ["error::DeprecationWarning"]
 
 [tool.ruff]
 line-length = 100

@@ -167,7 +167,7 @@ java_package:
     {% if owner %}io.github.{{ owner | lower | replace('-', '') }}{% else %}com.example{% endif %}.{{ name | replace('-', '') }}
   when: "{{ backend == 'java' }}"
   validator: >-
-    {% if not (java_package | regex_search('^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$')) %}A Java package: lowercase words separated by dots (com.example.app).{% endif %}
+    {% if not (java_package | regex_search('^[a-z][a-z0-9_]*([.][a-z][a-z0-9_]*)+$')) %}A Java package: lowercase words separated by dots (com.example.app).{% endif %}
 
 # Calendar notions (today, a day, the bounds of a period) are computed in this time zone; storage
 # stays in UTC. kiln proposes the machine's.

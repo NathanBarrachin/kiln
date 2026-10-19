@@ -93,6 +93,10 @@ Backends: `django`, `fastapi`, `data`, `cli`, `java` (Java 25 + Maven, no framew
 Frontends: `nuxt`, `next`, `astro`, `streamlit`, `dash`. **Every combination is generated and
 validated by the test suite.**
 
+**Django and Nuxt: complete. The others: frozen, maintained.** Every stack stays generated and
+tested, but new grid rules go to Django and Nuxt first, until they reach the top of the grid;
+the universal rules (CI, containers, supply chain, secrets) score them all.
+
 Each generated repo comes with:
 
 - **Opinionated tooling, no `pip`, no `docker`:** uv for Python, pnpm for JavaScript, podman

@@ -260,6 +260,7 @@ def _tag_candidate(root: Path, version: str, tags: list[Tag]) -> None:
             ui.note("plugins bumped: " + ", ".join(bumped))
     # The release worktree has its own environment, not the one `uv run kiln` may have set.
     env = {key: value for key, value in os.environ.items() if key != "VIRTUAL_ENV"}
+    _redraw_images(tree, version, env)
     for check in CHECKS:
         ui.step(" ".join(check[2:]))
         run(check, tree, env)
@@ -310,6 +311,22 @@ def _require_readme_update(tree: Path, version: str, tags: list[Tag]) -> None:
         f"neither {missing} changed since {since}: say what v{version} brings there, or write "
         f"`{README_UNCHANGED_MARKER}: why -->` in its {CHANGELOG} entry"
     )
+
+
+SCREENSHOTS = Path("scripts/screenshots.py")
+ASSETS = "docs/assets"
+
+
+def _redraw_images(tree: Path, version: str, env: dict[str, str]) -> None:
+    """The README's images drawn again from the release being cut (its changelog entry shows in
+    `kiln update`'s box), committed when they changed."""
+    if not (tree / SCREENSHOTS).is_file():
+        return
+    ui.step("README images")
+    run(["uv", "run", "python", str(SCREENSHOTS)], tree, env)
+    if capture(["git", "status", "--porcelain", "--", ASSETS], tree):
+        run(["git", "add", "--", ASSETS], tree)
+        run(["git", "commit", "-q", "-m", f"docs: the README's images of v{version}"], tree)
 
 
 def _last_candidate(version: str, tags: list[Tag]) -> str | None:

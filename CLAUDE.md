@@ -155,6 +155,17 @@ de la dernière version publique (choix d'antoine, 19 octobre 2026, T-04) et ne 
 de modèle : `kiln update` y fait seulement avancer ce tag (`adopted.py`, T-146), après avoir vérifié les entrées passées aux workflows. Modules : `versions.py` (tags, canaux, journal, version de
 l'outil), `release.py` (`kiln version`), `shipping.py` (`kiln version cut`, `kiln version promote`).
 
+## Le README, entièrement à jour
+
+Demande d'antoine (19 octobre 2026) : les deux README décrivent tout ce que kiln offre, à la
+version qu'il est, à chaque version. `tests/test_docs.py` échoue si une commande, une option,
+un réglage de `kiln set`, un plugin, une skill, un hook ou un workflow réutilisable manque à
+l'un des deux, ou s'ils citent kiln à une autre version que celle de `pyproject.toml` (que
+`kiln version cut` fait avancer). `kiln version cut` refuse de taguer la première candidate
+d'une version dont les README n'ont pas changé depuis la précédente (sauf
+`<!-- readme: unchanged, pourquoi -->` dans son entrée). Un changement met donc à jour README.md
+et README.fr.md dans sa branche, pas à la release.
+
 ## Contrôles
 
 `uv run pytest -q` (réparti sur tous les cœurs par pytest-xdist : une vingtaine de secondes ;

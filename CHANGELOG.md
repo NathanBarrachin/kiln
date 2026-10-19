@@ -11,6 +11,7 @@ entries before v0.4.0 quote kiln's former French names.
 - `kiln grid`: the practices kiln holds as the best, one small TOML file per rule, each with its why, its sources checked and dated, its level (adopt, trial, assess, hold), its regime and how it is detected. Six rules to start (lockfiles, pinned actions, dependency updates and their cooldown, non-root containers, no committed `.env`), and 105 assessed drafts drawn from the reference repo (`kiln grid --level assess`).
 - In a repo brought under kiln by `kiln adopt`, `kiln update` moves the references to kiln's workflows to the latest public release, after checking each input against the workflow at that tag; `kiln adopt` does it at adoption, and `kiln status` shows the tag an adopted repo quotes.
 - `kiln new` says when a stack is frozen: Django and Nuxt are complete, the other stacks stay generated and tested, without new grid rules for now.
+- Both READMEs now describe everything kiln offers (every command and option, every `kiln set` key, plugin, skill, hook and reusable workflow), checked by kiln's tests at each change; `kiln version cut` moves the version they quote and refuses a release whose READMEs did not change. Generated repos get the same rule: the README follows each change in its branch.
 - Fixes: `kiln version cut` carries the candidate still open into the next release; a deprecation now fails kiln's tests (an escape in `copier.yml` had slipped through).
 
 ## v0.4.0 — 2026-10-19

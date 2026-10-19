@@ -16,7 +16,7 @@ guardrails, a GitHub repo — kept up to date for as long as the project lives.
 
 *English · [Français](README.fr.md)*
 
-<img src="docs/assets/kiln-accueil.svg" alt="kiln welcome screen: a pixel-art kiln and the list of commands" width="720">
+<img src="docs/assets/kiln-home.svg" alt="kiln welcome screen: a pixel-art kiln and the list of commands" width="720">
 
 </div>
 

@@ -19,8 +19,8 @@ un dossier ou un module.
   vérifiées), `statusline.py`, `versions.py` (tags, journal des versions), `frozen.py` (fichiers figés par `kiln-waivers.toml`, épargnés par `update`), `renames.py` (noms d'avant 0.4.0 et leurs noms anglais), `banner.py` (bannière, écran d'accueil), `ui.py` (palette pierre et feu, étapes,
   roue animée, bilan, succès, erreurs), `shell.py`, `config.py` (`~/.config/kiln/config.toml`).
 - `src/kiln/ci/` : `kiln ci` (CI rejouée sur le poste, verdict en note git) ;
-  `src/kiln/charte/` : moteur de `charte` (`interdictions.py`, `cliquets.py`,
-  `outils_python.py`, `waivers.py` : dérogations de `kiln-waivers.toml`).
+  `src/kiln/charter/` : moteur de `charter` (`bans.py`, `ratchets.py`,
+  `python_tools.py`, `waivers.py` : dérogations de `kiln-waivers.toml`).
 - `copier.yml` : questions du modèle ; `template/` : le modèle (`CLAUDE.md.jinja`, chartes de
   `backend/` et `frontend/` par stack, `.claude/settings.json.jinja`, CI…) ; `macros.jinja`.
 - `plugins/` : plugins Claude Code, catalogue `.claude-plugin/marketplace.json` (avec
@@ -37,14 +37,15 @@ un dossier ou un module.
   `actions/` : actions composites (`charte`, `services`).
 - Vitrine publique, en anglais : `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`
   (MIT), `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` ; capture de l'écran
-  d'accueil `docs/assets/kiln-accueil.svg`. Référence complète en français : `README.fr.md`.
+  d'accueil `docs/assets/kiln-home.svg` (régénérée par `scripts/home_screenshot.py`, vérifiée par `test_docs.py`). Référence complète en français : `README.fr.md`.
 - `docs/backlog/` : suivi du travail, en anglais (skill `/kiln:backlog`), dont la prochaine
   promotion de version ; `docs/assets/` : images de la vitrine ; `docs/vision/` : l'idée de
   projet, brouillon en français, un fichier par sujet (`README.md` sert d'index).
+- `scripts/home_screenshot.py` : régénère la capture de l'écran d'accueil du README.
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal, anciens noms), `test_questions.py` (questions de `kiln new`), `test_unites.py`,
   `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_charter_file.py` (`charter file`, hook après une édition), `test_shipping.py` (`kiln version cut` et `promote`), `test_deployment.py`, `test_statusline.py` (choix du
-  poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_branch_guard.py` (hook de garde de branche), `test_adopt.py`,
+  poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_docs.py` (vitrine à jour : capture d'accueil, plugins et workflows cités), `test_branch_guard.py` (hook de garde de branche), `test_adopt.py`,
   `test_reminders.py`, `test_session_start.py` ; `conftest.py` : config git du poste écartée, identité de test.
 
 ## Repos d'entraînement

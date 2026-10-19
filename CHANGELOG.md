@@ -6,6 +6,32 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 `release/vX.Y.Z` branch, rewritten before its first candidate. Names are those of their release:
 entries before v0.4.0 quote kiln's former French names.
 
+## v0.4.0 — 2026-10-19
+<!-- draft: rewrite for users, breaking changes first, then delete this line -->
+- **Breaking**: English verdict and messages of kiln ci
+- **Breaking**: English help, commands and options
+- **Breaking**: Machine settings and status line styles in English
+- **Breaking**: Plugins renamed and in English
+- **Breaking**: English, rules by path and size
+- A release in two commands, announced on GitHub (T-29)
+- The edit hook checks only the edited file (T-27)
+- Plan puts every ticket in a named release, new tickets placed anywhere (T-44)
+- Plan mode groups open tickets into the next releases (T-44)
+- Kiln logo and its changes above a shorter update question
+- Three questions, then the next steps
+- English messages of stack, waive and backlog
+- English messages of kiln version
+- English messages of status, update --all and doctor
+- English messages of update, deps, github and frozen files
+- English messages of the core modules
+- Forward the former paths of the base plugin
+- Convert projects of kiln 0.3
+- Generated code and docs in English
+- Kiln ci replays the English workflows
+- English names and inputs
+- Rule engine in English
+- Table of the names kiln 0.4.0 renames
+
 ## v0.3.4 — 2026-10-16
 - The template is never newer than the installed tool: `kiln update` applies the installed kiln release (conversions from one release to the next live in the tool), refuses to take a repo back to a release older than its own, and says when a newer release is out.
 - `kiln new` without `gh`, or outside a terminal without a login, creates the project locally, and `kiln publish` creates the GitHub repository afterwards. The default owner comes from the machine's settings or from the account logged in to gh; a project without a team has neither CODEOWNERS nor a "Team" section.

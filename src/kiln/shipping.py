@@ -13,6 +13,7 @@
 
 import datetime
 import json
+import os
 import re
 from pathlib import Path
 
@@ -191,9 +192,11 @@ def _tag_candidate(root: Path, version: str, tags: list[Tag]) -> None:
         raise KilnError(f"uncommitted changes in {tree}: commit them first")
     if DRAFT_MARKER in (tree / CHANGELOG).read_text("utf-8"):
         raise KilnError(f"the v{version} entry of {CHANGELOG} is still a draft ({tree})")
+    # The release worktree has its own environment, not the one `uv run kiln` may have set.
+    env = {key: value for key, value in os.environ.items() if key != "VIRTUAL_ENV"}
     for check in CHECKS:
         ui.step(" ".join(check[2:]))
-        run(check, tree)
+        run(check, tree, env)
     rank = 1 + max(
         (
             tag.version.pre[1]

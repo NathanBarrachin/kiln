@@ -70,10 +70,9 @@ promoted when the next one is cut. Up to the launch, each release is planned at 
 waits for is v0.5.0.
 
 ### v0.4.0 · kiln speaks English
-Candidate Tue 20 Oct (promotes v0.3.4). The milestone decided by antoine, merged in `develop`
+Candidate `v0.4.0-rc.1` cut on Mon 19 Oct (promoted v0.3.4). The milestone decided by antoine, merged in `develop`
 on 16 October; what is left is small. ⚠ breaking: CLI names, `copier.yml` questions, charter
 rule IDs, workflow inputs, plugin and skill names, all converted by `kiln update`.
-- T-23 · Finish kiln in English: the changelog, then the candidate (S)
 - T-04 · Decide whether the adopted repo quotes kiln's workflows at a tag (XS) (blocked: antoine)
 - T-14 · Delete the old PyPI token (XS) (blocked: antoine)
 
@@ -193,24 +192,6 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 ---
 
 ## 🔴 Critical
-
-### T-23 · Finish kiln in English: the changelog, then the candidate
-- **Type**: task
-- **Status**: todo
-- **Opened**: 2026-10-16
-- **Effort**: S · **Owner**: Claude · **Due**: —
-- **Origin**: T-06 and T-13 merged here; plan accepted by antoine, 16 October 2026; rewritten
-  17 October 2026
-
-The command, the charter, the workflows, the template, the plugins and the status line speak
-English in `develop` (`feat/charter-en`, `feat/workflows-en`, `feat/template-en`,
-`feat/plugin-kiln`, `feat/statusline-en`, `feat/cli-en`, merged on 16 October). What a user
-still reads in French is the release notes that `kiln update` shows.
-- [ ] `CHANGELOG.md` in English, every entry (those of 0.3 included: `kiln update` shows them
-  to whoever crosses them).
-- [ ] The `v0.4.0` entry: breaking changes first, each with its conversion by `kiln update`,
-  the old names still accepted until the next minor.
-- [ ] Cut `v0.4.0-rc.1`, promote `v0.3.4` (PyPI, GitHub Release); close #36.
 
 ### T-14 · Delete the old PyPI token
 - **Type**: task
@@ -1158,6 +1139,10 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-23 · Finish kiln in English: the changelog, then the candidate — every
+  `CHANGELOG.md` entry in English, the v0.4.0 note with its breaking changes first;
+  `v0.4.0-rc.1` cut with `kiln version cut`, `v0.3.4` promoted with `kiln version promote`
+  (PyPI, GitHub Release); #36 closed (docs/changelog-en, release/v0.4.0) · opened 2026-10-16
 - **2026-10-19** · T-29 · A release in two commands, announced on GitHub — `kiln version cut`
   (release branch in its worktree, changelog entry drafted from the commits, breaking first,
   numbers of the package and of the changed plugins; once the draft is rewritten: checks, tag

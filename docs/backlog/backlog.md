@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-147.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-152.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -74,6 +74,10 @@ Candidate `v0.4.0-rc.1` cut on Mon 19 Oct (promoted v0.3.4). The milestone decid
 on 16 October; what is left is small. ⚠ breaking: CLI names, `copier.yml` questions, charter
 rule IDs, workflow inputs, plugin and skill names, all converted by `kiln update`.
 - T-14 · Delete the old PyPI token (XS) (blocked: antoine)
+- T-147 · One answer to "which kiln version" (M)
+
+The candidate fixes for `v0.4.0-rc.2` (annway's update to rc.1 failed on 19 Oct, unseen by any
+check): `develop` becomes rc.2 once they are merged.
 
 ### v0.4.1 · The grid, as data
 Candidate Thu 22 Oct. The heart of the vision: what kiln holds as the best, one small file per
@@ -204,6 +208,23 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 secret), used since the promotion of `v0.3.2`. The account-wide token made before it still
 exists.
 - [ ] antoine deletes it: https://pypi.org/manage/account/token/
+
+### T-147 · One answer to "which kiln version"
+- **Type**: bug
+- **Status**: in progress — branch fix/version-truth, since 2026-10-19
+- **Opened**: 2026-10-19
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: annway's update to v0.4.0-rc.1, 19 October 2026
+
+A tool installed from a folder (`uv tool install ~/code/kiln`) applied the template at the tag
+nearest the folder's `HEAD` (`v0.3.4`) while running 0.4 code (answers in English): Copier
+refused `frontend: none`. The session had offered `v0.4.0-rc.1` (`latest_release`), and
+`kiln --version` showed the folder's current commit, not the snapshot actually installed.
+- [x] one place says which release the tool is; the offer, `kiln update` and `--version` agree
+- [x] a tool ahead of its tag (code newer than any release) refuses `kiln update` with the way out
+- [x] `--version` of a folder install describes what is installed, not the folder today
+- [ ] antoine's machine runs the candidate (`internal` channel), kiln's own work uses `uv run`:
+  once `v0.4.0-rc.2` is tagged
 
 ## 🟠 Important
 
@@ -1143,6 +1164,20 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-151 · The checks run before every merge into `develop` — `/kiln:merge`
+  runs the repo's checks first and reads GitHub's verdict after; antoine's global instructions
+  say so, skill names of 0.4 there too (fix/version-truth) · opened 2026-10-19
+- **2026-10-19** · T-150 · `kiln update` rehearsed on a copy first — `kiln update --rehearse`
+  (and `--all --rehearse`); the public fixture `antoine-tena/kiln-rehearsal` (Java, v0.3.3-rc.2,
+  lived in) rehearsed then updated by the end-to-end tests (fix/version-truth) · opened 2026-10-19
+- **2026-10-19** · T-149 · A red check stops the release — `cut` waits for GitHub's CI of the
+  release branch and tags only on green; `kiln version` and `promote` hold back a red
+  candidate; the session start tells Claude of a red integration branch (fix/version-truth) ·
+  opened 2026-10-19
+- **2026-10-19** · T-148 · End-to-end tests take the user's path — every release since v0.3.0
+  updated through a tool installed by uv, the template at GitHub's address (`insteadOf`); Java
+  updated; 0.4 tags rendered under their names; tests out of the machine's Copier cache
+  (fix/version-truth) · opened 2026-10-19
 - **2026-10-19** · T-04 · Decide whether the adopted repo quotes kiln's workflows at a tag —
   antoine: at a tag. The reference repo quotes `@v0.3.4` (inputs and charter checked
   compatible), the tag moved by hand until T-146 · opened 2026-10-15

@@ -107,12 +107,12 @@ système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.
 | `kiln contract` | Django + Nuxt : exporte `openapi.json` depuis le code, puis régénère les types du front (`app/types/api.d.ts`). `kiln update` le fait aussi. |
 | `kiln waive [RÈGLE\|fichier]` | Déroge à une règle de kiln (`--paths`, `--reason`, `--upstream`), ou fige un fichier généré que `kiln update` ne touchera plus ; `--renew` passe au palier suivant (une semaine, un mois, trois mois, six mois), `--permanent` sans échéance. Sans argument : liste les dérogations. Voir [Moteur de charte](#moteur-de-charte). |
 | `kiln set` | Dans un repo : sans argument, affiche ses paramètres ; `kiln set clé=valeur…` les change (`team`, `backend`, `frontend`, `podman`, `north_star`…) : le repo est régénéré, un framework retiré emporte ses fichiers. Hors d'un repo, ou avec `--global` : les réglages du poste (`system`, `owner`, `team`, `code_dir`, `channel`, `statusline`, dans `~/.config/kiln/config.toml`). |
-| `kiln update` | Évolutions du modèle, mises à jour compatibles des dépendances, puis contrôles. `--major` : versions majeures comprises. `--no-template`, `--no-deps` pour n'en faire qu'une partie. |
-| `kiln update --all` | Tous les repos kiln du dossier de code (`~/code`, réglable par `code_dir`) : pour chacun, un worktree depuis la branche d'intégration, la mise à jour, des commits de dix fichiers au plus, puis la fusion directe dans l'intégration (commit de fusion poussé) ; contrôles en échec, la branche est poussée sans être fusionnée. L'arbre principal ne change jamais de branche. |
+| `kiln update` | Évolutions du modèle, mises à jour compatibles des dépendances, puis contrôles. `--major` : versions majeures comprises. `--no-template`, `--no-deps` pour n'en faire qu'une partie. `--rehearse` : la mise à jour jouée d'abord sur un clone jetable, le repo intact, seul le bilan revient. |
+| `kiln update --all` | Tous les repos kiln du dossier de code (`~/code`, réglable par `code_dir`) : pour chacun, un worktree depuis la branche d'intégration, la mise à jour, des commits de dix fichiers au plus, puis la fusion directe dans l'intégration (commit de fusion poussé) ; contrôles en échec, la branche est poussée sans être fusionnée. L'arbre principal ne change jamais de branche. `--all --rehearse` : chaque mise à jour répétée sur un clone, rien n'est touché, un bilan par repo. |
 | `kiln doctor` | Diagnostic du poste (git, uv, gh connecté, pnpm, podman, Java, pre-commit, version de kiln, plugin Claude, configuration) et du repo courant (version du modèle, crochet pre-commit, dépendances, `backend/.env`) : ✓, ! à regarder ou ✗ bloquant, chaque fois avec la commande qui corrige. Ne modifie rien. |
 | `kiln completion bash` | Script de complétion bash tiré des commandes et options de kiln ; l'activer par `eval "$(kiln completion bash)"` dans `~/.bashrc`. |
 | `kiln status` | État des repos kiln du dossier de code : branche, arbre propre ou non, version du modèle (`v0.3.2 → v0.3.5` en retard), dérogations (`!` si l'une est échue), stack ; puis les règles dérogées, par nombre de repos. |
-| `kiln version` | Dans le dépôt de kiln : dernière version publique, candidates (âge, repos qui les ont adoptées, prêtes à promouvoir), numéro de la prochaine et tickets du plan (`docs/backlog/`) qui restent avant elle. `kiln version cut` : branche `release/vX.Y.Z`, ébauche de la note de version et numéros, puis (une fois la note relue) contrôles et tag `-rc.N` ; `kiln version promote` : tag public sur la dernière candidate, fusion dans `main` et `develop` (PyPI et GitHub Release suivent). |
+| `kiln version` | Dans le dépôt de kiln : dernière version publique, candidates (âge, repos qui les ont adoptées, prêtes à promouvoir), numéro de la prochaine et tickets du plan (`docs/backlog/`) qui restent avant elle. `kiln version cut` : branche `release/vX.Y.Z`, ébauche de la note de version et numéros, puis (une fois la note relue) contrôles, CI de GitHub attendue et, au vert seulement, tag `-rc.N` ; `kiln version promote` : tag public sur la dernière candidate dont la CI est verte, fusion dans `main` et `develop` (PyPI et GitHub Release suivent). |
 | `charter` | Vérifie le repo contre son `charter.toml` (`charter --detail`, `charter --unverified`, `charter types`, `charter coverage`, `charter file <chemin>`). |
 
 `set` et `update` travaillent sur une branche, arbre propre ; les conflits entre le modèle et une
@@ -234,6 +234,10 @@ Le travail s'intègre dans `develop` ; `main` ne reçoit que des versions.
   prend aussi les candidates ;
   `kiln status` dit de quelle version part chaque repo (`v0.3.2 → v0.3.5`), la bannière celle
   de l'outil (`v0.3.5 +3 · abc1234` : trois commits après v0.3.5, installé depuis un dossier).
+  Seule une version met un repo à jour : un outil qui n'en est pas une (un dossier en avance sur
+  son tag ou modifié, une branche) est refusé par `kiln update`, `kiln new` et `kiln adopt`, qui
+  donnent la commande d'installation de la version ; pour essayer le code de kiln sur un repo
+  jetable, `KILN_TEMPLATE=<dossier de kiln>`.
 
 ## Faire évoluer le modèle
 

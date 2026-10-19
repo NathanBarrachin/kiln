@@ -14,13 +14,14 @@ un dossier ou un module.
 
 - `src/kiln/` : la commande. `cli.py` (arguments ; anciens noms de 0.3 acceptés par `modernize`) ; une commande par module : `new.py` (questions de `questions.py`),
   `adopt.py` (`kiln adopt`, repo existant), `install.py`, `dev.py`, `check.py`, `settings.py` (`kiln set`, clés réglables), `machine.py` (`kiln set` hors d'un repo : réglages du poste), `waive.py` (`kiln waive`), `update.py`,
-  `contract.py`, `release.py` (`kiln version`), `shipping.py` (`kiln version cut` et `promote`), `doctor.py` (diagnostic du poste et du repo), `fleet.py` (`status`, `update --all`) ; socle : `stack.py` (stack lue dans
+  `contract.py`, `release.py` (`kiln version`), `shipping.py` (`kiln version cut` et `promote`), `github_ci.py` (verdict de la CI de GitHub sur un commit, attendu par `cut` et `promote`), `doctor.py` (diagnostic du poste et du repo), `fleet.py` (`status`, `update --all`), `rehearsal.py` (`kiln update --rehearse`, la mise à jour sur un clone jetable) ; socle : `stack.py` (stack lue dans
   `.copier-answers.yml`), `template.py`, `deps.py`, `github.py`, `rules.py` (règles non
   vérifiées), `statusline.py`, `versions.py` (tags, journal des versions), `frozen.py` (fichiers figés par `kiln-waivers.toml`, épargnés par `update`), `renames.py` (noms d'avant 0.4.0 et leurs noms anglais), `banner.py` (bannière, écran d'accueil), `ui.py` (palette pierre et feu, étapes,
   roue animée, bilan, succès, erreurs), `shell.py`, `config.py` (`~/.config/kiln/config.toml`).
 - `src/kiln/ci/` : `kiln ci` (CI rejouée sur le poste, verdict en note git) ;
   `src/kiln/charter/` : moteur de `charter` (`bans.py`, `ratchets.py`,
   `python_tools.py`, `waivers.py` : dérogations de `kiln-waivers.toml`).
+- `hatch_build.py` : grave dans le paquet le commit d'où il est construit (`kiln/_build.json`, lu par `versions.py`).
 - `copier.yml` : questions du modèle ; `template/` : le modèle (`CLAUDE.md.jinja`, consignes
   pour Claude dans `.claude/rules/kiln/` : projet, charte, une par stack ;
   `.claude/settings.json.jinja`, CI…) ; `macros.jinja`.
@@ -45,7 +46,7 @@ un dossier ou un module.
 - `scripts/home_screenshot.py` : régénère la capture de l'écran d'accueil du README.
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal, anciens noms), `test_questions.py` (questions de `kiln new`), `test_unites.py`,
-  `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_charter_file.py` (`charter file`, hook après une édition), `test_shipping.py` (`kiln version cut` et `promote`), `test_deployment.py`, `test_statusline.py` (choix du
+  `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_charter_file.py` (`charter file`, hook après une édition), `test_shipping.py` (`kiln version cut` et `promote`), `test_rehearsal.py` (`update --rehearse`), `test_e2e.py` (de bout en bout, `-m e2e` : chaque version depuis v0.3.0 par un outil installé, et le repo-témoin `antoine-tena/kiln-rehearsal`, figé à v0.3.3-rc.2, ne jamais le mettre à jour), `test_deployment.py`, `test_statusline.py` (choix du
   poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_docs.py` (vitrine à jour : capture d'accueil, plugins et workflows cités), `test_branch_guard.py` (hook de garde de branche), `test_adopt.py`,
   `test_reminders.py`, `test_session_start.py` ; `conftest.py` : config git du poste écartée, identité de test.
 
@@ -135,12 +136,14 @@ Deux temps, par la skill `/kiln:release` (pas de déploiement : le tag publie, e
 publie sur PyPI le paquet `kiln-cli` par `pypi.yml`) :
 1. **Candidate** : branche `release/vX.Y.Z` tirée de `develop`, entrée `## vX.Y.Z — date` en tête
    de `CHANGELOG.md`, `version = "X.Y.Z"` dans `pyproject.toml`, contrôle complet (les trois
-   commandes ci-dessous), tag `vX.Y.Z-rc.1` poussé. Les postes au canal `internal` (`kiln set
+   commandes ci-dessous), branche poussée, **CI de GitHub attendue sur son commit** (macOS et
+   tests de bout en bout, qui ne tournent que là : la rc.1 de la v0.4.0 était sortie sur un rouge
+   que personne n'avait lu), tag `vX.Y.Z-rc.1` poussé seulement au vert. Les postes au canal `internal` (`kiln set
    channel=internal`, celui d'antoine) la suivent : `kiln update --all` y fait passer tous les repos
    générés. Un correctif de la candidate : commit `fix:` sur sa branche, tag `-rc.N+1`.
 2. **Promotion**, quand `kiln version` la dit prête (une candidate plus récente existe, sans
-   délai d'attente) : tag `vX.Y.Z` sur le commit exact de sa
-   dernière candidate, fusion dans `main`, reversement dans `develop`, puis `kiln update --all`.
+   délai d'attente, et la CI de GitHub de la candidate est verte) : tag `vX.Y.Z` sur le commit exact de sa
+   dernière candidate, fusion dans `main`, reversement dans `develop`, puis `kiln update --all --rehearse` (chaque repo répété sur un clone) et, au vert, `kiln update --all`.
    Le canal `public` (par défaut) ne voit que ces versions.
 
 Chaque version, correctif compris, finit par `kiln update --all` : les repos générés citent leurs

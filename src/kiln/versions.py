@@ -25,6 +25,9 @@ KILN_GIT_URL = "https://github.com/antoine-tena/kiln"
 PYPI_NAME = "kiln-cli"
 DISTRIBUTIONS = (PYPI_NAME, "kiln")
 CHANGELOG_FILE = "CHANGELOG.md"
+# Written into the package by `hatch_build.py`: what a copy of a checkout was built from.
+BUILD_INFO_FILE = "_build.json"
+DIRTY_SUFFIX = "-dirty"
 # `v0.4.0`, `v0.4.0-rc.2`, and what `git describe` appends (`v0.4.0-3-gabc1234`).
 RELEASE_TAG = re.compile(r"^v(\d+\.\d+\.\d+(?:-rc\.\d+)?)(?:-(\d+)-g([0-9a-f]+))?$")
 RELEASE_HEADING = re.compile(r"^## (v\d+\.\d+\.\d+)(?:\s+[-—·]\s+(.+))?$")
@@ -115,14 +118,28 @@ def upgrade_command(version: str) -> str:
 
 
 def tool_release_tag() -> str | None:
-    """Tag of the kiln release the installed tool is: the template must never be newer than
-    it, since the conversions from one version to the next live in its code.
+    """Tag of the kiln release the installed tool is: the template is taken there, never newer
+    nor older, since the conversions from one version to the next live in its code. None when
+    the tool is not exactly a release (a checkout ahead of its tag or with changes, a branch):
+    no template matches its code."""
+    built = installed_build()
+    if built is None:
+        return None
+    match = RELEASE_TAG.match(built)
+    return built if match is not None and match.group(2) is None else None
+
+
+def installed_build() -> str | None:
+    """What the installed tool is built from, as `git describe` says it: `v0.4.0-rc.1`, or
+    `v0.3.4-105-gd800ca1` (105 commits after v0.3.4), `-dirty` for uncommitted changes.
 
     - PyPI: `v` + the package version (a PEP 440 pre-release `0.4.0rc1` is `v0.4.0-rc.1`);
-    - GitHub (`uv tool install git+…@<tag>`): the requested tag, otherwise the installed commit;
-    - folder (a checkout of kiln): the release tag nearest its `HEAD`.
+    - GitHub (`uv tool install git+…@<ref>`): the requested tag, otherwise the installed commit;
+    - folder (`uv tool install <checkout>`): a copy taken at install time, which recorded its
+      commit (`kiln/_build.json`, by `hatch_build.py`); editable (`uv run` in a checkout): the
+      checkout itself, read live.
 
-    None when the tool cannot place itself (package not found, folder without a tag)."""
+    None when the tool cannot say (package not found, folder copy from before the record)."""
     dist = _installed_distribution()
     if dist is None:
         return None
@@ -140,7 +157,48 @@ def tool_release_tag() -> str | None:
             return requested
         return str(vcs_info.get("commit_id", "")) or None
     source = _source_dir(direct_url)
-    return _nearest_tag(source) if source is not None else None
+    if source is None:
+        return None
+    dir_info = origin.get("dir_info")
+    if isinstance(dir_info, dict) and dir_info.get("editable"):
+        return _describe(source)
+    return _recorded_build()
+
+
+def _recorded_build() -> str | None:
+    """`describe` recorded in the package when it was built from a checkout."""
+    recorded = resources.files("kiln") / BUILD_INFO_FILE
+    if not recorded.is_file():
+        return None
+    try:
+        described = json.loads(recorded.read_text(encoding="utf-8")).get("describe")
+    except ValueError, AttributeError:
+        return None
+    return str(described) if described else None
+
+
+def _describe(source: Path) -> str | None:
+    try:
+        described = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(source),
+                "describe",
+                "--tags",
+                "--always",
+                "--dirty",
+                "--match",
+                "v[0-9]*",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=NETWORK_TIMEOUT,
+            check=False,
+        ).stdout.strip()
+    except subprocess.TimeoutExpired, OSError:
+        return None
+    return described or None
 
 
 def _pypi_tag(version: str) -> str | None:
@@ -154,45 +212,25 @@ def _pypi_tag(version: str) -> str | None:
     return tag if release_version(tag) is not None else None
 
 
-def _nearest_tag(source: Path) -> str | None:
-    try:
-        described = subprocess.run(
-            ["git", "-C", str(source), "describe", "--tags", "--abbrev=0", "--match", "v[0-9]*"],
-            capture_output=True,
-            text=True,
-            timeout=NETWORK_TIMEOUT,
-            check=False,
-        ).stdout.strip()
-    except subprocess.TimeoutExpired, OSError:
-        return None
-    return described if release_version(described) is not None else None
-
-
 def installed_version() -> str:
-    """Version of the tool: `v3`, and for a tool installed from a folder, what git says
-    (`v3 +4 · abc1234`: four commits after v3)."""
+    """Version of the tool, as it is installed: `v0.4.0-rc.1`; `v0.3.4 +4 · abc1234` for four
+    commits after v0.3.4, `· modified` for uncommitted changes."""
     dist = _installed_distribution()
     if dist is None:
         return "v?"
-    package_version = f"v{dist.version}"
-    source = _source_dir(dist.read_text("direct_url.json") or "")
-    if source is None:
-        return package_version
-    try:
-        described = subprocess.run(
-            ["git", "-C", str(source), "describe", "--tags", "--always"],
-            capture_output=True,
-            text=True,
-            timeout=NETWORK_TIMEOUT,
-            check=False,
-        ).stdout.strip()
-    except subprocess.TimeoutExpired, OSError:
-        return package_version
-    match = RELEASE_TAG.match(described)
+    built = installed_build()
+    if built is None:
+        return f"v{dist.version} · build unknown"
+    modified = built.endswith(DIRTY_SUFFIX)
+    built = built.removesuffix(DIRTY_SUFFIX)
+    match = RELEASE_TAG.match(built)
     if match is None:
-        return f"{package_version} · {described}" if described else package_version
-    tag, distance, commit = f"v{match.group(1)}", match.group(2), match.group(3)
-    return f"{tag} +{distance} · {commit}" if distance else tag
+        described = f"v{dist.version} · {built[:7]}"
+    elif match.group(2):
+        described = f"v{match.group(1)} +{match.group(2)} · {match.group(3)}"
+    else:
+        described = built
+    return f"{described} · modified" if modified else described
 
 
 def _source_dir(direct_url: str) -> Path | None:

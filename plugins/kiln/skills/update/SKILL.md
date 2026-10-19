@@ -14,9 +14,9 @@ Talk to the user in their language.
 1. `<hook> tool` prints `up to date`, or the command that updates the installed tool (from PyPI
    or GitHub: `uv tool install --force kiln-cli==…` or `…git+…@<tag>`, preceded by
    `uv tool uninstall kiln` when the tool still has its old name, then kiln's marketplace and the
-   `kiln` plugin installed for every repo of the machine; from a directory: `git pull` of that
-   directory and a reinstall). Run it as is; if it fails (kiln directory with changes, no
-   network), stop and say why.
+   `kiln` plugin installed for every repo of the machine; a tool installed from a kiln checkout
+   is replaced by the release, since only a release updates a repo). Run it as is; if it fails
+   (no network), stop and say why.
 2. `<reminders> yes tool`, then tell the user to type `/reload-plugins`: the plugin's
    skills and hooks only change on reload.
 

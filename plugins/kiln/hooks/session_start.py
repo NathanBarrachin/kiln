@@ -16,6 +16,8 @@ Outside kiln repos the hook does nothing: adopting kiln is on request only (`kil
 `/kiln:adopt`). Before kiln 0.4 it also linked the plugin at `.claude/kiln` in every repo: that
 link is removed.
 
+In a repo kiln looks after (kiln itself included), Claude is also told when the last CI of the
+integration branch is red, to say so before any new work.
 Never blocking: three seconds at most per network call, silent without network. A repo opts out
 with `git config kiln.update-check false` (`kiln-a-jour.desactive true` before kiln 0.4).
 """
@@ -87,8 +89,8 @@ def follows_candidates() -> bool:
     return values.get("channel", values.get("canal")) in INTERNAL_CHANNELS
 
 
-def run(*command: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT_SECONDS)
+def run(*command: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT_SECONDS, cwd=cwd)
 
 
 # --- Tool: kiln installed by uv, from PyPI, from GitHub (commit) or from a directory (checkout) ---
@@ -99,8 +101,8 @@ PYPI_NAME = TOOL_NAMES[0]
 
 
 def installed_kiln() -> tuple[str, str] | None:
-    """("pypi", version), ("git", commit) or ("directory", path) of the installed tool; None
-    when it is missing."""
+    """("pypi", version), ("git", commit) or ("directory", what it was built from: `v0.4.0-rc.1`,
+    `v0.3.4-105-gd800ca1`, "" when unknown) of the installed tool; None when it is missing."""
     tool_dir = run("uv", "tool", "dir").stdout.strip()
     if not tool_dir:
         return None
@@ -120,8 +122,17 @@ def installed_kiln() -> tuple[str, str] | None:
             origin = json.loads(direct_url.read_text())
             if "vcs_info" in origin:
                 return ("git", str(origin["vcs_info"].get("commit_id", "")))
-            return ("directory", str(origin.get("url", "")).removeprefix("file://"))
+            return ("directory", recorded_build(metadata.parent))
     return None
+
+
+def recorded_build(site_packages: Path) -> str:
+    """What a copy of a checkout was built from (`kiln/_build.json`, written by
+    `hatch_build.py`); "" for a copy from before the record."""
+    try:
+        return str(json.loads((site_packages / "kiln/_build.json").read_text()).get("describe", ""))
+    except OSError, ValueError, AttributeError:
+        return ""
 
 
 def has_legacy_tool() -> bool:
@@ -164,17 +175,9 @@ def is_tool_outdated(install: tuple[str, str] | None, tag: str, release_commit: 
         return latest is not None and (current is None or current < latest)
     if kind == "git":
         return where != release_commit
-    released = run("git", "-C", where, "merge-base", "--is-ancestor", release_commit, "HEAD")
-    if released.returncode == 0:
-        return False
-    # A checkout following a branch is only updated by `git pull`: a candidate tagged on its
-    # release branch is out of its reach until promoted and merged back, so the update is
-    # offered only when the pull brings something.
-    if run("git", "-C", where, "rev-parse", "--abbrev-ref", "@{upstream}").returncode != 0:
-        return True
-    run("git", "-C", where, "fetch", "-q")
-    behind = run("git", "-C", where, "rev-list", "--count", "HEAD..@{upstream}").stdout.strip()
-    return behind not in ("", "0")
+    # A copy of a checkout is only up to date when it is exactly the release: its code
+    # elsewhere matches no template, and `kiln update` refuses it.
+    return where != tag
 
 
 def is_repo_late(commit: str, tag: str) -> bool:
@@ -197,12 +200,65 @@ def tool_update_command(install: tuple[str, str] | None, tag: str) -> str:
     if final and (install is None or install[0] == "pypi"):
         version = tag.removeprefix("v")
         return f'{legacy}uv tool install --force "{PYPI_NAME}=={version}" && {plugins}'
-    if install is None or install[0] in ("git", "pypi"):
-        return f'{legacy}uv tool install --force "git+{KILN_GIT_URL}@{tag}" && {plugins}'
-    # The old tool removed after the pull: a refused pull does not leave the machine without kiln.
+    # A copy of a checkout is replaced by the release itself: kiln's own work runs with
+    # `uv run kiln` in a worktree, never through the installed tool.
+    return f'{legacy}uv tool install --force "git+{KILN_GIT_URL}@{tag}" && {plugins}'
+
+
+# --- CI: a red integration branch is said before any new work ---
+
+CHARTER_FILE = "charter.toml"
+KILN_PACKAGE_MARKER = Path("src/kiln/versions.py")
+
+
+def follows_kiln(root: Path) -> bool:
+    """A repo kiln looks after: generated (`.copier-answers.yml`), adopted (`charter.toml`), or
+    kiln itself."""
     return (
-        f'git -C "{install[1]}" pull --ff-only && {legacy}'
-        f'uv tool install --reinstall "{install[1]}"'
+        kiln_repo(str(root)) is not None
+        or (root / CHARTER_FILE).is_file()
+        or (root / KILN_PACKAGE_MARKER).is_file()
+    )
+
+
+def integration_branch(root: Path) -> str | None:
+    """`develop` when origin has it, otherwise origin's default branch."""
+    if run("git", "-C", str(root), "rev-parse", "-q", "--verify", "origin/develop").returncode == 0:
+        return "develop"
+    head = run("git", "-C", str(root), "symbolic-ref", "--short", "refs/remotes/origin/HEAD")
+    return head.stdout.strip().removeprefix("origin/") or None
+
+
+def red_ci(root: Path) -> str:
+    """For Claude: the last finished run of a workflow on the integration branch failed; ""
+    otherwise (green, running, no gh, not on GitHub, `git config statusline.ci false`)."""
+    if run("git", "-C", str(root), "config", "--get", "statusline.ci").stdout.strip() == "false":
+        return ""
+    branch = integration_branch(root)
+    if branch is None:
+        return ""
+    fields = "status,conclusion,workflowName,displayTitle,url"
+    try:
+        listed = run(
+            "gh", "run", "list", "--branch", branch, "--limit", "20", "--json", fields, cwd=root
+        )
+        runs = json.loads(listed.stdout) if listed.returncode == 0 else []
+    except OSError, ValueError, subprocess.TimeoutExpired:
+        return ""
+    latest: dict[str, dict[str, str]] = {}
+    for found in runs:
+        if found.get("status") == "completed":
+            latest.setdefault(str(found.get("workflowName", "")), found)
+    red = [found for found in latest.values() if found.get("conclusion") == "failure"]
+    if not red:
+        return ""
+    failures = "; ".join(
+        f'{found.get("workflowName")} on "{found.get("displayTitle")}" ({found.get("url")})'
+        for found in red
+    )
+    return (
+        f"The CI of `{branch}` is red: {failures}. Before any other work, tell the user and offer "
+        "to fix it first: new work on a red branch hides the next failure."
     )
 
 
@@ -566,12 +622,15 @@ def main() -> None:
         found = offer(cwd, state)
         if kiln_repo(cwd) is not None:
             reminders.save(state)
+        red = red_ci(root) if follows_kiln(root) else ""
     except Exception:
         # No network, GitHub rate limiting, unreadable repo: the session starts silently.
         return
+    context = "\n\n".join(part for part in (red, found.context if found else "") if part)
     if found:
-        hook_output = {"hookEventName": "SessionStart", "additionalContext": found.context}
         save_notice(payload.get("session_id", ""), found.notice)
+    if context:
+        hook_output = {"hookEventName": "SessionStart", "additionalContext": context}
         print(json.dumps({"hookSpecificOutput": hook_output}, ensure_ascii=False))
 
 

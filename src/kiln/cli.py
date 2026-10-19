@@ -262,6 +262,11 @@ def _add_update_command(commands: argparse._SubParsersAction[argparse.ArgumentPa
     update_parser.add_argument(
         "--all", action="store_true", help="every kiln repo, merged straight away"
     )
+    update_parser.add_argument(
+        "--rehearse",
+        action="store_true",
+        help="play the update on a throwaway clone first, the repo left untouched",
+    )
 
 
 def _new_project_request(arguments: argparse.Namespace) -> new.NewProjectRequest:
@@ -377,6 +382,12 @@ def _dispatch_in_repo(arguments: argparse.Namespace, root: Path) -> None:
         from kiln import new
 
         new.publish_project(root)
+    elif command == "update" and arguments.rehearse:
+        from kiln import rehearsal
+
+        rehearsal.rehearse_project(
+            root, should_update_deps=not arguments.no_deps, allow_major=arguments.major
+        )
     elif command == "update":
         from kiln import update
 
@@ -500,7 +511,7 @@ def _dispatch_fleet(arguments: argparse.Namespace) -> None:
     if arguments.command == "status":
         fleet.show_status(code_dir)
     else:
-        fleet.update_all(code_dir, allow_major=arguments.major)
+        fleet.update_all(code_dir, allow_major=arguments.major, rehearse=arguments.rehearse)
 
 
 def show_home(parser: argparse.ArgumentParser) -> None:

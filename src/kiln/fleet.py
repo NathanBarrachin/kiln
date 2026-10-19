@@ -12,7 +12,7 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
-from kiln import ui
+from kiln import rehearsal, ui
 from kiln.charter.config import CHARTER_FILE, LEGACY_CHARTER_FILE
 from kiln.charter.waivers import Waivers, load
 from kiln.check import run_checks
@@ -161,14 +161,31 @@ def _waiver_count(waivers: Waivers) -> str:
     return f"{len(waivers.actives)}{' !' if waivers.errors else ''}"
 
 
-def update_all(code_dir: Path, *, allow_major: bool) -> None:
+def update_all(code_dir: Path, *, allow_major: bool, rehearse: bool = False) -> None:
+    """Every repo updated and merged; with `rehearse`, each update played on a clone, nothing
+    touched (before a promotion or an `update --all`)."""
     require_tools("git", "uv")
     results = [
-        (repo, update_one(repo.root, allow_major=allow_major)) for repo in find_repos(code_dir)
+        (
+            repo,
+            rehearse_one(repo.root, allow_major=allow_major)
+            if rehearse
+            else update_one(repo.root, allow_major=allow_major),
+        )
+        for repo in find_repos(code_dir)
     ]
     step("Summary")
     for repo, outcome in results:
         print(f"{repo.root.relative_to(code_dir)!s:<30} {outcome}")
+
+
+def rehearse_one(root: Path, *, allow_major: bool) -> str:
+    step(f"Rehearsal of {root.name}, on a clone")
+    try:
+        outcome = rehearsal.rehearse(root, should_update_deps=True, allow_major=allow_major)
+    except KilnError as error:
+        return f"rehearsal failed: {error}"
+    return f"rehearsal: {outcome.summary}"
 
 
 def update_one(root: Path, *, allow_major: bool) -> str:

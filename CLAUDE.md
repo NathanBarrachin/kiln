@@ -43,7 +43,7 @@ un dossier ou un module.
   projet, brouillon en français, un fichier par sujet (`README.md` sert d'index).
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal, anciens noms), `test_questions.py` (questions de `kiln new`), `test_unites.py`,
-  `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_deployment.py`, `test_statusline.py` (choix du
+  `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_charter_file.py` (`charter file`, hook après une édition), `test_deployment.py`, `test_statusline.py` (choix du
   poste et rendu du script), `test_plugins.py` (skills cités présents, nommés comme leur dossier), `test_branch_guard.py` (hook de garde de branche), `test_adopt.py`,
   `test_reminders.py`, `test_session_start.py` ; `conftest.py` : config git du poste écartée, identité de test.
 

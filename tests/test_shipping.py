@@ -114,6 +114,13 @@ def test_promote_waits_for_a_newer_candidate_then_publishes(repo: Path) -> None:
 
     publish(repo, "fix: two")
     shipping.cut(repo)  # the open release is a candidate already: the next one starts
+    # The candidate still open comes into the next release: its entry and number first.
+    next_tree = repo / ".claude/worktrees/release-v0.1.2"
+    assert git(next_tree, "merge-base", "--is-ancestor", "v0.1.1-rc.1", "HEAD") == ""
+    changelog = (next_tree / "CHANGELOG.md").read_text()
+    assert (
+        changelog.index("## v0.1.2") < changelog.index("## v0.1.1") < changelog.index("## v0.1.0")
+    )
     rewrite_draft(repo / ".claude/worktrees/release-v0.1.2")
     shipping.cut(repo)
     shipping.promote(repo)

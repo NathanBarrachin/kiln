@@ -99,6 +99,8 @@ def test_cut_drafts_then_tags_a_candidate_once_the_entry_is_rewritten(repo: Path
     shipping.cut(repo)
 
     assert "v0.1.1-rc.1" in git(repo, "ls-remote", "--tags", "origin")
+    # The release branch follows itself on origin, never develop.
+    assert git(repo, "config", "branch.release/v0.1.1.merge") == "refs/heads/release/v0.1.1"
 
 
 def test_promote_waits_for_a_newer_candidate_then_publishes(repo: Path) -> None:

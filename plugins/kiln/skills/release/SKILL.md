@@ -16,6 +16,19 @@ Read it first. Stop if the repo has no production `main`. Talk to the user in th
 Never switch the branch of the main tree: each branch in `.claude/worktrees/<name>`
 (`release-vN`, `main`).
 
+## kiln's own repo
+No production there: the tag publishes. Two commands replace the steps below.
+1. `kiln version`: the candidates, the number proposed, the tickets of the plan still open.
+2. `kiln version cut` (`--minor` for a milestone decided by its owner): branch
+   `release/vX.Y.Z` in `.claude/worktrees/release-vX.Y.Z`, the `CHANGELOG.md` entry drafted from
+   the commits, the numbers bumped. Rewrite the entry for users there (breaking changes first,
+   each with its conversion by `kiln update`), delete the draft line, commit; then
+   `kiln version cut` again: full checks, tag `-rc.N` pushed. A fix of the candidate: a `fix:`
+   commit on the branch, then `cut` again.
+3. `kiln version promote` when `kiln version` says a candidate is ready: tag on its exact commit,
+   merged into `main` and `develop`; `pypi.yml` publishes the package and the GitHub Release.
+4. `kiln update --all` only with the user's yes.
+
 ## 1. Choose
 - `git fetch origin --tags`. Previous release: `git describe --tags --abbrev=0 origin/main`.
 - Candidate commit: the argument, otherwise `origin/develop`. For an urgent fix: the latest tag,

@@ -112,6 +112,13 @@ def build_parser() -> argparse.ArgumentParser:
         "version", help="versions of kiln: public, candidates, next"
     )
     version_parser.add_argument(
+        "action",
+        nargs="?",
+        choices=["cut", "promote"],
+        help="cut: release branch, then candidate; promote: the candidate ready, made public",
+    )
+    version_parser.add_argument("number", nargs="?", help="promote: the version (vX.Y.Z)")
+    version_parser.add_argument(
         "--minor", action="store_true", help="the next one is a milestone: bump the minor"
     )
     commands.add_parser("doctor", help="diagnose this machine and the repo, with the fixes")
@@ -168,6 +175,21 @@ _kiln_completion() {{
     esac
 }}
 complete -F _kiln_completion kiln"""
+
+
+def _dispatch_version(arguments: argparse.Namespace, root: Path) -> None:
+    if arguments.action == "cut":
+        from kiln import shipping
+
+        shipping.cut(root, milestone=arguments.minor)
+    elif arguments.action == "promote":
+        from kiln import shipping
+
+        shipping.promote(root, arguments.number)
+    else:
+        from kiln import release
+
+        release.show_release_status(root, milestone=arguments.minor)
 
 
 def _add_waive_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -326,9 +348,7 @@ def dispatch(arguments: argparse.Namespace) -> list[str]:
 
         doctor.run_doctor(Path.cwd())
     elif arguments.command == "version":
-        from kiln import release
-
-        release.show_release_status(repo_root(Path.cwd()), milestone=arguments.minor)
+        _dispatch_version(arguments, repo_root(Path.cwd()))
     elif arguments.command == "status" or (arguments.command == "update" and arguments.all):
         _dispatch_fleet(arguments)
     elif arguments.command == "set" and (arguments.machine or not _is_in_repo()):

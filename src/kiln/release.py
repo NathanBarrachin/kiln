@@ -8,7 +8,7 @@
   candidate of a newer version exists: the next one ready, not a delay, avoids the emergency
   fix. The repos of the code folder tell who already took it.
 
-Read only: tags and merges go through the skill `/kiln:release` (CLAUDE.md, Versions).
+Read only: `kiln version cut` and `kiln version promote` (shipping.py) tag and merge.
 """
 
 import datetime
@@ -28,6 +28,8 @@ from kiln.versions import release_version
 BREAKING_SUBJECT = re.compile(r"^\w+(\([^)]*\))?!:")
 FEATURE_SUBJECT = re.compile(r"^feat(\([^)]*\))?:")
 INTEGRATION_REF = "origin/develop"
+BACKLOG = Path("docs") / "backlog" / "backlog.md"
+PLANNED_RELEASE = re.compile(r"^### v(\d+\.\d+\.\d+) · (.+)$")
 VERSION_MODULE = Path("src") / "kiln" / "versions.py"
 
 
@@ -73,7 +75,37 @@ def show_release_status(root: Path, *, milestone: bool = False) -> None:
             print(f"    {ui.paint('a milestone? kiln version --minor', ui.STONE)}")
     else:
         print(f"    {ui.paint('nothing new on develop', ui.STONE)}")
+    cut = {Version(tag.version.base_version) for tag in tags}
+    plan = planned_release(root, cut)
+    if plan:
+        number, title, left = plan
+        print(f"\n  {ui.paint('PLAN', ui.FIRE, bold=True)}  v{number} · {title}")
+        for ticket in left:
+            print(f"    {ui.paint('·', ui.STONE)} {ticket}")
+        if not left:
+            print(f"    {ui.paint('nothing left: kiln version cut', ui.MOSS)}")
     print()
+
+
+def planned_release(root: Path, cut: set[Version]) -> tuple[str, str, list[str]] | None:
+    """The first release of the backlog's `🚀 Releases` plan not cut yet: its number, its
+    title and the tickets still listed under it (a closed ticket leaves the plan)."""
+    backlog = root / BACKLOG
+    if not backlog.is_file():
+        return None
+    section = backlog.read_text("utf-8").split("\n## 🚀 Releases\n", 1)
+    if len(section) < 2:
+        return None
+    current: tuple[str, str, list[str]] | None = None
+    for line in section[1].split("\n## ", 1)[0].splitlines():
+        if match := PLANNED_RELEASE.match(line):
+            if current:
+                return current
+            if Version(match.group(1)) not in cut:
+                current = (match.group(1), match.group(2), [])
+        elif current and line.startswith("- T-"):
+            current[2].append(line.removeprefix("- "))
+    return current
 
 
 def read_tags(root: Path) -> list[Tag]:

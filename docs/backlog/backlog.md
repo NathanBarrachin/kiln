@@ -81,7 +81,6 @@ failed unseen); promoted when `v0.4.1-rc.1` is cut.
 ### v0.4.1 · The grid, as data
 Candidate Thu 22 Oct. The heart of the vision: what kiln holds as the best, one small file per
 rule on two axes, browsable with `kiln grid`.
-- T-124 · The reference repo's rules sorted on the two axes (M)
 - T-143 · Decide the name before the launch: kiln, despite Kiln-AI (XS) (antoine decides)
 
 ### v0.4.2 · Any repo scored against the best, in seconds
@@ -206,25 +205,6 @@ exists.
 - [ ] antoine deletes it: https://pypi.org/manage/account/token/
 
 ## 🟠 Important
-
-### T-124 · The reference repo's rules sorted on the two axes
-- **Type**: task
-- **Status**: todo
-- **Opened**: 2026-10-17
-- **Effort**: M · **Owner**: Claude · **Due**: —
-- **Origin**: vision of 17 October 2026, next step 1
-
-The reference repo holds 108 named rules (52 in its root `CLAUDE.md`, 44 in its backend's, 12
-in its frontend's), 15 backend pillars, and much outside its charter: Claude Code skills and
-hooks, CI workflows, operations scripts (deployment, backups, tested restore, self-healing,
-alerts), container and reverse proxy configuration. Each gets its place on the two axes before
-T-125 picks the launch rules.
-- [ ] Read-only on the reference repo: nothing written, nothing run that writes.
-- [ ] Each rule: theme, scope, regime, whether a detector and a fixer can be written. Project
-  settings (its time zone, its vocabulary, its app names) stay out of the grid: a universal rule
-  takes them as settings ("dates stored in UTC" is universal, the time zone is the project's).
-- [ ] Written as draft rule files (`level = "assess"`, out of the score until sourced),
-  anonymized: no project, app or person name.
 
 ### T-143 · Decide the name before the launch: kiln, despite Kiln-AI
 - **Type**: task
@@ -1073,6 +1053,12 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-124 · The reference repo's rules sorted on the two axes — its 108 named
+  rules and 15 backend pillars, plus what lives outside its charter (operations, structure,
+  tracking), read only and anonymized, merged where they repeat into 105 draft rules
+  (`level = "assess"`, out of the score): each with theme, scope, regime, profiles, whether a
+  script can detect and fix it, and the kiln charter rule that enforces it; `kiln grid` shows
+  adopt and trial by default (feat/grid-reference) · opened 2026-10-17
 - **2026-10-19** · T-133 · The other templates frozen while Django and Nuxt reach the top —
   said in both READMEs and at the end of `kiln new` for another stack; the end-to-end matrix
   keeps them all (docs/frozen-stacks) · opened 2026-10-17

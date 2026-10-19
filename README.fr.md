@@ -21,7 +21,10 @@ Un projet généré contient :
 - l'outillage partagé : `.claude/` (plugins et variables `KILN_*`), `.vscode/`, `.editorconfig`,
   `.gitattributes`, `.gitignore`, modèle de PR, `CODEOWNERS`, pre-commit (ruff, ESLint, charte,
   refus de commiter sur `main` et `develop`) ;
-- la CI GitHub (`.github/workflows/ci.yml`), qui appelle les workflows réutilisables de kiln ;
+- la CI (`.github/workflows/ci.yml`), qui appelle les workflows réutilisables de kiln : sur GitHub à chaque
+  push pour un dépôt public (gratuit et illimité), sur le poste par `kiln ci` pour un dépôt privé
+  (`ci_runner: local` : aucune minute GitHub, dont le plan gratuit ne donne que 2 000 par mois) ;
+  `kiln update` choisit d'après la visibilité du dépôt, `kiln set ci_runner=github` ou `local` change ;
 - le suivi du travail, d'office : `docs/backlog/` (`backlog.md`, `rejected.md`, `urgent.md`,
   en anglais, skill `kiln:backlog`), que la status line de Claude Code compte ;
 - les réglages de la status line propres au repo (`statusline_ci`, `prod_health_url`), posés en

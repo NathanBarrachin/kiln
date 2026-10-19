@@ -19,6 +19,7 @@ Waivers: `kiln-waivers.toml` (see waivers.py) lifts a rule from the whole repo o
 paths, for a limited time; they are listed at each check.
 
 Usage: charter [check]      the rules of the charter (default)
+       charter file <path>  the bans on that one file, fast (the hook after each edit)
        charter types        mypy typing as a ratchet ([types])
        charter coverage     coverage floors of the backend ([coverage])
        charter --detail     value of each ratchet and floor, without judging
@@ -46,6 +47,8 @@ from kiln.rules import charter_rules
 # A repo's own rule: `check(repo, params)` returns its failures.
 LocalRule = Callable[[Repo, Params], list[str]]
 RULE_SECTIONS = ("bans", "ratchets", "floors")
+# Bans that look at the repo as a whole, not file by file: left to the full check.
+REPO_WIDE_BANS = {"django-migrations", "forbidden-files", "identical-copies", "compose-profiles"}
 
 
 def open_repo() -> Repo:
@@ -196,6 +199,35 @@ def check(repo: Repo) -> int:
     return 0
 
 
+def check_file(repo: Repo, file: str) -> int:
+    """The bans on one file, for the hook after each edit: it has to answer in a blink, so the
+    ratchets, the floors, the repo-wide bans and the local rules are left to the full check
+    (commit and CI)."""
+    path = Path(file).resolve()
+    try:
+        relative = str(path.relative_to(repo.root.resolve()))
+    except ValueError:
+        return 0
+    if not path.is_file() or repo.git("check-ignore", "--", relative):
+        return 0
+    waivers = load_waivers(repo.root)
+    repo.only = relative
+    problems: list[str] = []
+    for name, params in rules(repo, "bans", waivers):
+        rule = params.get("rule", name)
+        if rule not in REPO_WIDE_BANS:
+            problems.extend(BANS[rule](repo, params))
+    if not problems:
+        return 0
+    print(f"Charter violations in {relative}:\n")
+    print("\n\n".join(problems))
+    print(
+        "\nFix the code, or waive the rule for this file if the deviation is deliberate: "
+        f'kiln waive <RULE> --paths {relative} --reason "…".'
+    )
+    return 1
+
+
 def detail(repo: Repo) -> int:
     for section in ("ratchets", "floors"):
         for name, params, value, _ in measures(repo, section):
@@ -224,6 +256,8 @@ ACTIONS: dict[str, Callable[[Repo], int]] = {
 
 def main() -> int:
     action = sys.argv[1] if len(sys.argv) > 1 else "check"
+    if action == "file" and len(sys.argv) == 3:
+        return check_file(open_repo(), sys.argv[2])
     if action not in ACTIONS:
         sys.exit(__doc__)
     return ACTIONS[action](open_repo())

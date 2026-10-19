@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+from fnmatch import fnmatchcase
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +26,8 @@ class Repo:
         self.generated = set(self.git("ls-files", "--", ":(attr:linguist-generated=true)").split())
         # Patterns waived for the rule being checked (`kiln-waivers.toml`).
         self.waived: list[str] = []
+        # The one file checked after an edit (`charter file`), None for the whole repo.
+        self.only: str | None = None
 
     def git(self, *args: str) -> str:
         return subprocess.run(
@@ -36,6 +39,8 @@ class Repo:
         created but not yet added, and the local check passed on code CI would have refused.
         A file deleted but still in the index is left out."""
         patterns = [patterns] if isinstance(patterns, str) else patterns
+        if self.only is not None:
+            return self._only_if_matched(patterns, excluded=excluded)
         waived = [f":(exclude){pattern}" for pattern in self.waived] if patterns else []
         listed = self.git(
             "ls-files", "--cached", "--others", "--exclude-standard", "--", *patterns, *waived
@@ -47,6 +52,22 @@ class Repo:
             and not (excluded and any(fragment in path for fragment in self.excluded))
         )
         return [self.root / path for path in kept]
+
+    def _only_if_matched(self, patterns: list[str], *, excluded: bool) -> list[Path]:
+        """`tracked` for a single file, without listing the repo: git's pathspecs, where `*`
+        crosses `/` and a folder covers what it holds, are matched in Python."""
+        path = self.only or ""
+
+        def matches(pattern: str) -> bool:
+            folder = pattern.rstrip("/") + "/"
+            return fnmatchcase(path, pattern) or path.startswith(folder)
+
+        kept = (
+            (not patterns or any(map(matches, patterns)))
+            and not any(map(matches, self.waived))
+            and not (excluded and any(fragment in path for fragment in self.excluded))
+        )
+        return [self.root / path] if kept else []
 
     def rel(self, path: Path) -> str:
         return str(path.relative_to(self.root))

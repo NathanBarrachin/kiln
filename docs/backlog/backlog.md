@@ -74,7 +74,6 @@ Candidate Tue 20 Oct (promotes v0.3.4). The milestone decided by antoine, merged
 on 16 October; what is left is small. ⚠ breaking: CLI names, `copier.yml` questions, charter
 rule IDs, workflow inputs, plugin and skill names, all converted by `kiln update`.
 - T-23 · Finish kiln in English: the changelog, then the candidate (S)
-- T-27 · The edit hook checks only the edited file (S)
 - T-29 · A release in two commands, announced on GitHub (M)
 - T-04 · Decide whether the adopted repo quotes kiln's workflows at a tag (XS) (blocked: antoine)
 - T-14 · Delete the old PyPI token (XS) (blocked: antoine)
@@ -213,20 +212,6 @@ still reads in French is the release notes that `kiln update` shows.
 - [ ] The `v0.4.0` entry: breaking changes first, each with its conversion by `kiln update`,
   the old names still accepted until the next minor.
 - [ ] Cut `v0.4.0-rc.1`, promote `v0.3.4` (PyPI, GitHub Release); close #36.
-
-### T-27 · The edit hook checks only the edited file
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-16
-- **Effort**: S · **Owner**: Claude · **Due**: —
-- **Origin**: free mandate (teams with huge repos), 16 October 2026; doctrine 11 of the vision
-  (only recheck what changed)
-
-`check_file.py` runs the whole charter after every edit: on a big repo, seconds per edit. The
-hook runs the bans on the edited file only; ratchets and floors run at commit and in CI. Kept
-as a check after each edit (decided by Claude, 16 October 2026): it is feedback to Claude, which
-fixes at once, not a block on the human; it only has to be fast (under 200 ms) and say how to
-waive.
 
 ### T-29 · A release in two commands, announced on GitHub
 - **Type**: improvement
@@ -1193,6 +1178,10 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-27 · The edit hook checks only the edited file — `charter file <path>`:
+  the bans on that file alone, in about 0.15 s; ratchets, floors, repo-wide bans and local
+  rules left to the commit and CI; the report says how to waive (feat/edit-hook-one-file) ·
+  opened 2026-10-16
 - **2026-10-18** · Backlog checked against the vision of 17 October 2026 — three tickets
   (T-143 the name, T-144 faster checks, T-145 the benchmark), details added to T-123, T-125,
   T-129, T-30, T-135, T-136, T-138 and T-141; two ideas in reserve declined for now

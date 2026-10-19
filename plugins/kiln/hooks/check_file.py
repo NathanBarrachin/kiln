@@ -2,8 +2,9 @@
 """PostToolUse (Edit/Write): checks the edited file, to see the violation right away.
 
 ruff for a .py (the nearest `.venv/bin/ruff` going up), ESLint with cache for a .ts/.vue/.js
-(the nearest `node_modules/.bin/eslint`), then the repo's charter: kiln's `charter` command if
-it has a `charter.toml` (`charte.toml` before kiln 0.4), otherwise the script named by
+(the nearest `node_modules/.bin/eslint`), then the repo's charter: `charter file`, the bans on
+the edited file alone (ratchets and floors run at commit and in CI), if it has a `charter.toml`
+(`charte.toml` before kiln 0.4), otherwise the script named by
 `KILN_CHARTER_SCRIPT` (`PROJET_CHARTE` before 0.4; path relative to the root of the repo) in its
 `.claude/settings.json`. A charter violation is reported once, then again when it changes:
 ongoing debt does not repeat its report at every edit. Works in a worktree too. Exit 2 = the
@@ -62,8 +63,11 @@ def charter_command(path: Path) -> tuple[list[str], Path] | None:
     if not top:
         return None
     if any((Path(top) / name).exists() for name in CHARTER_FILES):
-        # `charter` comes with kiln (uv tool install kiln-cli); `charte`, its name before 0.4.0.
-        engine = shutil.which("charter") or shutil.which("charte")
+        # `charter` comes with kiln (uv tool install kiln-cli) and checks the edited file only;
+        # `charte`, its name before 0.4.0, only knows the whole repo.
+        if engine := shutil.which("charter"):
+            return ([engine, "file", str(path)], Path(top))
+        engine = shutil.which("charte")
         return ([engine], Path(top)) if engine else None
     script = os.environ.get("KILN_CHARTER_SCRIPT") or os.environ.get("PROJET_CHARTE")
     if not script or not (Path(top) / script).exists():
@@ -79,12 +83,15 @@ def failure_report(command: tuple[list[str], Path] | None) -> str:
     if completed.returncode == 0:
         return ""
     report = completed.stdout + completed.stderr
+    if argv[1:2] == ["file"] and report.startswith("charter: checks a repo"):
+        # A `charter` older than `charter file` prints its usage: the whole repo, then.
+        return failure_report((argv[:1], cwd))
     if LEGACY_REPORT_END in report:
         report = report.split(LEGACY_REPORT_END)[0]
     return report.strip()
 
 
-def is_new_charter_report(report: str, repo_root: Path) -> bool:
+def is_new_charter_report(report: str, edited: Path) -> bool:
     """A violation already reported (ongoing debt) is not repeated at every edit.
 
     The signature ignores digits, which move with every line written; a new offending file or a
@@ -95,7 +102,7 @@ def is_new_charter_report(report: str, repo_root: Path) -> bool:
     )
     memo = (
         Path(tempfile.gettempdir())
-        / f"charte-hook-{hashlib.sha1(str(repo_root).encode()).hexdigest()[:12]}"
+        / f"charte-hook-{hashlib.sha1(str(edited).encode()).hexdigest()[:12]}"
     )
     previous = memo.read_text(encoding="utf-8") if memo.exists() else ""
     memo.write_text(signature, encoding="utf-8")
@@ -108,7 +115,7 @@ if not file_path or "node_modules" in file_path or not os.path.isfile(file_path)
 path = Path(file_path)
 charter = charter_command(path)
 charter_report = failure_report(charter)
-if charter and not is_new_charter_report(charter_report, charter[1]):
+if charter and not is_new_charter_report(charter_report, path.resolve()):
     charter_report = ""
 reports = [report for report in (failure_report(lint_command(path)), charter_report) if report]
 if reports:

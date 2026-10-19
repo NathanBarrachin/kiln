@@ -108,7 +108,11 @@ def _start_release(root: Path, tags: list[Tag], *, milestone: bool) -> None:
     tree = release_worktree(root, version)
     ui.step(f"Branch release/v{version}")
     branch = f"release/v{version}"
-    run(["git", "worktree", "add", "-q", "-b", branch, str(tree), "origin/develop"], root)
+    # Not tracking develop: a pull in the release worktree would bring develop into the release.
+    run(
+        ["git", "worktree", "add", "-q", "--no-track", "-b", branch, str(tree), "origin/develop"],
+        root,
+    )
     ui.step("Changelog draft and numbers")
     changelog = tree / CHANGELOG
     entry = draft_entry(version, subjects, today=_today())
@@ -208,7 +212,7 @@ def _tag_candidate(root: Path, version: str, tags: list[Tag]) -> None:
     name = f"v{version}-rc.{rank}"
     ui.step(f"Tag {name}")
     run(["git", "tag", "-a", name, "-m", f"Release candidate {name}"], tree)
-    run(["git", "push", "-q", "origin", f"release/v{version}", name], tree)
+    run(["git", "push", "-q", "-u", "origin", f"release/v{version}", name], tree)
     ui.success(f"{name} pushed: the internal channel follows it (kiln update --all, with consent)")
 
 

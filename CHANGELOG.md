@@ -7,12 +7,11 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 entries before v0.4.0 quote kiln's former French names.
 
 ## v0.4.1 — 2026-10-19
-<!-- draft: rewrite for users, breaking changes first, then delete this line -->
-- A new release carries the candidate still open
-- The reference repo's rules as 105 assessed drafts
-- An adopted repo's workflows follow the public release
-- The grid as data, browsable with kiln grid
-- A private repo's CI runs on the machine
+- A private repo's CI runs on the machine: new answer `ci_runner` (`local` for a private repo, `github` for a public one, picked from the repo's visibility by `kiln update` when missing). In `local`, `ci.yml` has no push trigger (no GitHub minutes spent), `/kiln:merge` replays it with `kiln ci`, and the status line and the session start read its verdict; `kiln set ci_runner=github` brings it back on each push.
+- `kiln grid`: the practices kiln holds as the best, one small TOML file per rule, each with its why, its sources checked and dated, its level (adopt, trial, assess, hold), its regime and how it is detected. Six rules to start (lockfiles, pinned actions, dependency updates and their cooldown, non-root containers, no committed `.env`), and 105 assessed drafts drawn from the reference repo (`kiln grid --level assess`).
+- In a repo brought under kiln by `kiln adopt`, `kiln update` moves the references to kiln's workflows to the latest public release, after checking each input against the workflow at that tag; `kiln adopt` does it at adoption, and `kiln status` shows the tag an adopted repo quotes.
+- `kiln new` says when a stack is frozen: Django and Nuxt are complete, the other stacks stay generated and tested, without new grid rules for now.
+- Fixes: `kiln version cut` carries the candidate still open into the next release; a deprecation now fails kiln's tests (an escape in `copier.yml` had slipped through).
 
 ## v0.4.0 — 2026-10-19
 - **Breaking**: kiln speaks English. `kiln update` converts a generated project in one go, and the names of 0.3 are still read until the next minor.

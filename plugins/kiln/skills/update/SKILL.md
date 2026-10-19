@@ -32,8 +32,14 @@ Talk to the user in their language.
    characters at most), then merge into `develop` (skill `/kiln:merge`), without a pull request
    nor an approval to wait for.
 5. `<reminders> yes "<root of the repo>"`.
+6. Right after the merge, what kiln cannot guess: when the releases crossed ask for it,
+   `kiln update` opened a 🔴 ticket `Finish the kiln update to vX.Y.Z` in
+   `docs/backlog/backlog.md` (it says its ID), one box per action. Do it now with the user: ask
+   for what only they know (a member's GitHub login, a choice), make the changes on a branch,
+   then close the ticket (`/kiln:backlog done T-NN`); a box they put off stays open
+   in the ticket.
 
 ## Sum up
 
 Version of the tool before and after, template release before and after (`_commit` of
-`.copier-answers.yml`), files changed, checks.
+`.copier-answers.yml`), files changed, checks, and what is left of the `Finish the kiln update` ticket.

@@ -118,6 +118,12 @@ et kiln-bot (T-59) rendra la mise à jour gratuite. Les changements cassants res
   11 novembre 2026 à 16 h** (heure de Paris), sur tous les forums le même après-midi (T-03),
   seulement si la v0.5.0 est promue et que la barre de T-03 tient le lundi 9 novembre à 20 h ;
   sinon le mercredi suivant, même heure. La date bouge, jamais la barre ;
+- **ce que seul l'utilisateur peut compléter** après une mise à jour (une information que kiln
+  ne devine pas, comme le login GitHub de chacun) s'écrit au commit, dans une ligne du corps
+  `After updating: …` : `kiln version cut` la reprend dans la note (`- **After updating**: …`)
+  et `kiln update` en fait, dans chaque repo, un ticket 🔴 « Finish the kiln update to vX.Y.Z »
+  de `docs/backlog/backlog.md`, que `/kiln:update` traite avec l'utilisateur juste après la
+  fusion (souhait d'antoine, 19 octobre 2026 : une tâche de la mise à jour, pas `urgent.md`) ;
 - **un changement cassant** reste marqué au commit (`feat!:` ou `BREAKING CHANGE`), ouvre la
   note de version dans `CHANGELOG.md`, et livre sa conversion dans `kiln update`. Est cassant
   ce qui touche l'API publique de kiln : commandes et options de la CLI, questions de

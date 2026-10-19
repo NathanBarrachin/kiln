@@ -20,6 +20,7 @@ from pathlib import Path
 from packaging.version import Version
 
 from kiln import ui
+from kiln.backlog import AFTER_UPDATING
 from kiln.release import (
     VERSION_MODULE,
     Tag,
@@ -37,6 +38,8 @@ ENTRY_HEADING = re.compile(r"^## v(\S+) — ", re.MULTILINE)
 SUBJECT = re.compile(r"^(?P<type>\w+)(?:\([^)]*\))?(?P<bang>!)?:\s*(?P<text>.+)$")
 # Commit types a user notices; the rest (docs, tests, chores) stays out of the notes.
 VISIBLE_TYPES = {"feat", "fix", "perf"}
+# A line of a commit's body that asks each repo for an action after `kiln update`.
+AFTER_UPDATING_TRAILER = "After updating:"
 LOCK = ["uv", "lock", "-q"]
 CHECKS = (
     ["uv", "run", "pytest", "-q"],
@@ -108,11 +111,7 @@ def _start_release(root: Path, tags: list[Tag], *, milestone: bool) -> None:
     tree = release_worktree(root, version)
     ui.step(f"Branch release/v{version}")
     branch = f"release/v{version}"
-    # Not tracking develop: a pull in the release worktree would bring develop into the release.
-    run(
-        ["git", "worktree", "add", "-q", "--no-track", "-b", branch, str(tree), "origin/develop"],
-        root,
-    )
+    run(["git", "worktree", "add", "-q", "-b", branch, str(tree), "origin/develop"], root)
     ui.step("Changelog draft and numbers")
     changelog = tree / CHANGELOG
     entry = draft_entry(version, subjects, today=_today())
@@ -132,10 +131,16 @@ def _start_release(root: Path, tags: list[Tag], *, milestone: bool) -> None:
 
 
 def draft_entry(version: str, subjects: list[str], *, today: str) -> str:
-    """`## vX.Y.Z — date`, then one line per visible commit, breaking ones first."""
-    breaking, others = [], []
+    """`## vX.Y.Z — date`, then one line per visible commit, breaking ones first, then what each
+    repo must do after updating (an `After updating: …` line in a commit's body)."""
+    breaking, others, after_updating = [], [], []
     for subject in subjects:
         title, _, body = subject.partition("\n")
+        after_updating += [
+            AFTER_UPDATING + line.strip().removeprefix(AFTER_UPDATING_TRAILER).strip()
+            for line in body.splitlines()
+            if line.strip().startswith(AFTER_UPDATING_TRAILER)
+        ]
         match = SUBJECT.match(title.strip())
         if match is None:
             continue
@@ -146,6 +151,7 @@ def draft_entry(version: str, subjects: list[str], *, today: str) -> str:
         elif match["type"] in VISIBLE_TYPES:
             others.append(f"- {text}")
     lines = [*breaking, *others] or ["- Maintenance."]
+    lines += after_updating
     return "\n".join([f"## v{version} — {today}", DRAFT_MARKER, *lines]) + "\n"
 
 
@@ -212,7 +218,7 @@ def _tag_candidate(root: Path, version: str, tags: list[Tag]) -> None:
     name = f"v{version}-rc.{rank}"
     ui.step(f"Tag {name}")
     run(["git", "tag", "-a", name, "-m", f"Release candidate {name}"], tree)
-    run(["git", "push", "-q", "-u", "origin", f"release/v{version}", name], tree)
+    run(["git", "push", "-q", "origin", f"release/v{version}", name], tree)
     ui.success(f"{name} pushed: the internal channel follows it (kiln update --all, with consent)")
 
 

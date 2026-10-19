@@ -115,7 +115,7 @@ système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.
 | `kiln grid [ID]` | La grille : les pratiques que kiln tient pour les meilleures aujourd'hui, un petit fichier TOML par règle, avec son pourquoi, ses sources vérifiées et datées, son niveau (adopt, trial, assess, hold), sa détection et sa correction. `--theme`, `--scope`, `--level` filtrent ; un identifiant montre la règle en entier, et comment y déroger. |
 | `kiln doctor` | Diagnostic du poste (git, uv, gh connecté, pnpm, podman, Java, pre-commit, version de kiln, plugin Claude, configuration) et du repo courant (version du modèle, crochet pre-commit, dépendances, `backend/.env`) : ✓, ! à regarder ou ✗ bloquant, chaque fois avec la commande qui corrige. Ne modifie rien. |
 | `kiln completion bash` | Script de complétion bash tiré des commandes et options de kiln ; l'activer par `eval "$(kiln completion bash)"` dans `~/.bashrc`. |
-| `kiln status` | État des repos kiln du dossier de code : branche, arbre propre ou non, version du modèle (`v0.3.2 → v0.3.5` en retard), dérogations (`!` si l'une est échue), stack ; puis les règles dérogées, par nombre de repos. |
+| `kiln status` | État des repos kiln du dossier de code : branche, arbre propre ou non, version du modèle (`v0.4.0 → v0.4.2` en retard), dérogations (`!` si l'une est échue), stack ; puis les règles dérogées, par nombre de repos. |
 | `kiln version` | Dans le dépôt de kiln : dernière version publique, candidates (âge, repos qui les ont adoptées, prêtes à promouvoir), numéro de la prochaine et tickets du plan (`docs/backlog/`) qui restent avant elle. `kiln version cut` : branche `release/vX.Y.Z`, ébauche de la note de version et numéros, puis (une fois la note relue) contrôles, CI de GitHub attendue et, au vert seulement, tag `-rc.N` ; `kiln version promote` : tag public sur la dernière candidate dont la CI est verte, fusion dans `main` et `develop` (PyPI et GitHub Release suivent). |
 | `charter` | Vérifie le repo contre son `charter.toml` (`charter --detail`, `charter --unverified`, `charter types`, `charter coverage`, `charter file <chemin>`). |
 
@@ -223,15 +223,15 @@ sécurité.
 ## Versions
 
 kiln numérote ses versions `vMAJEUR.MINEUR.CORRECTIF`, comme Claude Code : en 0.x, chaque
-version monte le correctif, changements cassants compris (`0.3.4 → 0.3.5`), signalés en tête de
+version monte le correctif, changements cassants compris (`0.4.1 → 0.4.2`), signalés en tête de
 leur note et convertis par `kiln update` ; la mineure ne monte que pour une étape
 (`kiln version --minor`). À partir de 1.0, semver strict.
 Le travail s'intègre dans `develop` ; `main` ne reçoit que des versions.
 
-- **Candidate** (`v0.3.5-rc.1`) : tirée de `develop` sur une branche `release/v0.3.5`, avec son
+- **Candidate** (`v0.4.2-rc.1`) : tirée de `develop` sur une branche `release/v0.4.2`, avec son
   entrée en tête de [`CHANGELOG.md`](CHANGELOG.md). Seuls les postes au canal `internal` la
   suivent (`kiln set channel=internal`).
-- **Promotion** (`v0.3.5`) : dès qu'une candidate plus récente est prête (pas de délai fixe :
+- **Promotion** (`v0.4.2`) : dès qu'une candidate plus récente est prête (pas de délai fixe :
   c'est la suivante prête qui évite le correctif d'urgence), le même commit est tagué et fusionné
   dans `main`. `kiln version` montre les candidates, leur âge, qui les a adoptées, lesquelles
   sont prêtes et le numéro de la prochaine.
@@ -241,8 +241,8 @@ Le travail s'intègre dans `develop` ; `main` ne reçoit que des versions.
 - **Outil** : `uv tool install kiln-cli` prend les versions promues, publiées sur PyPI par le
   workflow `pypi.yml` au tag `vX.Y.Z` ; `uv tool install git+https://github.com/antoine-tena/kiln@<tag>`
   prend aussi les candidates ;
-  `kiln status` dit de quelle version part chaque repo (`v0.3.2 → v0.3.5`), la bannière celle
-  de l'outil (`v0.3.5 +3 · abc1234` : trois commits après v0.3.5, installé depuis un dossier).
+  `kiln status` dit de quelle version part chaque repo (`v0.4.0 → v0.4.2`), la bannière celle
+  de l'outil (`v0.4.2 +3 · abc1234` : trois commits après v0.4.2, installé depuis un dossier).
   Seule une version met un repo à jour : un outil qui n'en est pas une (un dossier en avance sur
   son tag ou modifié, une branche) est refusé par `kiln update`, `kiln new` et `kiln adopt`, qui
   donnent la commande d'installation de la version ; pour essayer le code de kiln sur un repo

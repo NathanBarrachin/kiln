@@ -150,7 +150,7 @@ make the opinions yours.
 | `kiln waive [RULE\|file]` | Waive a kiln rule (`--paths`, `--reason`), or freeze a generated file so `kiln update` leaves it alone; `--renew` moves to the next tier (a week, a month, three months, six months); `--permanent` for a waiver with no deadline, `--upstream` to link the issue or PR opened on kiln. No argument: list the waivers. |
 | `kiln update` | Move to the latest kiln release (with a box listing what's new in each release crossed), compatible dependency upgrades, then checks. `--major`, `--no-template`, `--no-deps`. `--rehearse` plays it on a throwaway clone first and only reports, the repo untouched. In an adopted repo (`kiln adopt`), only the references to kiln's workflows move, to the latest public release, their inputs checked. Only a release of kiln updates a repo: a tool built from a checkout is refused, with the command that installs the release. |
 | `kiln update --all` | Update every kiln repo in your code folder, one worktree each, merged only if checks pass. `--all --rehearse`: each update on a clone, nothing touched, a summary per repo. |
-| `kiln status` | Branch, clean tree, template release (`v0.3.2 → v0.3.5` when behind), waivers, stack — for every kiln repo, then the most waived rules across them. |
+| `kiln status` | Branch, clean tree, template release (`v0.4.0 → v0.4.2` when behind), waivers, stack — for every kiln repo, then the most waived rules across them. |
 | `kiln version` | In kiln's own repo: latest public release, candidates (age, adopting repos, ready to promote), the number the next release should take and the planned tickets still open. `--minor` when the next one is a milestone. `kiln version cut` cuts the release branch with a drafted changelog entry, then (once the entry is rewritten) runs the checks, waits for GitHub's CI and tags `-rc.N` only on green; `kiln version promote` tags the ready candidate (green CI), merges it into `main` and `develop`, and PyPI and the GitHub Release follow. |
 | `kiln grid [RULE-ID]` | The grid: the practices kiln holds as the best today, one small TOML file per rule, each with its why, its sources (checked and dated), its level (adopt, trial, assess, hold) and how it is detected and fixed. `--theme`, `--scope`, `--level` filter; a rule ID shows it in full, with how to waive it. |
 | `kiln doctor` | Check the machine (git, uv, gh login, pnpm, podman, Java, pre-commit, kiln release, Claude plugin) and the current repo; each problem comes with the command that fixes it. Changes nothing. |
@@ -221,10 +221,11 @@ Generated repos enable the right plugins for their stack automatically.
 
 kiln is used daily on a handful of real repos, including one in production. It is young, so it
 numbers releases like Claude Code does: in `0.x`, every release bumps the patch, breaking changes
-included (`0.3.4 → 0.3.5`), listed first in the release notes and migrated by `kiln update`; the
+included (`0.4.1 → 0.4.2`), listed first in the release notes and migrated by `kiln update`; the
 minor only moves for a milestone. Strict semver starts at 1.0. Each release is first a candidate
-(`v0.3.5-rc.1`) used on the author's own repos; it is promoted to `main` (`v0.3.5`) only once
-the next candidate is ready, so a release never needs an emergency fix. Projects are generated and updated from the latest release, pin kiln's workflows to
+(`v0.4.2-rc.1`) used on the author's own repos; it is promoted to `main` (`v0.4.2`) only once
+the next candidate is ready, its CI green (macOS and end-to-end tests included) and its update
+rehearsed on a copy of each repo, so a release never needs an emergency fix. Projects are generated and updated from the latest release, pin kiln's workflows to
 that exact tag, and `kiln update` shows what changed in each release it applies (see
 [`CHANGELOG.md`](CHANGELOG.md)).
 Linux, WSL and macOS are supported.

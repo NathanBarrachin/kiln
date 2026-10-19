@@ -14,7 +14,7 @@ un dossier ou un module.
 
 - `src/kiln/` : la commande. `cli.py` (arguments ; anciens noms de 0.3 acceptés par `modernize`) ; une commande par module : `new.py` (questions de `questions.py`),
   `adopt.py` (`kiln adopt`, repo existant), `install.py`, `dev.py`, `check.py`, `settings.py` (`kiln set`, clés réglables), `machine.py` (`kiln set` hors d'un repo : réglages du poste), `waive.py` (`kiln waive`), `update.py`,
-  `contract.py`, `release.py` (`kiln version`), `shipping.py` (`kiln version cut` et `promote`), `github_ci.py` (verdict de la CI de GitHub sur un commit, attendu par `cut` et `promote`), `doctor.py` (diagnostic du poste et du repo), `fleet.py` (`status`, `update --all`), `rehearsal.py` (`kiln update --rehearse`, la mise à jour sur un clone jetable) ; socle : `stack.py` (stack lue dans
+  `contract.py`, `release.py` (`kiln version`), `shipping.py` (`kiln version cut` et `promote`), `github_ci.py` (verdict de la CI de GitHub sur un commit, attendu par `cut` et `promote`), `doctor.py` (diagnostic du poste et du repo), `fleet.py` (`status`, `update --all`), `adopted.py` (repo adopté : le tag des workflows de kiln avancé à la dernière version publique), `rehearsal.py` (`kiln update --rehearse`, la mise à jour sur un clone jetable) ; socle : `stack.py` (stack lue dans
   `.copier-answers.yml`), `template.py`, `deps.py`, `github.py`, `rules.py` (règles non
   vérifiées), `statusline.py`, `versions.py` (tags, journal des versions), `frozen.py` (fichiers figés par `kiln-waivers.toml`, épargnés par `update`), `renames.py` (noms d'avant 0.4.0 et leurs noms anglais), `banner.py` (bannière, écran d'accueil), `ui.py` (palette pierre et feu, étapes,
   roue animée, bilan, succès, erreurs), `shell.py`, `config.py` (`~/.config/kiln/config.toml`).
@@ -151,8 +151,8 @@ Chaque version, correctif compris, finit par `kiln update --all` : les repos gé
 workflows au tag exact dont ils partent (`ci.yml`), et `kiln update` le fait avancer. Les
 workflows de kiln prennent leurs actions et la commande `charte` à leur propre commit
 (`job.workflow_sha`). Les dépôts adoptés citent les workflows au tag
-de la dernière version publique (choix d'antoine, 19 octobre 2026, T-04) et ne reçoivent pas de
-`kiln update` : le tag y avance à la main tant que T-146 n'est pas fait. Modules : `versions.py` (tags, canaux, journal, version de
+de la dernière version publique (choix d'antoine, 19 octobre 2026, T-04) et ne rejouent pas
+de modèle : `kiln update` y fait seulement avancer ce tag (`adopted.py`, T-146), après avoir vérifié les entrées passées aux workflows. Modules : `versions.py` (tags, canaux, journal, version de
 l'outil), `release.py` (`kiln version`), `shipping.py` (`kiln version cut`, `kiln version promote`).
 
 ## Contrôles

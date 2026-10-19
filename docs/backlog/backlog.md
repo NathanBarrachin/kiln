@@ -208,7 +208,7 @@ exists.
 
 ### T-143 · Decide the name before the launch: kiln, despite Kiln-AI
 - **Type**: task
-- **Status**: todo
+- **Status**: blocked — waiting for antoine (the decision; facts in `docs/vision/nom.md`)
 - **Opened**: 2026-10-18
 - **Effort**: XS · **Owner**: Claude for the facts, antoine for the decision · **Due**: 2026-10-31
 - **Origin**: vision of 17 October 2026, risk 7 ("the name: collision with Kiln-AI, and `kiln`
@@ -217,7 +217,7 @@ exists.
 A name changed after the launch loses the stars, links and posts that point at the old one;
 changed before, it costs a session. Today the repo is `kiln`, the package `kiln-cli`, and
 Kiln-AI/Kiln (over 5,000 stars) comes first for "kiln" on GitHub.
-- [ ] Claude lays out the facts on one page: who answers to "kiln" on GitHub, PyPI, npm and in
+- [x] Claude lays out the facts on one page (`docs/vision/nom.md`, 19 October 2026): who answers to "kiln" on GitHub, PyPI, npm and in
   search engines; what a rename would touch (package, command, `kiln:*` plugins, workflows
   quoted by tag, conversions by `kiln update`); two or three free names checked on GitHub and
   PyPI.

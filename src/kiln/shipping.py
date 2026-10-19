@@ -200,7 +200,9 @@ def bump_package(pyproject: Path, version: str) -> None:
 
 
 # The public docs quote kiln's workflows at the release they describe.
-READMES = ("README.md", "README.fr.md")
+# The docs of each language: the README shows kiln, the reference holds everything.
+DOCS_BY_LANGUAGE = (("README.md", "docs/reference.md"), ("README.fr.md", "docs/reference.fr.md"))
+READMES = tuple(name for docs in DOCS_BY_LANGUAGE for name in docs)
 DOCS_QUOTING_RELEASES = (*READMES, "CONTRIBUTING.md")
 DOCS_RELEASE_REF = re.compile(r"(antoine-tena/kiln/\S+?)@v\d+\.\d+\.\d+(?:-rc\.\d+)?\b")
 
@@ -286,22 +288,26 @@ README_UNCHANGED_MARKER = "<!-- readme: unchanged"
 
 
 def _require_readme_update(tree: Path, version: str, tags: list[Tag]) -> None:
-    """The first candidate of a release changes the READMEs: both describe everything kiln
-    offers at the release it is (antoine, 19 October 2026). A fix candidate (`-rc.2`…) may not."""
+    """The first candidate of a release changes the docs of each language, its README or its
+    reference: they describe everything kiln offers at the release it is (antoine, 19 October
+    2026). A fix candidate (`-rc.2`…) may not."""
     if _last_candidate(version, tags) is not None:
         return
     earlier = [tag for tag in tags if Version(tag.version.base_version) < Version(version)]
     if not earlier:
         return
     since = max(earlier, key=lambda tag: tag.version).name
-    changed = capture(["git", "diff", "--name-only", since, "HEAD", "--", *READMES], tree)
-    if set(changed.split()) == set(READMES):
+    changed = set(
+        capture(["git", "diff", "--name-only", since, "HEAD", "--", *READMES], tree).split()
+    )
+    silent = [docs for docs in DOCS_BY_LANGUAGE if not changed & set(docs)]
+    if not silent:
         return
     if README_UNCHANGED_MARKER in changelog_entry((tree / CHANGELOG).read_text("utf-8"), version):
         return
-    missing = ", ".join(name for name in READMES if name not in changed.split())
+    missing = ", ".join(" nor ".join(docs) for docs in silent)
     raise KilnError(
-        f"{missing} unchanged since {since}: say what v{version} brings there, or write "
+        f"neither {missing} changed since {since}: say what v{version} brings there, or write "
         f"`{README_UNCHANGED_MARKER}: why -->` in its {CHANGELOG} entry"
     )
 

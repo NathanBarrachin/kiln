@@ -3,9 +3,9 @@
 L'atelier de Claude Code : savoir, garde-fous, façons de travailler et mise à jour des repos
 (modèle Copier, commande `kiln`, moteur `charte`, plugins Claude Code, workflows
 réutilisables). Tout ce qui est générique aux repos vit ici : un défaut d'un fichier
-généré se corrige dans `template/`, puis `kiln update` dans le repo. Présentation complète et
-commandes dans [`README.fr.md`](README.fr.md) (vitrine en anglais :
-[`README.md`](README.md)).
+généré se corrige dans `template/`, puis `kiln update` dans le repo. Présentation dans
+[`README.fr.md`](README.fr.md) (vitrine en anglais : [`README.md`](README.md)), tout le détail
+dans [`docs/reference.fr.md`](docs/reference.fr.md) ([`docs/reference.md`](docs/reference.md)).
 
 ## Carte du repo
 
@@ -38,13 +38,14 @@ un dossier ou un module.
 - `.github/workflows/` : workflows réutilisables appelés par les repos générés, plus ceux de
   kiln (`kiln.yml` contrôles, `pypi.yml` publication du paquet `kiln-cli` au tag promu) ;
   `actions/` : actions composites (`charter`, son ancien nom `charte`, `services`).
-- Vitrine publique, en anglais : `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`
-  (MIT), `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` ; capture de l'écran
-  d'accueil `docs/assets/kiln-home.svg` (régénérée par `scripts/home_screenshot.py`, vérifiée par `test_docs.py`). Référence complète en français : `README.fr.md`.
+- Vitrine publique : `README.md` (et sa traduction `README.fr.md`), `CONTRIBUTING.md`,
+  `SECURITY.md`, `LICENSE` (MIT), `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` ;
+  référence complète `docs/reference.md` et `docs/reference.fr.md` ; images `docs/assets/`
+  (dessinées par `scripts/screenshots.py`, vérifiées par `test_docs.py`).
 - `docs/backlog/` : suivi du travail, en anglais (skill `/kiln:backlog`), dont la prochaine
   promotion de version ; `docs/assets/` : images de la vitrine ; `docs/vision/` : l'idée de
   projet, brouillon en français, un fichier par sujet (`README.md` sert d'index).
-- `scripts/home_screenshot.py` : régénère la capture de l'écran d'accueil du README.
+- `scripts/screenshots.py` : dessine les images du README à partir des vraies sorties de kiln.
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal, anciens noms), `test_questions.py` (questions de `kiln new`), `test_new.py` (ce que `kiln new` dit à la fin), `test_grid.py` (la grille), `test_adopted.py` (repos adoptés), `test_unites.py`,
   `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_charter_file.py` (`charter file`, hook après une édition), `test_shipping.py` (`kiln version cut` et `promote`), `test_rehearsal.py` (`update --rehearse`), `test_e2e.py` (de bout en bout, `-m e2e` : chaque version depuis v0.3.0 par un outil installé, et le repo-témoin `antoine-tena/kiln-rehearsal`, figé à v0.3.3-rc.2, ne jamais le mettre à jour), `test_deployment.py`, `test_statusline.py` (choix du
@@ -157,14 +158,23 @@ l'outil), `release.py` (`kiln version`), `shipping.py` (`kiln version cut`, `kil
 
 ## Le README, entièrement à jour
 
-Demande d'antoine (19 octobre 2026) : les deux README décrivent tout ce que kiln offre, à la
-version qu'il est, à chaque version. `tests/test_docs.py` échoue si une commande, une option,
-un réglage de `kiln set`, un plugin, une skill, un hook ou un workflow réutilisable manque à
-l'un des deux, ou s'ils citent kiln à une autre version que celle de `pyproject.toml` (que
-`kiln version cut` fait avancer). `kiln version cut` refuse de taguer la première candidate
-d'une version dont les README n'ont pas changé depuis la précédente (sauf
-`<!-- readme: unchanged, pourquoi -->` dans son entrée). Un changement met donc à jour README.md
-et README.fr.md dans sa branche, pas à la release.
+Demande d'antoine (19 octobre 2026) : le README, « le mieux au monde », entièrement à jour
+d'une version à l'autre. Il montre kiln en peu de mots et en vraies images (sur le modèle d'uv,
+ruff, Bun) ; la référence (`docs/reference.md`, `docs/reference.fr.md`) contient tout le
+reste. `tests/test_docs.py` échoue si :
+- la référence d'une langue oublie une commande, une option, un réglage de `kiln set`, un
+  plugin, une skill, un hook ou un workflow réutilisable ;
+- un README cite une commande qui n'existe pas, ne renvoie pas à sa référence, ou ne suit plus
+  l'autre langue (mêmes sections, puces, images, tableaux) ;
+- une image de `docs/assets/` diffère de ce que dessine `scripts/screenshots.py` à partir des
+  vraies sorties de kiln (l'accueil, `kiln grid`, une règle, la note de `kiln update`, le schéma
+  d'une version en clair et en sombre) ;
+- les docs citent kiln à une autre version que celle de `pyproject.toml`.
+`kiln version cut` fait avancer cette version citée, et refuse de taguer la première candidate
+d'une version dont ni le README ni la référence d'une langue n'ont changé (sauf
+`<!-- readme: unchanged, pourquoi -->` dans son entrée). Un changement met donc à jour la doc
+dans sa branche, pas à la release. Les images se regardent dans un vrai navigateur avant de les
+commiter (`textLength` et les espaces ne se rendent bien que là).
 
 ## Contrôles
 

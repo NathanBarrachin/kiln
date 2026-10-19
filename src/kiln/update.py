@@ -1,5 +1,6 @@
 """`kiln update`: brings in the changes of the template, then updates the dependencies."""
 
+import datetime
 import re
 import subprocess
 import tempfile
@@ -11,7 +12,7 @@ from copier.errors import UserMessageError
 from plumbum import ProcessExecutionError
 
 from kiln import migrations, ui
-from kiln.backlog import migrate_legacy_backlog
+from kiln.backlog import add_after_update_ticket, migrate_legacy_backlog
 from kiln.check import check_project
 from kiln.contract import generate_api_contract
 from kiln.deps import lock_dependencies, sync_dependencies, update_dependencies
@@ -52,10 +53,12 @@ def update_project(
     check_working_branch(root)
     if should_update_template:
         check_tool_not_older(root)
-        step("Architecture: changes of the template")
         previous = template_commit(root)
+        # Said before anything is touched: the release the repo is about to follow, or why not.
+        target = template_revision(_template_source(root))
+        step(f"Architecture: changes of the template ({previous or '?'} → {target})")
         apply_template(root)
-        show_release_notes(previous, template_commit(root))
+        show_release_notes(root, previous, template_commit(root))
         report_frozen_drift(root, _template_source(root), previous, template_commit(root))
         mention_newer_release()
     stack = load_stack(root)
@@ -217,8 +220,9 @@ def template_commit(root: Path) -> str:
     return str(read_answers(root).get("_commit", ""))
 
 
-def show_release_notes(previous: str, current: str) -> None:
-    """Frame with what is new in each version passed, from kiln's changelog."""
+def show_release_notes(root: Path, previous: str, current: str) -> None:
+    """Frame with what is new in each version passed, from kiln's changelog; what the repo must
+    do after updating becomes a ticket of its backlog."""
     notes = notes_between(previous, current, read_changelog())
     if not notes:
         return
@@ -226,6 +230,8 @@ def show_release_notes(previous: str, current: str) -> None:
     for release in notes:
         lines += [f"{release.tag}  {release.date}".rstrip(), *release.lines, ""]
     ui.panel(f"What's new in kiln: {previous or '?'} → {current}", lines[:-1])
+    if ticket := add_after_update_ticket(root, notes, today=datetime.date.today().isoformat()):
+        ui.note(f"to do right after this update: {ticket} in docs/backlog/backlog.md")
 
 
 def check_working_branch(root: Path) -> None:

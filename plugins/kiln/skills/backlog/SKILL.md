@@ -17,7 +17,14 @@ A ticket: a `### T-NN · Title` heading, then the lines `- **Type**:`, `- **Stat
 `- **Opened**: YYYY-MM-DD`, `- **Effort**: … · **Owner**: … · **Due**: …`, `- **Origin**: …`,
 then the details (`- [ ]` boxes). Types: `bug`, `improvement`, `idea`, `task`. Statuses:
 `todo`, `in progress — branch <name>, since YYYY-MM-DD`, `blocked — waiting for <who or what>`,
-`to verify — <where>`. Overview:
+`to verify — <where>`. **Owner**: `—` (free), `@login` (reserved for that GitHub account), a
+first name (reserved for that person too, login not written yet), `Claude`, or
+`contributor — #NN`. The user's account is `gh api user --jq .login` (otherwise
+`git config user.name`); a ticket owned by **anyone else** is their work: never plan, start or
+code it, even partly, and say who to ask. **Only the user's own login is ever written**: when it
+appears in no **Owner** but first names do, ask once which first name is theirs and replace that
+one alone by their `@login` (on a branch); the others write theirs in their own session. Never
+write, guess or ask for another member's login. Overview:
 `grep -E '^(## |### T-|- \*\*Status)' docs/backlog/backlog.md`.
 
 `docs/_archive/` is **read** when a ticket points to lines of an archived report, but
@@ -25,13 +32,14 @@ everything in it is old: check it against the current code before acting. Never 
 archived report.
 
 **No argument**: propose the next 3 tickets in section order (critical first), following the
-north star in the header and skipping `blocked` tickets and those reserved for outside
-contributors (**Owner**: `contributor — #NN`, skill `/kiln:good-first-issues`); for each, the ID, one sentence, the
+north star in the header and skipping `blocked` tickets, those owned by another account,
+and those reserved for outside contributors (**Owner**: `contributor — #NN`, skill `/kiln:good-first-issues`); for each, the ID, one sentence, the
 effort, and the owner. List separately the blocked tickets waiting for the user themselves.
 Quickly check in the code that the ticket is not already done (the locations quoted are hints,
 often stale).
 
-**With an ID**: show the full ticket (and the archive lines it quotes), find the files involved
+**With an ID**: if its **Owner** is another account, stop there: show the ticket, say whose
+it is and that they take it (or hand it over by changing the owner). Otherwise show the full ticket (and the archive lines it quotes), find the files involved
 in the current code, propose a short plan, then create the branch (in a worktree, skill
 `/kiln:worktree`) and set the status to `in progress — branch …`.
 
@@ -42,7 +50,9 @@ If the backlog has a `## 🚀 Releases` section, also place the ticket in the re
 fits best, **whatever its position**: a new idea may join v0.4.1 while v0.5.3 is the last
 planned one; create a release only when none fits, following the rules of `plan`.
 
-**`start T-NN`**: set the **Status** line to `in progress — branch <name>, since YYYY-MM-DD`.
+**`start T-NN`**: refused on a ticket owned by another account (see above); otherwise set the
+**Status** line to `in progress — branch <name>, since YYYY-MM-DD`, and a free **Owner** (`—`)
+to the user's `@login`.
 
 **`done T-NN`**: remove the ticket from its section and add at the **top** of the "✅ Done" log a
 line `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`. A

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from packaging.version import Version
 
-from kiln import shipping
+from kiln import github_ci, shipping
 from kiln.release import Tag, read_tags
 from kiln.shell import KilnError
 
@@ -30,6 +30,9 @@ def commit(repo: Path, message: str) -> None:
 def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr(shipping, "LOCK", ["true"])
     monkeypatch.setattr(shipping, "CHECKS", (["true"],))
+    # GitHub's CI, green unless a test says otherwise.
+    monkeypatch.setattr(github_ci, "wait_until_green", lambda *_: "https://ci")
+    monkeypatch.setattr(github_ci, "verdict", lambda *_: "success")
     origin, clone = tmp_path / "origin.git", tmp_path / "kiln"
     git(tmp_path, "init", "-q", "--bare", "-b", "develop", str(origin))
     git(tmp_path, "clone", "-q", str(origin), str(clone))
@@ -124,7 +127,44 @@ def test_promote_waits_for_a_newer_candidate_then_publishes(repo: Path) -> None:
 
 
 def test_promote_refuses_a_candidate_not_ready() -> None:
-    tags = [Tag("v0.1.1-rc.1", Version("0.1.1rc1"), datetime.datetime.now(datetime.UTC))]
+    now = datetime.datetime.now(datetime.UTC)
+    tags = [Tag("v0.1.1-rc.1", Version("0.1.1rc1"), now)]
 
     with pytest.raises(KilnError, match="waiting"):
-        shipping.pick_candidate(tags, "v0.1.1")
+        shipping.pick_candidate(tags, "v0.1.1", lambda _: "success")
+    # A newer candidate is not enough: the CI of the one promoted must be green.
+    tags.append(Tag("v0.1.2-rc.1", Version("0.1.2rc1"), now))
+    with pytest.raises(KilnError, match=r"CI not green \(failure\)"):
+        shipping.pick_candidate(tags, "v0.1.1", lambda _: "failure")
+    with pytest.raises(KilnError, match="no candidate ready"):
+        shipping.pick_candidate(tags, None, lambda _: "running")
+
+
+def test_cut_tags_nothing_while_the_ci_of_the_release_is_red(
+    repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    publish(repo, "feat: one")
+    shipping.cut(repo)
+    rewrite_draft(repo / ".claude/worktrees/release-v0.1.1")
+
+    def red(*_: object) -> str:
+        raise KilnError("the CI of release/v0.1.1 is not green (failure)")
+
+    monkeypatch.setattr(github_ci, "wait_until_green", red)
+    with pytest.raises(KilnError, match="not green"):
+        shipping.cut(repo)
+
+    remote = git(repo, "ls-remote", "origin")
+    assert "refs/heads/release/v0.1.1" in remote  # pushed, for GitHub to check it
+    assert "v0.1.1-rc.1" not in remote and "v0.1.1-rc.1" not in git(repo, "tag")
+
+
+def test_draft_carries_what_repos_must_do_after_updating() -> None:
+    subjects = ["feat: owner reserved\n\nAfter updating: give each owner's @login", "docs: typo"]
+
+    entry = shipping.draft_entry("0.4.0", subjects, today="2026-10-19")
+
+    assert entry.splitlines()[-2:] == [
+        "- Owner reserved",
+        "- **After updating**: give each owner's @login",
+    ]

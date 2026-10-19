@@ -4,21 +4,26 @@
   `CHANGELOG.md` entry drafted from the commits since the last tag (breaking first), the number
   in `pyproject.toml` and `uv.lock`, the patch of each plugin changed since the last tag. The
   draft carries a marker: someone reads and rewrites it before anything is tagged.
-- **cut**, next runs: the full checks on the branch, then tag `-rc.N` (the next N) pushed with
-  the branch; a fix of the candidate is a `fix:` commit on the branch, then `cut` again.
-- **promote**: tag `vX.Y.Z` on the exact commit of the last candidate (its message is the
-  changelog entry), merged into `main` and back into `develop`, pushed; `pypi.yml` publishes the
-  package and the GitHub Release. `kiln update --all` stays a separate step, with consent.
+- **cut**, next runs: the full checks on the branch, the branch pushed, GitHub's CI of its
+  commit awaited (macOS and the end-to-end tests run only there), then tag `-rc.N` (the next N)
+  pushed, only on green; a fix of the candidate is a `fix:` commit on the branch, then `cut`
+  again.
+- **promote**: a candidate whose CI is green, tag `vX.Y.Z` on its exact commit (its message is
+  the changelog entry), merged into `main` and back into `develop`, pushed; `pypi.yml` publishes
+  the package and the GitHub Release. `kiln update --all` stays a separate step, with consent.
 """
 
 import datetime
 import json
+import os
 import re
+from collections.abc import Callable
 from pathlib import Path
 
 from packaging.version import Version
 
-from kiln import ui
+from kiln import github_ci, ui
+from kiln.backlog import AFTER_UPDATING
 from kiln.release import (
     VERSION_MODULE,
     Tag,
@@ -36,6 +41,8 @@ ENTRY_HEADING = re.compile(r"^## v(\S+) — ", re.MULTILINE)
 SUBJECT = re.compile(r"^(?P<type>\w+)(?:\([^)]*\))?(?P<bang>!)?:\s*(?P<text>.+)$")
 # Commit types a user notices; the rest (docs, tests, chores) stays out of the notes.
 VISIBLE_TYPES = {"feat", "fix", "perf"}
+# A line of a commit's body that asks each repo for an action after `kiln update`.
+AFTER_UPDATING_TRAILER = "After updating:"
 LOCK = ["uv", "lock", "-q"]
 CHECKS = (
     ["uv", "run", "pytest", "-q"],
@@ -127,10 +134,16 @@ def _start_release(root: Path, tags: list[Tag], *, milestone: bool) -> None:
 
 
 def draft_entry(version: str, subjects: list[str], *, today: str) -> str:
-    """`## vX.Y.Z — date`, then one line per visible commit, breaking ones first."""
-    breaking, others = [], []
+    """`## vX.Y.Z — date`, then one line per visible commit, breaking ones first, then what each
+    repo must do after updating (an `After updating: …` line in a commit's body)."""
+    breaking, others, after_updating = [], [], []
     for subject in subjects:
         title, _, body = subject.partition("\n")
+        after_updating += [
+            AFTER_UPDATING + line.strip().removeprefix(AFTER_UPDATING_TRAILER).strip()
+            for line in body.splitlines()
+            if line.strip().startswith(AFTER_UPDATING_TRAILER)
+        ]
         match = SUBJECT.match(title.strip())
         if match is None:
             continue
@@ -141,6 +154,7 @@ def draft_entry(version: str, subjects: list[str], *, today: str) -> str:
         elif match["type"] in VISIBLE_TYPES:
             others.append(f"- {text}")
     lines = [*breaking, *others] or ["- Maintenance."]
+    lines += after_updating
     return "\n".join([f"## v{version} — {today}", DRAFT_MARKER, *lines]) + "\n"
 
 
@@ -191,9 +205,16 @@ def _tag_candidate(root: Path, version: str, tags: list[Tag]) -> None:
         raise KilnError(f"uncommitted changes in {tree}: commit them first")
     if DRAFT_MARKER in (tree / CHANGELOG).read_text("utf-8"):
         raise KilnError(f"the v{version} entry of {CHANGELOG} is still a draft ({tree})")
+    # The release worktree has its own environment, not the one `uv run kiln` may have set.
+    env = {key: value for key, value in os.environ.items() if key != "VIRTUAL_ENV"}
     for check in CHECKS:
         ui.step(" ".join(check[2:]))
-        run(check, tree)
+        run(check, tree, env)
+    # The tag waits for GitHub's verdict on the exact commit it will name.
+    branch = f"release/v{version}"
+    run(["git", "push", "-q", "origin", branch], tree)
+    ui.step(f"GitHub CI of {branch} (macOS, end-to-end tests)")
+    github_ci.wait_until_green(tree, capture(["git", "rev-parse", "HEAD"], tree), branch)
     rank = 1 + max(
         (
             tag.version.pre[1]
@@ -215,7 +236,11 @@ def _tag_candidate(root: Path, version: str, tags: list[Tag]) -> None:
 def promote(root: Path, wanted: str | None = None) -> None:
     _require_kiln_repo(root)
     tags = read_tags(root)
-    candidate = pick_candidate(latest_candidates(tags), wanted)
+    candidate = pick_candidate(
+        latest_candidates(tags),
+        wanted,
+        lambda tag: github_ci.verdict(root, _commit_of(root, tag.name)),
+    )
     version = candidate.version.base_version
     commit = _commit_of(root, candidate.name)
     package = capture(["git", "show", f"{commit}:pyproject.toml"], root)
@@ -240,23 +265,26 @@ def promote(root: Path, wanted: str | None = None) -> None:
     ui.note("then, with consent: kiln update --all")
 
 
-def pick_candidate(candidates: list[Tag], wanted: str | None) -> Tag:
+def pick_candidate(candidates: list[Tag], wanted: str | None, ci_of: Callable[[Tag], str]) -> Tag:
     """The candidate asked for, or the oldest one ready; never one a newer candidate does not
-    cover yet."""
+    cover yet, nor one whose CI (`ci_of`, GitHub's verdict) is not green."""
     if wanted is not None:
         version = Version(wanted.removeprefix("v"))
         chosen = [tag for tag in candidates if Version(tag.version.base_version) == version]
         if not chosen:
             raise KilnError(f"no candidate of v{version} waiting for promotion")
         candidate = chosen[0]
-        verdict, ready = promotion_verdict(candidate, candidates)
+        verdict, ready = promotion_verdict(candidate, candidates, ci_of(candidate))
         if not ready:
             raise KilnError(f"{candidate.name}: {verdict}")
         return candidate
     for candidate in candidates:
-        if promotion_verdict(candidate, candidates)[1]:
+        if promotion_verdict(candidate, candidates, ci_of(candidate))[1]:
             return candidate
-    raise KilnError("no candidate ready: a newer candidate has to exist first (kiln version cut)")
+    raise KilnError(
+        "no candidate ready: a newer candidate has to exist first (kiln version cut), and the CI "
+        "of the one to promote must be green (kiln version)"
+    )
 
 
 def changelog_entry(changelog: str, version: str) -> str:

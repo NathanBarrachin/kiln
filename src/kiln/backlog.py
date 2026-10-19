@@ -11,6 +11,7 @@ import shutil
 from pathlib import Path
 
 from kiln.shell import KilnError, capture
+from kiln.versions import ReleaseNotes
 
 LEGACY_DIR = Path("docs/a-faire")
 BACKLOG_DIR = Path("docs/backlog")
@@ -166,3 +167,44 @@ def convert_urgent(text: str, intro: str) -> str:
     boxes = "\n".join(lines[first_box:]).strip("\n")
     body = intro.rstrip("\n") + "\n"
     return body + f"\n{boxes}\n" if boxes else body
+
+
+# A line of a changelog entry: what each repo crossing that release must do after updating.
+AFTER_UPDATING = "- **After updating**: "
+CRITICAL_HEADING = "## 🔴 Critical\n"
+NEXT_FREE = re.compile(r"Next free: T-(\d+)")
+
+
+def add_after_update_ticket(root: Path, notes: list[ReleaseNotes], *, today: str) -> str | None:
+    """A 🔴 ticket that gathers the `After updating` lines of the releases crossed: what only the
+    team knows, to fill in right after the update. Its ID, or None when there is nothing to do
+    (or no backlog to put it in)."""
+    path = root / BACKLOG_DIR / "backlog.md"
+    actions = [
+        f"- [ ] {line.removeprefix(AFTER_UPDATING)} ({release.tag})"
+        for release in reversed(notes)
+        for line in release.lines
+        if line.startswith(AFTER_UPDATING)
+    ]
+    text = path.read_text() if path.exists() else ""
+    next_free = NEXT_FREE.search(text)
+    title = f"Finish the kiln update to {notes[0].tag}" if notes else ""
+    if not actions or next_free is None or CRITICAL_HEADING not in text or title in text:
+        return None
+    number = int(next_free[1])
+    ticket_id = f"T-{number:02d}"
+    ticket = "\n".join([
+        f"### {ticket_id} · {title}",
+        "- **Type**: task",
+        "- **Status**: todo",
+        f"- **Opened**: {today}",
+        "- **Effort**: XS · **Owner**: — · **Due**: —",
+        "- **Origin**: release notes of the kiln releases crossed (`kiln update`)",
+        "",
+        "What kiln cannot guess, to fill in right after the update (`/kiln:update`):",
+        *actions,
+    ])  # fmt: skip
+    text = NEXT_FREE.sub(f"Next free: T-{number + 1:02d}", text, count=1)
+    text = text.replace(CRITICAL_HEADING, f"{CRITICAL_HEADING}\n{ticket}\n", 1)
+    path.write_text(text)
+    return ticket_id

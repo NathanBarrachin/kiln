@@ -22,7 +22,8 @@ No production there: the tag publishes. Two commands replace the steps below.
 2. `kiln version cut` (`--minor` for a milestone decided by its owner): branch
    `release/vX.Y.Z` in `.claude/worktrees/release-vX.Y.Z`, the `CHANGELOG.md` entry drafted from
    the commits, the numbers bumped. Rewrite the entry for users there (breaking changes first,
-   each with its conversion by `kiln update`), delete the draft line, commit; then
+   each with its conversion by `kiln update`; keep the `- **After updating**: …` lines, which
+   `kiln update` turns into a ticket of each repo's backlog), delete the draft line, commit; then
    `kiln version cut` again: full checks, tag `-rc.N` pushed. A fix of the candidate: a `fix:`
    commit on the branch, then `cut` again.
 3. `kiln version promote` when `kiln version` says a candidate is ready: tag on its exact commit,

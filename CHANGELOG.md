@@ -6,6 +6,14 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 `release/vX.Y.Z` branch, rewritten before its first candidate. Names are those of their release:
 entries before v0.4.0 quote kiln's former French names.
 
+## v0.4.1 — 2026-10-19
+<!-- draft: rewrite for users, breaking changes first, then delete this line -->
+- A new release carries the candidate still open
+- The reference repo's rules as 105 assessed drafts
+- An adopted repo's workflows follow the public release
+- The grid as data, browsable with kiln grid
+- A private repo's CI runs on the machine
+
 ## v0.4.0 — 2026-10-19
 - **Breaking**: kiln speaks English. `kiln update` converts a generated project in one go, and the names of 0.3 are still read until the next minor.
 - **Breaking**: the template's questions are in English (`size`, `name`, `owner`, `team`, `project_type`…); `kiln update` hands Copier the new names and still reads the old answers.

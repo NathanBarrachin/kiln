@@ -174,6 +174,11 @@ Le type de projet choisit une stack, que l'on change par `--backend` et `--front
 Backends : `django`, `fastapi`, `data`, `cli`, `java`, `none`. Frontends : `nuxt`, `next`, `astro`,
 `streamlit`, `dash`, `none`. Toutes les combinaisons sont générées et vérifiées par les tests.
 
+**Django et Nuxt : complets. Les autres : figés, entretenus.** Toutes les piles restent générées
+et testées, mais les nouvelles règles de la grille vont d'abord à Django et Nuxt, jusqu'à ce
+qu'ils soient en haut de la grille ; les règles universelles (CI, conteneurs, chaîne
+d'approvisionnement, secrets) les notent toutes.
+
 `java` n'est conseillé pour aucun type : Java 25 sans framework, construit par Maven via son
 wrapper `./mvnw` (version et somme SHA-256 figées), tests JUnit 6, couverture JaCoCo, enforcer
 qui refuse les versions dynamiques. `kiln update` n'en monte pas les dépendances : les versions

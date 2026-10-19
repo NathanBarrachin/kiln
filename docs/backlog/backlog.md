@@ -82,7 +82,6 @@ failed unseen); promoted when `v0.4.1-rc.1` is cut.
 Candidate Thu 22 Oct. The heart of the vision: what kiln holds as the best, one small file per
 rule on two axes, browsable with `kiln grid`.
 - T-124 · The reference repo's rules sorted on the two axes (M)
-- T-133 · The other templates frozen while Django and Nuxt reach the top (XS)
 - T-143 · Decide the name before the launch: kiln, despite Kiln-AI (XS) (antoine decides)
 
 ### v0.4.2 · Any repo scored against the best, in seconds
@@ -226,24 +225,6 @@ T-125 picks the launch rules.
   takes them as settings ("dates stored in UTC" is universal, the time zone is the project's).
 - [ ] Written as draft rule files (`level = "assess"`, out of the score until sourced),
   anonymized: no project, app or person name.
-
-### T-133 · The other templates frozen while Django and Nuxt reach the top
-- **Type**: task
-- **Status**: todo
-- **Opened**: 2026-10-17
-- **Effort**: XS · **Owner**: Claude · **Due**: —
-- **Origin**: vision of 17 October 2026 ("starting scope: Django and Nuxt"), which left the fate
-  of the other templates to decide
-
-Decided by Claude (17 October 2026; antoine: "when there is a choice, decide"): the FastAPI,
-Python data, command-line and Java backends, and the Next, Astro, Streamlit and Dash fronts
-stay generated and tested as today, but get no new grid work until Django and Nuxt are at the
-top of the grid. The universal rules (CI, containers, supply chain, secrets) still score them.
-Why: a grid kept for eight stacks at once is the "endless work" among the vision's risks; two
-stacks done fully prove more than eight done halfway.
-- [ ] README and `kiln new` say it in one line: "Django and Nuxt: complete. The others: frozen,
-  maintained."
-- [ ] The end-to-end matrix keeps them; their score is measured (T-130), not required at 100.
 
 ### T-143 · Decide the name before the launch: kiln, despite Kiln-AI
 - **Type**: task
@@ -1092,6 +1073,9 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-19** · T-133 · The other templates frozen while Django and Nuxt reach the top —
+  said in both READMEs and at the end of `kiln new` for another stack; the end-to-end matrix
+  keeps them all (docs/frozen-stacks) · opened 2026-10-17
 - **2026-10-19** · T-146 · kiln moves the workflows' tag forward in adopted repos —
   `kiln update` (and `--all`, `--rehearse`) in an adopted repo moves only the
   `antoine-tena/kiln/...@ref` references to the latest public release, after checking each

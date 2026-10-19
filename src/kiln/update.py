@@ -53,8 +53,10 @@ def update_project(
     check_working_branch(root)
     if should_update_template:
         check_tool_not_older(root)
-        step("Architecture: changes of the template")
         previous = template_commit(root)
+        # Said before anything is touched: the release the repo is about to follow, or why not.
+        target = template_revision(_template_source(root))
+        step(f"Architecture: changes of the template ({previous or '?'} → {target})")
         apply_template(root)
         show_release_notes(root, previous, template_commit(root))
         report_frozen_drift(root, _template_source(root), previous, template_commit(root))

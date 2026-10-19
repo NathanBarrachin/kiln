@@ -21,6 +21,7 @@ un dossier ou un module.
 - `src/kiln/ci/` : `kiln ci` (CI rejouée sur le poste, verdict en note git) ;
   `src/kiln/charter/` : moteur de `charter` (`bans.py`, `ratchets.py`,
   `python_tools.py`, `waivers.py` : dérogations de `kiln-waivers.toml`).
+- `hatch_build.py` : grave dans le paquet le commit d'où il est construit (`kiln/_build.json`, lu par `versions.py`).
 - `copier.yml` : questions du modèle ; `template/` : le modèle (`CLAUDE.md.jinja`, consignes
   pour Claude dans `.claude/rules/kiln/` : projet, charte, une par stack ;
   `.claude/settings.json.jinja`, CI…) ; `macros.jinja`.

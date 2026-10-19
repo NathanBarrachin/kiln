@@ -145,12 +145,14 @@ def test_the_link_of_kiln_0_3_is_removed_but_not_a_real_folder(tmp_path: Path) -
     assert (kept / ".claude/kiln").is_dir()
 
 
-def fake_tool(tool_dir: Path, name: str, dist_info: str, direct_url: str | None) -> None:
+def fake_tool(tool_dir: Path, name: str, dist_info: str, direct_url: str | None) -> Path:
+    """The tool's `site-packages`."""
     metadata = tool_dir / name / "lib/python3.14/site-packages" / dist_info
     metadata.mkdir(parents=True)
     (metadata / "METADATA").write_text("Metadata-Version: 2.4\nName: kiln-cli\nVersion: 0.4.0\n")
     if direct_url is not None:
         (metadata / "direct_url.json").write_text(direct_url)
+    return metadata.parent
 
 
 def uv_tool_dir(module: ModuleType, tool_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -186,9 +188,11 @@ def test_the_old_kiln_tool_is_still_found_and_removed_on_update(
     assert hook.installed_kiln() == ("git", "c0")
     command = hook.tool_update_command(("git", "c0"), "v0.4.0")
     assert command.startswith('uv tool uninstall kiln && uv tool install --force "git+')
-    assert hook.tool_update_command(("directory", "/src/kiln"), "v0.4.0") == (
-        'git -C "/src/kiln" pull --ff-only && uv tool uninstall kiln && '
-        'uv tool install --reinstall "/src/kiln"'
+    # A copy of a checkout is replaced by the release: only a release updates a repo.
+    command = hook.tool_update_command(("directory", "v0.3.4-105-gd800ca1"), "v0.4.0-rc.1")
+    assert command.startswith(
+        'uv tool uninstall kiln && uv tool install --force "git+https://github.com/'
+        'antoine-tena/kiln@v0.4.0-rc.1"'
     )
 
 
@@ -317,32 +321,25 @@ def test_breaking_changes_of_skipped_releases_only() -> None:
     assert hook.changes_between(None, "v0.3.5", CHANGELOG).passed == ["v0.3.5"]
 
 
-def test_a_checkout_is_not_offered_a_pull_that_cannot_reach_the_candidate(
-    tmp_path: Path,
+def test_a_checkout_copy_is_up_to_date_only_when_it_is_the_release(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     hook = load_hook()
+    site = fake_tool(
+        tmp_path,
+        "kiln-cli",
+        "kiln_cli-0.4.0.dist-info",
+        '{"url": "file:///src/kiln", "dir_info": {}}',
+    )
+    uv_tool_dir(hook, tmp_path, monkeypatch)
 
-    def git(where: Path, *args: str) -> str:
-        done = subprocess.run(
-            ["git", "-C", str(where), *args], capture_output=True, text=True, check=True
-        )
-        return done.stdout.strip()
+    # A copy from before the record: unknown, so offered the release.
+    assert hook.installed_kiln() == ("directory", "")
+    assert hook.is_tool_outdated(("directory", ""), "v0.4.0-rc.1", "c1")
 
-    origin, checkout = tmp_path / "origin", tmp_path / "kiln"
-    git(tmp_path, "init", "-q", "-b", "develop", str(origin))
-    git(origin, "commit", "-q", "--allow-empty", "-m", "start")
-    git(tmp_path, "clone", "-q", str(origin), str(checkout))
-    git(origin, "switch", "-q", "-c", "release/v0.4.0")
-    git(origin, "commit", "-q", "--allow-empty", "-m", "changelog")
-    candidate = git(origin, "rev-parse", "HEAD")
-    install = ("directory", str(checkout))
-
-    # The candidate sits on its release branch: pulling develop brings nothing.
-    assert not hook.is_tool_outdated(install, "v0.4.0-rc.1", candidate)
-
-    # Promoted and merged back into develop: the pull reaches it.
-    git(origin, "switch", "-q", "develop")
-    git(origin, "merge", "-q", "release/v0.4.0")
-    assert hook.is_tool_outdated(install, "v0.4.0", candidate)
-    git(checkout, "pull", "-q", "--ff-only")
-    assert not hook.is_tool_outdated(install, "v0.4.0", candidate)
+    (site / "kiln").mkdir()
+    (site / "kiln/_build.json").write_text('{"describe": "v0.3.4-105-gd800ca1"}')
+    install = hook.installed_kiln()
+    assert install == ("directory", "v0.3.4-105-gd800ca1")
+    assert hook.is_tool_outdated(install, "v0.4.0-rc.1", "c1")
+    assert not hook.is_tool_outdated(("directory", "v0.4.0-rc.1"), "v0.4.0-rc.1", "c1")

@@ -234,6 +234,10 @@ Le travail s'intègre dans `develop` ; `main` ne reçoit que des versions.
   prend aussi les candidates ;
   `kiln status` dit de quelle version part chaque repo (`v0.3.2 → v0.3.5`), la bannière celle
   de l'outil (`v0.3.5 +3 · abc1234` : trois commits après v0.3.5, installé depuis un dossier).
+  Seule une version met un repo à jour : un outil qui n'en est pas une (un dossier en avance sur
+  son tag ou modifié, une branche) est refusé par `kiln update`, `kiln new` et `kiln adopt`, qui
+  donnent la commande d'installation de la version ; pour essayer le code de kiln sur un repo
+  jetable, `KILN_TEMPLATE=<dossier de kiln>`.
 
 ## Faire évoluer le modèle
 

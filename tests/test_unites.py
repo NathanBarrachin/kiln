@@ -1,6 +1,8 @@
 import datetime
+import json
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
 import copier
@@ -34,6 +36,8 @@ from kiln.versions import (
     tag_of,
     tool_release_tag,
 )
+
+REPO = Path(__file__).resolve().parent.parent
 
 
 def test_legacy_answers_mean_django_and_nuxt() -> None:
@@ -398,6 +402,10 @@ class _FakeDistribution:
         return self._direct_url if name == "direct_url.json" else None
 
 
+GITHUB = '{"url": "https://github.com/antoine-tena/kiln", "vcs_info": {"vcs": "git", '
+FOLDER = '{"url": "file:///home/me/kiln", "dir_info": {}}'
+
+
 @pytest.mark.parametrize(
     ("version", "direct_url", "expected"),
     [
@@ -405,19 +413,12 @@ class _FakeDistribution:
         ("0.4.0rc2", "", "v0.4.0-rc.2"),
         (
             "0.3.3",
-            '{"url": "https://github.com/antoine-tena/kiln", '
-            '"vcs_info": {"vcs": "git", "requested_revision": "v0.3.3-rc.2", "commit_id": "abc"}}',
+            GITHUB + '"requested_revision": "v0.3.3-rc.2", "commit_id": "abc"}}',
             "v0.3.3-rc.2",
-        ),
-        (
-            "0.3.3",
-            '{"url": "https://github.com/antoine-tena/kiln", '
-            '"vcs_info": {"vcs": "git", "requested_revision": "develop", "commit_id": "abc123"}}',
-            "abc123",
         ),
     ],
 )
-def test_the_template_never_outruns_the_installed_tool(
+def test_the_template_is_taken_at_the_installed_release(
     monkeypatch: pytest.MonkeyPatch, version: str, direct_url: str, expected: str
 ) -> None:
     monkeypatch.setattr(
@@ -427,6 +428,79 @@ def test_the_template_never_outruns_the_installed_tool(
     assert tool_release_tag() == expected
     assert template_revision(DEFAULT_TEMPLATE_SOURCE) == expected
     assert template_revision("/un/dossier/local") == "HEAD"
+
+
+@pytest.mark.parametrize(
+    ("direct_url", "recorded", "shown"),
+    [
+        # A checkout installed 105 commits after its tag: its code is newer than v0.3.4's template.
+        (FOLDER, "v0.3.4-105-gd800ca1", "v0.3.4 +105 · d800ca1"),
+        (FOLDER, "v0.4.0-rc.1-dirty", "v0.4.0-rc.1 · modified"),
+        (FOLDER, None, "v0.3.4 · build unknown"),
+        (
+            GITHUB + '"requested_revision": "develop", "commit_id": "abc1234def"}}',
+            None,
+            "v0.3.4 · abc1234",
+        ),
+    ],
+)
+def test_a_tool_that_is_not_a_release_updates_no_repo(
+    monkeypatch: pytest.MonkeyPatch, direct_url: str, recorded: str | None, shown: str
+) -> None:
+    monkeypatch.setattr(
+        "kiln.versions._installed_distribution", lambda: _FakeDistribution("0.3.4", direct_url)
+    )
+    monkeypatch.setattr("kiln.versions._recorded_build", lambda: recorded)
+    monkeypatch.setattr("kiln.template.latest_release", lambda: "v0.4.0-rc.1")
+
+    assert tool_release_tag() is None
+    assert installed_version() == shown
+    with pytest.raises(
+        KilnError, match=r"not a release .*git\+https://github.com/antoine-tena/kiln@v0.4.0-rc.1"
+    ):
+        template_revision(DEFAULT_TEMPLATE_SOURCE)
+    assert template_revision("/un/dossier/local") == "HEAD"
+
+
+def test_a_folder_install_is_what_it_was_built_from_not_the_folder_today(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "kiln.versions._installed_distribution", lambda: _FakeDistribution("0.4.0", FOLDER)
+    )
+    monkeypatch.setattr("kiln.versions._recorded_build", lambda: "v0.4.0-rc.1")
+    monkeypatch.setattr("kiln.versions._describe", lambda _: pytest.fail("folder read live"))
+
+    assert tool_release_tag() == "v0.4.0-rc.1"
+    assert installed_version() == "v0.4.0-rc.1"
+
+
+def test_an_editable_checkout_is_read_live(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    editable = json.dumps({"url": f"file://{tmp_path}", "dir_info": {"editable": True}})
+    monkeypatch.setattr(
+        "kiln.versions._installed_distribution", lambda: _FakeDistribution("0.4.0", editable)
+    )
+    git = ["git", "-C", str(tmp_path)]
+    subprocess.run([*git, "init", "-q"], check=True)
+    subprocess.run([*git, "commit", "-q", "--allow-empty", "-m", "a"], check=True)
+    subprocess.run([*git, "tag", "v0.4.0-rc.2"], check=True)
+
+    assert tool_release_tag() == "v0.4.0-rc.2"
+    (tmp_path / "change").write_text("x")
+    subprocess.run([*git, "add", "change"], check=True)
+
+    assert tool_release_tag() is None
+    assert installed_version() == "v0.4.0-rc.2 · modified"
+
+
+def test_the_package_records_the_commit_it_is_built_from(tmp_path: Path) -> None:
+    subprocess.run(["uv", "build", "-q", "--wheel", "-o", str(tmp_path), str(REPO)], check=True)
+    wheel = next(tmp_path.glob("*.whl"))
+    with zipfile.ZipFile(wheel) as archive:
+        recorded = json.loads(archive.read("kiln/_build.json"))
+    head = subprocess.check_output(["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True)
+    assert recorded["commit"] == head.strip()
+    assert recorded["describe"].startswith("v")
 
 
 def test_a_tag_is_read_back_from_a_describe_output() -> None:

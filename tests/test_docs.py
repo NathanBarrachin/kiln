@@ -6,11 +6,15 @@ import json
 import re
 import tomllib
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS = ("README.md", "README.fr.md", "CONTRIBUTING.md")
+READMES = ("README.md", "README.fr.md")
+# The reference, in each language: everything kiln offers, looked up there.
+REFERENCES = ("docs/reference.md", "docs/reference.fr.md")
+DOCS = (*READMES, *REFERENCES, "CONTRIBUTING.md")
 MARKETPLACE = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text())
 
 
@@ -18,18 +22,55 @@ def docs() -> dict[str, str]:
     return {name: (ROOT / name).read_text(encoding="utf-8") for name in DOCS}
 
 
-def test_the_home_screenshot_is_the_current_home_screen() -> None:
-    spec = importlib.util.spec_from_file_location("home", ROOT / "scripts/home_screenshot.py")
+def screenshots() -> ModuleType:
+    spec = importlib.util.spec_from_file_location("screenshots", ROOT / "scripts/screenshots.py")
     assert spec is not None and spec.loader is not None
-    home = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(home)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
-    expected = home.svg(home.home_screen())
 
-    assert home.SVG_PATH.read_text(encoding="utf-8") == expected, (
-        "run: uv run python scripts/home_screenshot.py"
+def test_every_image_is_what_kiln_shows_today() -> None:
+    for path, expected in screenshots().images().items():
+        assert path.read_text(encoding="utf-8") == expected, (
+            f"{path.name} is out of date: uv run python scripts/screenshots.py"
+        )
+
+
+@pytest.mark.parametrize("readme", READMES)
+def test_a_readme_shows_only_current_images_and_existing_commands(readme: str) -> None:
+    from kiln import cli
+
+    text = (ROOT / readme).read_text(encoding="utf-8")
+    images = re.findall(r'(?:src|srcset)="(docs/assets/[^"]+)"', text)
+    assert images and all((ROOT / image).is_file() for image in images), images
+    drawn = {path.relative_to(ROOT).as_posix() for path in screenshots().images()}
+    assert set(images) <= drawn, "an image the screenshot script does not draw"
+    commands = next(
+        action
+        for action in cli.build_parser()._actions
+        if isinstance(action, argparse._SubParsersAction)
+    ).choices
+    cited = set(re.findall(r"`kiln ([a-z][a-z-]+)", text)) | set(
+        re.findall(r"^\$ (?:cd \S+ && )?kiln ([a-z][a-z-]+)", text, re.M)
     )
-    assert home.SVG_PATH.name in docs()["README.md"]
+    assert cited <= set(commands), f"{readme} cites kiln {sorted(cited - set(commands))}"
+    reference = REFERENCES[READMES.index(readme)]
+    assert f"]({reference})" in text, f"{readme} links its reference"
+
+
+def test_both_readmes_say_the_same_things() -> None:
+    english, french = ((ROOT / name).read_text(encoding="utf-8") for name in READMES)
+
+    def outline(text: str) -> list[object]:
+        return [
+            len(re.findall(r"^## ", text, re.M)),
+            len(re.findall(r"^- ", text, re.M)),
+            re.findall(r'src="(docs/assets/[^"]+)"', text),
+            len(re.findall(r"^\| ", text, re.M)),
+        ]
+
+    assert outline(english) == outline(french), "README.fr.md follows README.md"
 
 
 def test_installed_plugins_exist_and_former_names_are_gone() -> None:
@@ -47,10 +88,9 @@ def test_cited_workflows_exist() -> None:
         assert cited <= workflows, (name, sorted(cited - workflows))
 
 
-# --- Both READMEs describe everything kiln offers, at the release it is (antoine, 19 October
-# 2026: "the README kept entirely up to date, every time"). A command, option, setting,
-# skill, hook, plugin or workflow added without its line fails here.
-READMES = ("README.md", "README.fr.md")
+# --- The reference describes everything kiln offers, at the release it is, in both languages
+# (antoine, 19 October 2026: "the README kept entirely up to date, every time"). A command,
+# option, setting, skill, hook, plugin or workflow added without its line fails here.
 # Former names kept for old repos: their new names are documented instead.
 LEGACY = frozenset({"--sauter", "--sans-pousser", "--garder", "--statut", "--poste"})
 
@@ -93,13 +133,13 @@ def offered() -> dict[str, str]:
     return items
 
 
-@pytest.mark.parametrize("readme", READMES)
-def test_the_readme_describes_everything_kiln_offers(readme: str) -> None:
-    text = (ROOT / readme).read_text(encoding="utf-8")
+@pytest.mark.parametrize("reference", REFERENCES)
+def test_the_reference_describes_everything_kiln_offers(reference: str) -> None:
+    text = (ROOT / reference).read_text(encoding="utf-8")
 
     missing = [label for label, needle in offered().items() if needle not in text]
 
-    assert missing == [], f"{readme} says nothing of: {', '.join(missing)}"
+    assert missing == [], f"{reference} says nothing of: {', '.join(missing)}"
 
 
 def test_the_docs_quote_the_release_they_describe() -> None:

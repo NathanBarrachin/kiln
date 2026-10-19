@@ -21,8 +21,9 @@ un dossier ou un module.
 - `src/kiln/ci/` : `kiln ci` (CI rejouée sur le poste, verdict en note git) ;
   `src/kiln/charter/` : moteur de `charter` (`bans.py`, `ratchets.py`,
   `python_tools.py`, `waivers.py` : dérogations de `kiln-waivers.toml`).
-- `copier.yml` : questions du modèle ; `template/` : le modèle (`CLAUDE.md.jinja`, chartes de
-  `backend/` et `frontend/` par stack, `.claude/settings.json.jinja`, CI…) ; `macros.jinja`.
+- `copier.yml` : questions du modèle ; `template/` : le modèle (`CLAUDE.md.jinja`, consignes
+  pour Claude dans `.claude/rules/kiln/` : projet, charte, une par stack ;
+  `.claude/settings.json.jinja`, CI…) ; `macros.jinja`.
 - `plugins/` : plugins Claude Code, catalogue `.claude-plugin/marketplace.json` (avec
   `renames` : anciens noms `base`, `pile-django`, `pile-nuxt`, `vps-podman`) ; `kiln/` (skills
   `worktree`, `merge`, `release`, `cleanup`, `review` (commits et diff d'une branche avant la
@@ -34,7 +35,7 @@ un dossier ou un module.
   `stripe/`, `serena/` ; `base/` : renvois des anciens chemins des hooks et scripts (sessions ouvertes, status line).
 - `.github/workflows/` : workflows réutilisables appelés par les repos générés, plus ceux de
   kiln (`kiln.yml` contrôles, `pypi.yml` publication du paquet `kiln-cli` au tag promu) ;
-  `actions/` : actions composites (`charte`, `services`).
+  `actions/` : actions composites (`charter`, son ancien nom `charte`, `services`).
 - Vitrine publique, en anglais : `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`
   (MIT), `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` ; capture de l'écran
   d'accueil `docs/assets/kiln-home.svg` (régénérée par `scripts/home_screenshot.py`, vérifiée par `test_docs.py`). Référence complète en français : `README.fr.md`.

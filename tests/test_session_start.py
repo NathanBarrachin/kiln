@@ -315,3 +315,34 @@ def test_breaking_changes_of_skipped_releases_only() -> None:
     assert changes.passed == ["v0.4.0", "v0.3.5"]
     assert changes.breaking == ["**Breaking**: the charter is in English."]
     assert hook.changes_between(None, "v0.3.5", CHANGELOG).passed == ["v0.3.5"]
+
+
+def test_a_checkout_is_not_offered_a_pull_that_cannot_reach_the_candidate(
+    tmp_path: Path,
+) -> None:
+    hook = load_hook()
+
+    def git(where: Path, *args: str) -> str:
+        done = subprocess.run(
+            ["git", "-C", str(where), *args], capture_output=True, text=True, check=True
+        )
+        return done.stdout.strip()
+
+    origin, checkout = tmp_path / "origin", tmp_path / "kiln"
+    git(tmp_path, "init", "-q", "-b", "develop", str(origin))
+    git(origin, "commit", "-q", "--allow-empty", "-m", "start")
+    git(tmp_path, "clone", "-q", str(origin), str(checkout))
+    git(origin, "switch", "-q", "-c", "release/v0.4.0")
+    git(origin, "commit", "-q", "--allow-empty", "-m", "changelog")
+    candidate = git(origin, "rev-parse", "HEAD")
+    install = ("directory", str(checkout))
+
+    # The candidate sits on its release branch: pulling develop brings nothing.
+    assert not hook.is_tool_outdated(install, "v0.4.0-rc.1", candidate)
+
+    # Promoted and merged back into develop: the pull reaches it.
+    git(origin, "switch", "-q", "develop")
+    git(origin, "merge", "-q", "release/v0.4.0")
+    assert hook.is_tool_outdated(install, "v0.4.0", candidate)
+    git(checkout, "pull", "-q", "--ff-only")
+    assert not hook.is_tool_outdated(install, "v0.4.0", candidate)

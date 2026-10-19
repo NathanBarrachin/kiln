@@ -164,10 +164,17 @@ def is_tool_outdated(install: tuple[str, str] | None, tag: str, release_commit: 
         return latest is not None and (current is None or current < latest)
     if kind == "git":
         return where != release_commit
-    return (
-        run("git", "-C", where, "merge-base", "--is-ancestor", release_commit, "HEAD").returncode
-        != 0
-    )
+    released = run("git", "-C", where, "merge-base", "--is-ancestor", release_commit, "HEAD")
+    if released.returncode == 0:
+        return False
+    # A checkout following a branch is only updated by `git pull`: a candidate tagged on its
+    # release branch is out of its reach until promoted and merged back, so the update is
+    # offered only when the pull brings something.
+    if run("git", "-C", where, "rev-parse", "--abbrev-ref", "@{upstream}").returncode != 0:
+        return True
+    run("git", "-C", where, "fetch", "-q")
+    behind = run("git", "-C", where, "rev-list", "--count", "HEAD..@{upstream}").stdout.strip()
+    return behind not in ("", "0")
 
 
 def is_repo_late(commit: str, tag: str) -> bool:

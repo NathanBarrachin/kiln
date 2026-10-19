@@ -55,13 +55,10 @@ kiln s'entraîne sur deux repos réels mesurés le 17 octobre 2026 : le repo d'a
 référence Django + Nuxt, terrain d'entraînement de la grille, T-124, T-134 ; son chemin est dans
 les consignes globales du poste, jamais nommé ici) et un repo d'université (repo ordinaire, épreuve pour un repo que kiln n'a pas
 créé, T-131). **Le détail des mesures n'est pas public** (écarts de sécurité d'un site en production,
-vulnérabilités d'un projet tiers pas encore signalées à son équipe) : il est dans
-`docs/vision/PRIVE-mesures-repos-entrainement.md` de la branche **locale**
-`private/training-repos`, worktree `.claude/worktrees/private-training-repos`. Le lire là (`git
-show private/training-repos:docs/vision/PRIVE-mesures-repos-entrainement.md`) ; un `git push`
-sur cette branche échoue exprès (`pushRemote` vers un dépôt inexistant) ; ne jamais pousser ni fusionner cette
-branche, et n'écrire dans le repo public que des chiffres agrégés, sans rien qui identifie le
-projet d'université. On mesure toujours sur une copie locale, jamais dans le repo lui-même.
+vulnérabilités d'un projet tiers pas encore signalées à son équipe) : il est dans le
+dépôt **privé** `antoine-tena/kiln-private` (`~/code/kiln-private`,
+`mesures-repos-entrainement.md`), jamais dans kiln, ni sur une branche, ni dans un commit. N'écrire
+dans le repo public que des chiffres agrégés, sans rien qui identifie le projet d'université. On mesure toujours sur une copie locale, jamais dans le repo lui-même.
 
 ## Versions
 

@@ -16,6 +16,8 @@ Outside kiln repos the hook does nothing: adopting kiln is on request only (`kil
 `/kiln:adopt`). Before kiln 0.4 it also linked the plugin at `.claude/kiln` in every repo: that
 link is removed.
 
+In a repo kiln looks after (kiln itself included), Claude is also told when the last CI of the
+integration branch is red, to say so before any new work.
 Never blocking: three seconds at most per network call, silent without network. A repo opts out
 with `git config kiln.update-check false` (`kiln-a-jour.desactive true` before kiln 0.4).
 """
@@ -87,8 +89,8 @@ def follows_candidates() -> bool:
     return values.get("channel", values.get("canal")) in INTERNAL_CHANNELS
 
 
-def run(*command: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT_SECONDS)
+def run(*command: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT_SECONDS, cwd=cwd)
 
 
 # --- Tool: kiln installed by uv, from PyPI, from GitHub (commit) or from a directory (checkout) ---
@@ -201,6 +203,63 @@ def tool_update_command(install: tuple[str, str] | None, tag: str) -> str:
     # A copy of a checkout is replaced by the release itself: kiln's own work runs with
     # `uv run kiln` in a worktree, never through the installed tool.
     return f'{legacy}uv tool install --force "git+{KILN_GIT_URL}@{tag}" && {plugins}'
+
+
+# --- CI: a red integration branch is said before any new work ---
+
+CHARTER_FILE = "charter.toml"
+KILN_PACKAGE_MARKER = Path("src/kiln/versions.py")
+
+
+def follows_kiln(root: Path) -> bool:
+    """A repo kiln looks after: generated (`.copier-answers.yml`), adopted (`charter.toml`), or
+    kiln itself."""
+    return (
+        kiln_repo(str(root)) is not None
+        or (root / CHARTER_FILE).is_file()
+        or (root / KILN_PACKAGE_MARKER).is_file()
+    )
+
+
+def integration_branch(root: Path) -> str | None:
+    """`develop` when origin has it, otherwise origin's default branch."""
+    if run("git", "-C", str(root), "rev-parse", "-q", "--verify", "origin/develop").returncode == 0:
+        return "develop"
+    head = run("git", "-C", str(root), "symbolic-ref", "--short", "refs/remotes/origin/HEAD")
+    return head.stdout.strip().removeprefix("origin/") or None
+
+
+def red_ci(root: Path) -> str:
+    """For Claude: the last finished run of a workflow on the integration branch failed; ""
+    otherwise (green, running, no gh, not on GitHub, `git config statusline.ci false`)."""
+    if run("git", "-C", str(root), "config", "--get", "statusline.ci").stdout.strip() == "false":
+        return ""
+    branch = integration_branch(root)
+    if branch is None:
+        return ""
+    fields = "status,conclusion,workflowName,displayTitle,url"
+    try:
+        listed = run(
+            "gh", "run", "list", "--branch", branch, "--limit", "20", "--json", fields, cwd=root
+        )
+        runs = json.loads(listed.stdout) if listed.returncode == 0 else []
+    except OSError, ValueError, subprocess.TimeoutExpired:
+        return ""
+    latest: dict[str, dict[str, str]] = {}
+    for found in runs:
+        if found.get("status") == "completed":
+            latest.setdefault(str(found.get("workflowName", "")), found)
+    red = [found for found in latest.values() if found.get("conclusion") == "failure"]
+    if not red:
+        return ""
+    failures = "; ".join(
+        f'{found.get("workflowName")} on "{found.get("displayTitle")}" ({found.get("url")})'
+        for found in red
+    )
+    return (
+        f"The CI of `{branch}` is red: {failures}. Before any other work, tell the user and offer "
+        "to fix it first: new work on a red branch hides the next failure."
+    )
 
 
 # --- Repo: which version of the template does it start from? ---
@@ -563,12 +622,15 @@ def main() -> None:
         found = offer(cwd, state)
         if kiln_repo(cwd) is not None:
             reminders.save(state)
+        red = red_ci(root) if follows_kiln(root) else ""
     except Exception:
         # No network, GitHub rate limiting, unreadable repo: the session starts silently.
         return
+    context = "\n\n".join(part for part in (red, found.context if found else "") if part)
     if found:
-        hook_output = {"hookEventName": "SessionStart", "additionalContext": found.context}
         save_notice(payload.get("session_id", ""), found.notice)
+    if context:
+        hook_output = {"hookEventName": "SessionStart", "additionalContext": context}
         print(json.dumps({"hookSpecificOutput": hook_output}, ensure_ascii=False))
 
 

@@ -343,3 +343,70 @@ def test_a_checkout_copy_is_up_to_date_only_when_it_is_the_release(
     assert install == ("directory", "v0.3.4-105-gd800ca1")
     assert hook.is_tool_outdated(install, "v0.4.0-rc.1", "c1")
     assert not hook.is_tool_outdated(("directory", "v0.4.0-rc.1"), "v0.4.0-rc.1", "c1")
+
+
+def fake_ci(
+    hook: ModuleType, monkeypatch: pytest.MonkeyPatch, runs: list[dict[str, str]] | None
+) -> None:
+    """git says the integration branch is develop; gh lists `runs` (None: gh missing)."""
+    real_run = hook.run
+
+    def run(*command: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
+        if command[0] == "gh":
+            if runs is None:
+                raise FileNotFoundError("gh")
+            return subprocess.CompletedProcess(command, 0, stdout=json.dumps(runs))
+        if "origin/develop" in command:
+            return subprocess.CompletedProcess(command, 0, stdout="abc\n")
+        return real_run(*command, cwd=cwd)
+
+    monkeypatch.setattr(hook, "run", run)
+
+
+def ci_run(workflow: str, status: str, conclusion: str, title: str = "Merge") -> dict[str, str]:
+    return {
+        "workflowName": workflow,
+        "status": status,
+        "conclusion": conclusion,
+        "displayTitle": title,
+        "url": f"https://github.com/o/r/actions/runs/{title}",
+    }
+
+
+def test_a_red_integration_branch_is_said_before_any_work(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    hook = load_hook()
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / "charter.toml").write_text("")
+    assert hook.follows_kiln(tmp_path)
+
+    # The last finished run of each workflow counts; a running one waits for its verdict.
+    fake_ci(
+        hook,
+        monkeypatch,
+        [
+            ci_run("kiln", "in_progress", "", "next"),
+            ci_run("kiln", "completed", "failure", "fix: x"),
+            ci_run("kiln", "completed", "success", "older"),
+            ci_run("pages", "completed", "success"),
+        ],
+    )
+    said = hook.red_ci(tmp_path)
+    assert said.startswith('The CI of `develop` is red: kiln on "fix: x"')
+    assert "tell the user" in said and "pages" not in said
+
+    fake_ci(hook, monkeypatch, [ci_run("kiln", "completed", "success", "fix: x")])
+    assert hook.red_ci(tmp_path) == ""
+    fake_ci(hook, monkeypatch, None)
+    assert hook.red_ci(tmp_path) == ""
+
+
+def test_the_red_ci_is_only_said_in_repos_kiln_looks_after(tmp_path: Path) -> None:
+    hook = load_hook()
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+
+    assert not hook.follows_kiln(tmp_path)
+    (tmp_path / "src/kiln").mkdir(parents=True)
+    (tmp_path / "src/kiln/versions.py").write_text("")
+    assert hook.follows_kiln(tmp_path)

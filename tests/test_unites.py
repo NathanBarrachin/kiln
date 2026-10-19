@@ -503,8 +503,13 @@ def test_the_package_records_the_commit_it_is_built_from(tmp_path: Path) -> None
     with zipfile.ZipFile(wheel) as archive:
         recorded = json.loads(archive.read("kiln/_build.json"))
     head = subprocess.check_output(["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True)
-    assert recorded["commit"] == head.strip()
-    assert recorded["describe"].startswith("v")
+    # What git says of the checkout: a tag and a distance, or the bare commit in a shallow
+    # clone without tags (GitHub's CI).
+    described = subprocess.check_output(
+        ["git", "-C", str(REPO), "describe", "--tags", "--always", "--dirty", "--match", "v[0-9]*"],
+        text=True,
+    )
+    assert recorded == {"describe": described.strip(), "commit": head.strip()}
 
 
 def test_a_tag_is_read_back_from_a_describe_output() -> None:

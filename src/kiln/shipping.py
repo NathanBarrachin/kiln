@@ -33,7 +33,7 @@ from kiln.release import (
     promotion_verdict,
     read_tags,
 )
-from kiln.shell import KilnError, capture, run
+from kiln.shell import KilnError, capture, run, run_status
 
 CHANGELOG = "CHANGELOG.md"
 DRAFT_MARKER = "<!-- draft: rewrite for users, breaking changes first, then delete this line -->"
@@ -115,6 +115,7 @@ def _start_release(root: Path, tags: list[Tag], *, milestone: bool) -> None:
     ui.step(f"Branch release/v{version}")
     branch = f"release/v{version}"
     run(["git", "worktree", "add", "-q", "-b", branch, str(tree), "origin/develop"], root)
+    _carry_open_releases(root, tree, version)
     ui.step("Changelog draft and numbers")
     changelog = tree / CHANGELOG
     entry = draft_entry(version, subjects, today=_today())
@@ -131,6 +132,28 @@ def _start_release(root: Path, tags: list[Tag], *, milestone: bool) -> None:
         f"next: rewrite the v{version} entry of {CHANGELOG} there (delete the draft line), "
         "commit, then `kiln version cut` again: checks, then tag -rc.1."
     )
+
+
+def _carry_open_releases(root: Path, tree: Path, version: str) -> None:
+    """An earlier release still a candidate (promoted later, merged back into `develop` only
+    then) is merged into the new one: its changelog entry, numbers and fixes come first, and
+    promoting it later leaves nothing to reconcile."""
+    branches = capture(
+        ["git", "branch", "-r", "--list", "origin/release/v*", "--format=%(refname:short)"], root
+    ).split()
+    for remote in sorted(branches, key=lambda name: Version(name.rsplit("/v", 1)[1])):
+        if Version(remote.rsplit("/v", 1)[1]) >= Version(version):
+            continue
+        merged = run_status(["git", "merge-base", "--is-ancestor", remote, "HEAD"], tree)
+        if merged == 0:
+            continue
+        ui.step(f"{remote.removeprefix('origin/')} carried into release/v{version}")
+        message = f"Merge branch '{remote.removeprefix('origin/')}' into release/v{version}"
+        if run_status(["git", "merge", "-q", "--no-ff", remote, "-m", message], tree) != 0:
+            raise KilnError(
+                f"{remote} does not merge cleanly into release/v{version}: resolve it in {tree}, "
+                "commit, then rewrite the changelog entry"
+            )
 
 
 def draft_entry(version: str, subjects: list[str], *, today: str) -> str:

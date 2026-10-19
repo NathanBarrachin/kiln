@@ -70,22 +70,20 @@ promoted when the next one is cut. Up to the launch, each release is planned at 
 waits for is v0.5.0.
 
 ### v0.4.0 · kiln speaks English
-Candidate `v0.4.0-rc.1` cut on Mon 19 Oct (promoted v0.3.4). The milestone decided by antoine, merged in `develop`
-on 16 October; what is left is small. ⚠ breaking: CLI names, `copier.yml` questions, charter
-rule IDs, workflow inputs, plugin and skill names, all converted by `kiln update`.
-- T-14 · Delete the old PyPI token (XS) (blocked: antoine)
-
-`v0.4.0-rc.2` cut on Mon 19 Oct with the fixes of T-147 to T-151 (annway's update to rc.1 had
-failed unseen); promoted when `v0.4.1-rc.1` is cut.
+Promoted on Mon 19 Oct (`v0.4.0-rc.2`, CI green; PyPI and GitHub Release published). The
+milestone decided by antoine. ⚠ breaking: CLI names, `copier.yml` questions, charter rule IDs,
+workflow inputs, plugin and skill names, all converted by `kiln update`.
 
 ### v0.4.1 · The grid, as data
-Candidate Thu 22 Oct. The heart of the vision: what kiln holds as the best, one small file per
-rule on two axes, browsable with `kiln grid`.
-- T-143 · Decide the name before the launch: kiln, despite Kiln-AI (XS) (antoine decides)
+Candidate `v0.4.1-rc.1` cut on Mon 19 Oct (CI green, end-to-end tests included): `kiln grid`,
+105 drafts from the reference repo, adopted repos' workflows at the public tag, private repos'
+CI on the machine, both READMEs complete and checked. Promoted when `v0.4.2-rc.1` is cut.
 
 ### v0.4.2 · Any repo scored against the best, in seconds
 Candidate Sat 24 Oct. The launch hook: `uvx kiln-cli score` on the repo people already have,
 without a token.
+- T-14 · Delete the old PyPI token (XS) (blocked: antoine)
+- T-143 · Decide the name before the launch: kiln, despite Kiln-AI (XS) (antoine decides; facts in `docs/vision/nom.md`)
 - T-125 · Grid v1: the rules kiln launches with (L)
 - T-46 · `kiln score`: any repo measured against the grid in seconds, no tokens (L)
 

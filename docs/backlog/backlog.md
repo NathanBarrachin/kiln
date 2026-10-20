@@ -207,6 +207,10 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 - [ ] In a kiln repo, `kiln update` runs the same converters after the template.
 - [ ] Images: a converter commit that touches a `Dockerfile` builds it when podman or docker is
   there (today: left to the repo's CI).
+- [ ] The repo's checks found beyond its root: `check_commands` reads only the root manifests,
+  so a repo with `backend/` and `frontend/` (most of the training fleet, 20 October 2026) gets
+  every commit marked "unverified" although it has tests; look one folder down, and run a
+  Django project's tests through `manage.py` when its settings start without secrets.
 
 
 ### T-158 · `kiln score` reads the GitHub settings when `gh` is logged in

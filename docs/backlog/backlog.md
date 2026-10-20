@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-160.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-161.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -578,6 +578,20 @@ actionlint) with a fallback to `develop`. On the first run, check that the versi
 tag's, and that `.kiln` is removed before the project's checks.
 
 ## 🟡 Normal
+
+### T-160 · A front with no backend ships a smoke test
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-20
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: training on the fleet (2026-10-20): a new `none` + Nuxt, Next or Astro project
+  misses TESTS-PRESENT, the only gap left on a fresh repo (`test_template.py` exempts it)
+
+Its only code is constants: a test of them would be filler. The test worth having is a smoke
+test of the built site, the home page carrying the site title, through `node --test` (no
+dependency): Astro's `dist/index.html`, Next's prerendered `.next/server/app/index.html`, Nuxt
+prerendering `/` or its server started. Run after `build` in `ci.yml` and in `kiln check`; then
+drop the exemption.
 
 ### T-155 · A Streamlit or Dash front gets a deployment that fits, or none is assumed
 - **Type**: bug

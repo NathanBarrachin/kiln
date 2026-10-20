@@ -20,7 +20,8 @@ Un projet généré contient :
 - l'outillage partagé : `.claude/` (plugins et variables `KILN_*`), `.vscode/`, `.editorconfig`,
   `.gitattributes`, `.gitignore`, modèle de PR, `CODEOWNERS`, pre-commit (ruff, ESLint, charte,
   refus de commiter sur `main` et `develop`) ;
-- la CI (`.github/workflows/ci.yml`), qui appelle les workflows réutilisables de kiln : sur GitHub à chaque
+- la CI (`.github/workflows/ci.yml`), qui appelle les workflows réutilisables de kiln, épinglés au SHA du
+  commit de la version (son tag en commentaire), avec un jeton qui ne fait que lire le dépôt : sur GitHub à chaque
   push pour un dépôt public (gratuit et illimité), sur le poste par `kiln ci` pour un dépôt privé
   (`ci_runner: local` : aucune minute GitHub, dont le plan gratuit ne donne que 2 000 par mois) ;
   `kiln update` choisit d'après la visibilité du dépôt, `kiln set ci_runner=github` ou `local` change ;
@@ -30,7 +31,11 @@ Un projet généré contient :
   `git config statusline.*` par `kiln install`, `kiln new` et `kiln set` ;
 - d'office (`--no-github` pour s'en passer) : le dépôt GitHub privé, avec `main` verrouillée (seul le commit initial)
   et `develop` protégée (ni suppression ni réécriture), et les correctifs de sécurité Dependabot ;
-- en option : les conteneurs podman.
+- un repo qui passe la grille de kiln : `kiln score` donne 100 à un projet neuf (une fois ses
+  dépendances verrouillées par `kiln new` ; un front sans backend n'a pas encore de test).
+  Dependabot pour chaque écosystème, chaque semaine, après 7 jours de quarantaine ;
+- en option : les conteneurs podman, sur Debian 13, épinglés par empreinte, en lecture seule,
+  sans aucune capacité, avec leurs sondes de santé.
 
 Les plugins Claude Code vivent dans [`plugins/`](../plugins/), catalogue `kiln`
 ([`.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json)) :
@@ -228,8 +233,9 @@ l'autorise que depuis `develop` à jour avec `origin`, front sans modification l
 (même version majeure), pnpm ne monte que les dépendances qui gardent leur majeure et annonce les
 autres. `kiln update --major` relève les bornes à la dernière version, prend les dernières
 versions pnpm et met à jour les crochets pre-commit. Les contrôles suivent toujours : une montée
-qui casse quelque chose est signalée avant le commit. Dependabot ne propose que les correctifs de
-sécurité.
+qui casse quelque chose est signalée avant le commit. Entre deux mises à jour, Dependabot propose
+chaque semaine les nouvelles versions, une fois passés 7 jours de quarantaine ; les workflows de
+kiln n'avancent que par `kiln update`, qui convertit ce qui change avec eux.
 
 ## Versions
 
@@ -248,7 +254,8 @@ Le travail s'intègre dans `develop` ; `main` ne reçoit que des versions.
   sont prêtes et le numéro de la prochaine.
 - **Clients** : ils se mettent à jour à chaque version, correctif compris. Le hook de début de
   session propose l'outil puis le repo ; `kiln update` applique la version, montre ses
-  nouveautés et fait avancer le tag auquel le `ci.yml` du repo cite les workflows de kiln.
+  nouveautés et fait avancer la version (SHA et tag) à laquelle le `ci.yml` du repo cite les
+  workflows de kiln.
 - **Outil** : `uv tool install kiln-cli` prend les versions promues, publiées sur PyPI par le
   workflow `pypi.yml` au tag `vX.Y.Z` ; `uv tool install git+https://github.com/antoine-tena/kiln@<tag>`
   prend aussi les candidates ;
@@ -338,7 +345,7 @@ Python, podman pour les conteneurs (bases de test comprises), podman-compose ins
 | `maven.yml` | Backend Java : `./mvnw verify` (compilation stricte, JUnit, plancher de couverture JaCoCo) sur un JDK Temurin. |
 | `pnpm.yml` | Front pnpm (Nuxt, Next.js, Astro) : scripts de `package.json` dans l'ordre ; pnpm pris dans `packageManager`. |
 | `charter.yml` | Règles de `charter.toml`. |
-| `security.yml` | `uv audit` et `pnpm audit`. |
+| `security.yml` | `uv audit`, `pnpm audit` et OSV-Scanner pour un projet Maven. |
 | `secrets.yml` | Secrets commités (gitleaks, version figée et vérifiée). |
 | `api-contract.yml` | `openapi.json` et types du front à jour du code. |
 | `infra.yml` | Images (`podman build`), actionlint, shellcheck, Caddyfile, compose (podman-compose). |

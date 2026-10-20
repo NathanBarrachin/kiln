@@ -36,7 +36,8 @@ PROTECTED_BRANCHES = ("main", "develop")
 # Start of a conflict left by Copier (`git merge-file`).
 CONFLICT_MARKER = "<<<<<<< before updating"
 # A reusable workflow of kiln cited at a tag: `antoine-tena/kiln/….yml@v0.3.1`.
-KILN_WORKFLOW_REF = re.compile(r"(antoine-tena/kiln/\S+?)@(\S+)")
+# `…/charter.yml@v0.4.1`, or `…/charter.yml@<sha> # v0.4.1` once pinned: the tag is in the comment.
+KILN_WORKFLOW_REF = re.compile(r"(antoine-tena/kiln/\S+?)@(\S+)(?:[ \t]+#[ \t]*(\S+))?")
 # Former address of the template (init-repo, renamed kiln): GitHub redirects, still replaced.
 LEGACY_TEMPLATE_SOURCES = ("https://github.com/antoine-tena/init-repo.git",)
 
@@ -174,7 +175,7 @@ def resolve_kiln_ref_conflicts(root: Path) -> None:
 
 
 def _kiln_refs(text: str) -> set[str]:
-    return {match.group(2) for match in KILN_WORKFLOW_REF.finditer(text)}
+    return {match.group(3) or match.group(2) for match in KILN_WORKFLOW_REF.finditer(text)}
 
 
 def _index_stage(root: Path, stage: int, name: str) -> str | None:

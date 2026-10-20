@@ -73,7 +73,7 @@ FRONTEND_DEV_COMMANDS: Mapping[str, tuple[str, ...]] = {
 PNPM_CHECK_SCRIPTS: Mapping[str, tuple[str, ...]] = {
     "nuxt": ("lint", "typecheck"),
     "next": ("lint", "typecheck"),
-    "astro": ("typecheck",),
+    "astro": ("lint", "typecheck"),
 }
 # Build and install outputs of a framework, removed when switching away from it (`kiln set`).
 # Never data nor .env: only what the tool regenerates. The lock is one: it is not in the

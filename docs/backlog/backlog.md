@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-153.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-155.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -111,6 +111,7 @@ content defined on 17 October: the version the launch waits for (T-03).
 - T-30 · README and English docs for strangers, with the demo (L)
 - T-33 · One promise everywhere: tagline, About, PyPI, social preview (S)
 - T-119 · GitHub Sponsors and `FUNDING.yml` (XS)
+- T-154 · Show your score: a badge other repos display (S)
 
 ### v0.5.1 · Launch week: a stranger's first ten minutes, rehearsed
 Candidate Tue 3 Nov. Fixes only from here to the launch; the week absorbs up to three slipped
@@ -138,6 +139,7 @@ comes first; these tickets give way to it.
 - T-116 · An accessible CLI: `NO_COLOR`, `--plain` (S) (good first issue)
 - T-10 · Interface polish (S)
 - T-99 · `kiln doctor --fix` (S)
+- T-153 · `statusline.ci locale`: a French value left in generated repos (S)
 
 ### v0.5.5 · Findings where people look, upgrades proven
 - T-91 · Findings where people look: SARIF in pull requests and code scanning (M)
@@ -460,12 +462,25 @@ token, so it runs in CI for free on any public repo.
 - **Effort**: L · **Owner**: Claude · **Due**: —
 - **Origin**: T-03 prerequisites; issues #37 and #38; rewritten 17 October 2026 for the vision
 
-- [ ] First screen: the promise (T-33), `uvx kiln-cli score`, the demo, the numbers (T-131,
-  T-132); then how it works in five steps (score, fix, roadmap for Claude, verified by the
-  script, continuous), the grid, and "Built for Claude Code; the score and the fixes need no AI
-  at all".
-- [ ] Demo recorded with vhs (a `.tape` file in `docs/assets/`, replayed at each release):
-  `kiln score` on a public repo, `kiln fix`, the score again, the kiln-bot pull request.
+- [x] Today's README brought to the level of the best (20 October 2026, branch
+  `docs/showcase`), after measuring the READMEs of 70 repos of 10,000 stars or more (uv, ruff,
+  Bun, ripgrep, fzf, mise, Claude Code…): the pixel kiln on top, one promise, three badges that
+  measure something (beyond five, popular npm packages get fewer downloads: Trockman et al.,
+  ICSE 2018), a recorded demo first, plain bullets, the words of a visitor, a comparison where
+  the others win rows too; the help screen, the rule list and the update note moved to the
+  reference. `tests/test_docs.py` now fails on the marks readers take for AI writing (em dashes,
+  list items opened in bold or by an emoji, sales words), on a README whose images or links
+  would break on PyPI, and on a demo that types what kiln no longer offers.
+- [x] Demo recorded with vhs (`docs/assets/kiln-new.tape`, `scripts/demo_shell.sh`): `kiln new`,
+  its three questions, then `kiln check` on the new repo; replayed before each candidate.
+- [ ] v0.5.0 first screen: the promise (T-33), `uvx kiln-cli score`, then the study's chart as
+  the hero, as uv and ruff open on one benchmark chart: light and dark, a caption with the exact
+  conditions, a link to the script that reruns it (T-131, T-132); then how it works in five
+  steps (score, fix, roadmap for Claude, verified by the script, continuous), the grid, and
+  "Built for Claude Code; the score and the fixes need no AI at all".
+- [ ] A second tape: `kiln score` on a public example repo (never a team's project shown at
+  fault), `kiln fix`, the score again, the kiln-bot pull request; its first frame says what it
+  shows, as animations stay paused for those who ask for less motion.
 - [ ] Docs in English in `docs/`: getting started, score, fix, modernize, the grid (one page per
   theme generated from the rule files: the Technology Radar that applies itself), update,
   charter, plugins, workflows, versions. `README.fr.md` shrinks to a French summary pointing
@@ -489,16 +504,40 @@ token, so it runs in CI for free on any public repo.
 "Start every project like a senior engineer would" sold `kiln new`; the vision sells keeping any
 repo up to date. The same words in the README hero, the GitHub About (search results, link
 previews), the PyPI summary and the launch titles.
-- [ ] Decided by Claude (17 October 2026), from the vision's taglines: **"Dependabot for your
-  methods."**, then "kiln keeps your repo up to date with the best of the world (methods,
-  structure, tools, containers, security, code standards) and easy for Claude to read." The
-  analogy explains the job in four words; "the best" alone would read as an opinion.
+- [x] Today's promise, the same everywhere (20 October 2026): "Repos Claude Code can work in
+  safely, kept up to date." in the README, the PyPI summary (`pyproject.toml`), the GitHub About
+  (29 words before; the median About of 70 repos of 10,000 stars or more has 9.5) and the social
+  preview drawn by `scripts/screenshots.py`. It gives way to the v0.5.0 one below.
+- [ ] Decided by Claude (17 October 2026), from the vision's taglines, reworded on 20 October:
+  **"Dependabot for engineering practices."** ("your methods" reads as class methods to an
+  English-speaking developer), then "kiln keeps your repo up to date with the best of the world
+  (methods, structure, tools, containers, security, code standards) and easy for Claude to
+  read." The analogy explains the job in four words, as "A cat(1) clone with wings" (bat) or "A
+  smarter cd command" (zoxide) do; "the best" alone would read as an opinion. About: 12 words
+  at most, with a homepage link.
 - [ ] Right under it, the proof in numbers (T-131, T-132) and the one line
   `uvx kiln-cli score`.
 - [ ] GitHub About and topics (best-practices, modernization, code-quality, technical-debt next
   to claude-code, django, nuxt), PyPI summary; the social preview (1280×640) redone with the new
   line, uploaded by antoine (no API): https://github.com/antoine-tena/kiln/settings (Social
   preview).
+
+### T-154 · Show your score: a badge other repos display
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-20
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: README study, 20 October 2026; after T-46
+
+The image that travels by itself: GitHub's code search finds the Ruff badge in about 7,800
+READMEs, OpenSSF Scorecard's in about 25,000, github-readme-stats cards in about 247,000. A score
+is a badge that measures something, the kind a study of 294,941 npm packages found reliable and
+lasting (Trockman et al., ICSE 2018), whose authors ask for badges of "conformance to coding
+standards".
+- [ ] `kiln score --badge`: the Markdown of a shields.io endpoint badge, its JSON kept up to date
+  by kiln-bot (T-59) or the CI.
+- [ ] A "Show your score" section in the README, as Ruff has; kiln's own badge on top (T-90).
+- [ ] The `kiln score` output made to be screenshotted: the score large, the kiln, 80 columns.
 
 ### T-119 · GitHub Sponsors and `FUNDING.yml`
 - **Type**: task
@@ -547,6 +586,10 @@ Nothing is posted on a forum before it (T-118 starts after).
   recorded from the released version (T-30, T-33).
 - [ ] kiln passes its own grid, its CI green on `main` (T-90).
 - [ ] No open 🔴 ticket.
+- [ ] The Hacker News title, text and every answer written by antoine, by hand: HN's
+  guidelines say "Please don't put generated text in HN posts" and, for comments, "Don't
+  post generated text or AI-edited text"; Claude hands over raw facts only (numbers, links).
+  No upvotes asked, no booster comments from friends.
 - [ ] Gate checked on **Monday 9 November at 20:00**. One box empty: the launch moves to
   **Wednesday 18 November**, same hour, gate on Monday 16 November. The date moves, never the
   gate.
@@ -617,6 +660,18 @@ actionlint) with a fallback to `develop`. On the first run, check that the versi
 tag's, and that `.kiln` is removed before the project's checks.
 
 ## 🟡 Normal
+
+### T-153 · `statusline.ci locale`: a French value left in generated repos
+- **Type**: bug
+- **Status**: todo
+- **Opened**: 2026-10-20
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: the README's recorded demo (20 October 2026) shows `git config statusline.ci locale`
+
+kiln moved to English in 0.4.0, but `apply_statusline_settings` (`src/kiln/statusline.py`) still
+writes `locale` for a CI run on the machine, read by the status line script, the session start
+hook and `/kiln:merge`. Write `local`, keep reading `locale` (hooks and status line are read from
+the main tree by open sessions), convert existing repos in `kiln update`.
 
 ### T-45 · Update reminders at the pace you choose
 - **Type**: improvement

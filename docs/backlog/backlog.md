@@ -504,17 +504,21 @@ token, so it runs in CI for free on any public repo.
 "Start every project like a senior engineer would" sold `kiln new`; the vision sells keeping any
 repo up to date. The same words in the README hero, the GitHub About (search results, link
 previews), the PyPI summary and the launch titles.
-- [x] Today's promise, the same everywhere (20 October 2026): "Repos Claude Code can work in
-  safely, kept up to date." in the README, the PyPI summary (`pyproject.toml`), the GitHub About
-  (29 words before; the median About of 70 repos of 10,000 stars or more has 9.5) and the social
-  preview drawn by `scripts/screenshots.py`. It gives way to the v0.5.0 one below.
+- [x] Today's promise, the same everywhere, chosen by antoine on 20 October 2026 from the
+  former ones ("Repos Claude Code can work in safely, kept up to date." was too bare): "Claude
+  Code's workshop", then "Start every new project, and rescue every old one, like a senior
+  engineer would — even if you're not one.", and under it "Make Claude Code build
+  production-grade repos, bring yours up to that grade, and keep them that way." An old repo to
+  bring up counts as much as a new one. In the README, the PyPI summary (`pyproject.toml`), the
+  GitHub About and the social preview drawn by `scripts/screenshots.py`.
 - [ ] Decided by Claude (17 October 2026), from the vision's taglines, reworded on 20 October:
   **"Dependabot for engineering practices."** ("your methods" reads as class methods to an
   English-speaking developer), then "kiln keeps your repo up to date with the best of the world
   (methods, structure, tools, containers, security, code standards) and easy for Claude to
   read." The analogy explains the job in four words, as "A cat(1) clone with wings" (bat) or "A
-  smarter cd command" (zoxide) do; "the best" alone would read as an opinion. About: 12 words
-  at most, with a homepage link.
+  smarter cd command" (zoxide) do; "the best" alone would read as an opinion. Shown to antoine
+  first, with today's line beside it: he keeps "Claude Code's workshop" and the senior engineer
+  line (20 October 2026), and decides whether the analogy joins them or replaces them.
 - [ ] Right under it, the proof in numbers (T-131, T-132) and the one line
   `uvx kiln-cli score`.
 - [ ] GitHub About and topics (best-practices, modernization, code-quality, technical-debt next

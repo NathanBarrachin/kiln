@@ -189,8 +189,12 @@ commiter (`textLength` et les espaces ne se rendent bien que là).
 
 La démo animée (`docs/assets/kiln-new.gif`) se réenregistre avant chaque candidate, quand ce
 qu'elle montre a changé : `vhs docs/assets/kiln-new.tape` (vhs, ttyd et ffmpeg). Une seule
-promesse partout (README, « About » de GitHub, résumé PyPI, image de partage) : « Repos Claude
-Code can work in safely, kept up to date. », jusqu'à celle de la v0.5.0 (T-33). Le texte posté
+promesse partout (README, « About » de GitHub, résumé PyPI, image de partage), choisie par
+antoine le 20 octobre 2026 : « Claude Code's workshop », puis « Start every new project, and
+rescue every old one, like a senior engineer would — even if you're not one. », et sous elle
+« Make Claude Code build production-grade repos, bring yours up to that grade, and keep them
+that way. » Un vieux repo à remettre à niveau compte autant qu'un nouveau (`kiln adopt`, puis le
+score et la correction de la v0.5.0). Le texte posté
 sur Hacker News, titre et réponses compris, est écrit à la main par antoine (règle du forum).
 
 ## Contrôles

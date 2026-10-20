@@ -318,42 +318,43 @@ def logo_svg(size: int = 12) -> str:
     return "\n".join([header, *pixels(size), "</svg>", ""])
 
 
-# What a shared link shows (X, Bluesky, LinkedIn, Slack, Discord, Reddit): the promise in a few
-# big words, readable as a thumbnail. GitHub takes a PNG: `scripts/social_preview.py`.
+# What a shared link shows (X, Bluesky, LinkedIn, Slack, Discord, Reddit): the name, the workshop
+# and the promise, readable as a thumbnail. GitHub takes a PNG: `scripts/social_preview.py`.
+BRAND = "Claude Code's workshop"
 PROMISE = (
-    ("Repos Claude Code can", "#f79628"),
-    ("work in safely,", "#f79628"),
-    ("kept up to date.", "#f2efe8"),
+    "Start every new project, and",
+    "rescue every old one, like a",
+    "senior engineer would — even",
+    "if you're not one.",
 )
 
 
 def social_preview_svg() -> str:
     width, height, left = 1280, 640, 560
     text = f'font-family="{FONT}"'
+    label = escape(f"kiln, {BRAND}: {' '.join(PROMISE)}")
     shapes = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
-        f'viewBox="0 0 {width} {height}" role="img" aria-label="kiln: repos Claude Code can '
-        'work in safely, kept up to date. uvx kiln-cli new my-app">',
+        f'viewBox="0 0 {width} {height}" role="img" aria-label="{label}">',
         '<defs><radialGradient id="glow" cx="0.25" cy="0.55" r="0.45">'
         '<stop offset="0" stop-color="#f79628" stop-opacity="0.22"/>'
         '<stop offset="1" stop-color="#f79628" stop-opacity="0"/></radialGradient></defs>',
         f'<rect width="{width}" height="{height}" fill="{BACKGROUND}"/>',
         f'<rect width="{width}" height="{height}" fill="url(#glow)"/>',
         '<g shape-rendering="crispEdges">',
-        *pixels(26, left=96, top=200),
+        *pixels(26, left=96, top=232),
         "</g>",
-        f'<text x="{left}" y="236" {text} font-size="112" font-weight="bold" '
+        f'<text x="{left}" y="196" {text} font-size="112" font-weight="bold" '
         'fill="#f2efe8">kiln</text>',
+        f'<text x="{left}" y="258" {text} font-size="40" fill="#f79628">{escape(BRAND)}</text>',
     ]
     shapes += [
-        f'<text x="{left}" y="{316 + 54 * row}" {text} font-size="42" fill="{color}">'
+        f'<text x="{left}" y="{338 + 46 * row}" {text} font-size="34" fill="#f2efe8">'
         f"{escape(line)}</text>"
-        for row, (line, color) in enumerate(PROMISE)
+        for row, line in enumerate(PROMISE)
     ]
     shapes += [
-        f'<text x="{left}" y="514" {text} font-size="30" fill="{PROMPT}">$ '
-        '<tspan fill="#e6e3dc">uvx kiln-cli new my-app</tspan></text>',
-        f'<text x="{left}" y="568" {text} font-size="24" fill="{PROMPT}">'
+        f'<text x="{left}" y="574" {text} font-size="24" fill="{PROMPT}">'
         "github.com/antoine-tena/kiln</text>",
         "</svg>",
         "",

@@ -39,13 +39,19 @@ un dossier ou un module.
   kiln (`kiln.yml` contrôles, `pypi.yml` publication du paquet `kiln-cli` au tag promu) ;
   `actions/` : actions composites (`charter`, son ancien nom `charte`, `services`).
 - Vitrine publique : `README.md` (et sa traduction `README.fr.md`), `CONTRIBUTING.md`,
-  `SECURITY.md`, `LICENSE` (MIT), `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` ;
-  référence complète `docs/reference.md` et `docs/reference.fr.md` ; images `docs/assets/`
-  (dessinées par `scripts/screenshots.py`, vérifiées par `test_docs.py`).
+  `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, `LICENSE` (MIT),
+  `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` ; référence complète
+  `docs/reference.md` et `docs/reference.fr.md` ; images `docs/assets/` (dessinées par
+  `scripts/screenshots.py`, vérifiées par `test_docs.py`), dont la démo animée
+  `kiln-new.gif` enregistrée par VHS depuis `kiln-new.tape` et l'image de partage
+  `social-preview.png` (déposée à la main dans les réglages de GitHub).
 - `docs/backlog/` : suivi du travail, en anglais (skill `/kiln:backlog`), dont la prochaine
   promotion de version ; `docs/assets/` : images de la vitrine ; `docs/vision/` : l'idée de
   projet, brouillon en français, un fichier par sujet (`README.md` sert d'index).
-- `scripts/screenshots.py` : dessine les images du README à partir des vraies sorties de kiln.
+- `scripts/screenshots.py` : dessine les images du README à partir des vraies sorties de kiln
+  (et le logo, l'image de partage) ; `scripts/social_preview.py` : l'image de partage en PNG
+  (Playwright) ; `scripts/demo_shell.sh` : le shell des démos enregistrées (kiln de ce dossier,
+  sans numéro de version, dans un dossier jetable sur le disque).
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal, anciens noms), `test_questions.py` (questions de `kiln new`), `test_new.py` (ce que `kiln new` dit à la fin), `test_grid.py` (la grille), `test_adopted.py` (repos adoptés), `test_unites.py`,
   `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_charter_file.py` (`charter file`, hook après une édition), `test_shipping.py` (`kiln version cut` et `promote`), `test_rehearsal.py` (`update --rehearse`), `test_e2e.py` (de bout en bout, `-m e2e` : chaque version depuis v0.3.0 par un outil installé, et le repo-témoin `antoine-tena/kiln-rehearsal`, figé à v0.3.3-rc.2, ne jamais le mettre à jour), `test_deployment.py`, `test_statusline.py` (choix du
@@ -169,12 +175,23 @@ reste. `tests/test_docs.py` échoue si :
 - une image de `docs/assets/` diffère de ce que dessine `scripts/screenshots.py` à partir des
   vraies sorties de kiln (l'accueil, `kiln grid`, une règle, la note de `kiln update`, le schéma
   d'une version en clair et en sombre) ;
-- les docs citent kiln à une autre version que celle de `pyproject.toml`.
+- les docs citent kiln à une autre version que celle de `pyproject.toml` ;
+- une démo enregistrée tape une commande ou une option qui n'existe plus, ou pèse 5 Mo et plus ;
+- le README que publie PyPI garde une image ou un lien relatifs (le build les fait pointer vers
+  le tag de la version sur GitHub, `hatch-fancy-pypi-readme` dans `pyproject.toml`) ;
+- un README porte les marques d'un texte d'IA que les lecteurs de Hacker News relèvent : tiret
+  cadratin, puce ouverte en gras ou par un emoji, mot de vendeur (*seamless*, *powerful*…).
 `kiln version cut` fait avancer cette version citée, et refuse de taguer la première candidate
 d'une version dont ni le README ni la référence d'une langue n'ont changé (sauf
 `<!-- readme: unchanged, pourquoi -->` dans son entrée). Un changement met donc à jour la doc
 dans sa branche, pas à la release. Les images se regardent dans un vrai navigateur avant de les
 commiter (`textLength` et les espaces ne se rendent bien que là).
+
+La démo animée (`docs/assets/kiln-new.gif`) se réenregistre avant chaque candidate, quand ce
+qu'elle montre a changé : `vhs docs/assets/kiln-new.tape` (vhs, ttyd et ffmpeg). Une seule
+promesse partout (README, « About » de GitHub, résumé PyPI, image de partage) : « Repos Claude
+Code can work in safely, kept up to date. », jusqu'à celle de la v0.5.0 (T-33). Le texte posté
+sur Hacker News, titre et réponses compris, est écrit à la main par antoine (règle du forum).
 
 ## Contrôles
 

@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-157.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-158.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -84,6 +84,7 @@ Candidate Sat 24 Oct. The launch hook: `uvx kiln-cli score` on the repo people a
 without a token.
 - T-125 · Grid v1: the rules kiln launches with (L)
 - T-46 · `kiln score`: any repo measured against the grid in seconds, no tokens (L)
+- T-157 · Credit #45 and #46 in the notes of v0.4.2 (XS)
 
 ### v0.4.3 · What a script can fix, fixed by script
 Candidate Mon 26 Oct. The fixes that cost no token, each proven by the repo's own checks.
@@ -189,6 +190,17 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 ---
 
 ## 🔴 Critical
+
+### T-157 · Credit #45 and #46 in the notes of v0.4.2
+- **Type**: task
+- **Status**: todo
+- **Opened**: 2026-10-20
+- **Effort**: XS · **Owner**: Claude · **Due**: v0.4.2 candidate
+- **Origin**: PRs #45 and #46 by NathanBarrachin, merged 2026-10-20
+
+In the `v0.4.2` entry of `CHANGELOG.md`: the line of each fix ends with `(#45, thanks
+@NathanBarrachin)` and `(#46, thanks @NathanBarrachin)` (a CI run GitHub never started is not
+red; carried-over instructions keep their outline).
 
 ## 🟠 Important
 

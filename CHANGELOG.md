@@ -6,6 +6,15 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 `release/vX.Y.Z` branch, rewritten before its first candidate. Names are those of their release:
 entries before v0.4.0 quote kiln's former French names.
 
+## v0.4.3 — 2026-10-20
+<!-- draft: rewrite for users, breaking changes first, then delete this line -->
+- A cut stopped by a conflict drafts before it tags
+- Kiln-update.svg redrawn from the v0.4.1 notes
+- Fourteen rules name their converter
+- Converters for Python and containers (T-128)
+- Converters for the supply chain and CI (T-127)
+- Kiln fix, scriptable gaps closed on a branch with proof (T-126)
+
 ## v0.4.2 — 2026-10-20
 - `kiln score`: any repo, made by kiln or not, measured against the grid in about a second, offline and without a token. A score out of 100 and one per pillar, the three gaps to close first, then each gap with its reason, where it is, its source and what closes it; waived rules shown apart, stacks the grid does not cover listed at the end. `--all`, `--json` (schema 1), `--badge` for a README, `--online` for fresh end-of-life dates.
 - Grid v1: 40 scored rules, up from 6. CI and workflows (token permissions, untrusted input in scripts, `pull_request_target`, tests, linter, vulnerability audit, secret scan), containers (images by digest, current Debian, hardened compose services, health checks), Django settings (`DEBUG`, `SECRET_KEY`, `ALLOWED_HOSTS`), Python and TypeScript standards, runtimes past their end of life. Each one sourced and dated, and run on two real repos for false positives: those that can flag wrongly are `review` or `ratchet`. A `requirements.txt` pinned to exact versions now counts as locked.

@@ -6,6 +6,20 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 `release/vX.Y.Z` branch, rewritten before its first candidate. Names are those of their release:
 entries before v0.4.0 quote kiln's former French names.
 
+## v0.4.2 — 2026-10-20
+<!-- draft: rewrite for users, breaking changes first, then delete this line -->
+- Kiln score, any repo measured against the grid (T-46)
+- Grid v1, 40 scored rules (T-125)
+- Checks for digests, workflow tokens, strict TypeScript, runtimes, compose, migrations
+- Globs compiled once, each file read once per run
+- Kiln dev runs a Java API next to its front
+- Carried-over instructions keep their outline
+- A CI run GitHub never started is not red
+- In a terminal, generation is one line like every step
+- Cut redraws the README's images of the release
+- Release notes show their code in colour, without backticks
+- A long line of a panel wraps instead of being cut
+
 ## v0.4.1 — 2026-10-19
 - A private repo's CI runs on the machine: new answer `ci_runner` (`local` for a private repo, `github` for a public one, picked from the repo's visibility by `kiln update` when missing). In `local`, `ci.yml` has no push trigger (no GitHub minutes spent), `/kiln:merge` replays it with `kiln ci`, and the status line and the session start read its verdict; `kiln set ci_runner=github` brings it back on each push.
 - `kiln grid`: the practices kiln holds as the best, one small TOML file per rule, each with its why, its sources checked and dated, its level (adopt, trial, assess, hold), its regime and how it is detected. Six rules to start (lockfiles, pinned actions, dependency updates and their cooldown, non-root containers, no committed `.env`), and 105 assessed drafts drawn from the reference repo (`kiln grid --level assess`).

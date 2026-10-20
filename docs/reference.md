@@ -76,7 +76,12 @@ is re-rendered, on a work branch):
   for containers; ruff, mypy (strict), pytest + coverage floor, ESLint, pre-commit (which also
   refuses commits on `main`/`develop`).
 - **CI on GitHub Actions** that calls kiln's reusable workflows — so fixing CI once in kiln
-  fixes it everywhere.
+  fixes it everywhere. They are pinned to the release's commit SHA, its tag in a comment, and
+  the workflow token only reads the repo.
+- **A repo that passes kiln's own grid:** `kiln score` gives a new project 100 (once `kiln new`
+  has locked its dependencies; a front with no backend still lacks a test). Dependabot for each
+  ecosystem, weekly, after a 7-day cooldown; container images on Debian 13 pinned by digest;
+  compose services read-only, every capability dropped, with health checks.
 - **A project size** (`spark` → `ember` → `flame` → `blaze`) that tunes defaults: a weekend
   script doesn't get the same ceremony as a multi-team service.
 - **Agent-ready instructions:** kiln's rules for Claude in `.claude/rules/kiln/`, with stable
@@ -98,7 +103,7 @@ jobs:
 ```
 
 `django.yml`, `python.yml`, `maven.yml`, `pnpm.yml`, `charter.yml`, `security.yml` (`uv audit`,
-`pnpm audit`), `secrets.yml` (gitleaks), `api-contract.yml`, `infra.yml` (podman build,
+`pnpm audit`, OSV-Scanner for Maven), `secrets.yml` (gitleaks), `api-contract.yml`, `infra.yml` (podman build,
 actionlint, shellcheck), `sbom.yml` (CycloneDX), `mutation.yml` (mutmut), `vercel.yml`. `charte.yml`,
 `securite.yml` and `contrat-api.yml` are their former names, kept as relays. Databases for tests run in
 podman. See [`.github/workflows/`](../.github/workflows/).

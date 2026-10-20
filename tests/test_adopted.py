@@ -52,6 +52,22 @@ def test_only_kiln_references_move_to_the_release(repo: Path) -> None:
     assert adopted.move_to_release(repo, "v0.4.0", fetch) == []
 
 
+def test_a_reference_pinned_by_sha_stays_pinned_at_the_release(repo: Path) -> None:
+    """`kiln fix` pins kiln's workflows too ([PINNED-ACTIONS]): the release's SHA, its tag
+    in the comment, read back as the release quoted."""
+    old, new = "a" * 40, "b" * 40
+    ci = repo / ".github/workflows/ci.yml"
+    ci.write_text(CI.replace("charter.yml@v0.3.4  # kiln's charter", f"charter.yml@{old} # v0.3.4"))
+    assert adopted.quoted_refs(repo) == {"v0.3.4", "develop"}
+
+    adopted.move_to_release(repo, "v0.4.0", fetch, resolve={"v0.4.0": new}.__getitem__)
+
+    text = ci.read_text()
+    assert f"charter.yml@{new} # v0.4.0\n" in text
+    assert "python.yml@v0.4.0\n" in text  # quoted by tag: stays a tag
+    assert adopted.quoted_refs(repo) == {"v0.4.0"}
+
+
 def test_an_input_the_release_no_longer_takes_stops_everything(repo: Path) -> None:
     def without_inputs(ref: str, file: str) -> str:
         return CHARTER_WORKFLOW

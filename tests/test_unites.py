@@ -368,13 +368,20 @@ def test_other_git_failure_keeps_its_last_line() -> None:
     assert git_failure(error) == "git failed while updating the template: fatal: ref inconnue"
 
 
+@pytest.mark.parametrize("pinned", [False, True])
 @pytest.mark.parametrize("local_edit", ["", "  local: true\n"])
 def test_promoted_candidate_does_not_conflict_on_kiln_workflow_refs(
-    tmp_path: Path, local_edit: str
+    tmp_path: Path, local_edit: str, pinned: bool
 ) -> None:
     """Le tag promu pose sur le commit de sa candidate : Copier rend l'ancienne version sous le
     nom promu, et seul le `@<tag>` des workflows de kiln différerait du projet (T-18). Une
-    vraie modification locale au même endroit reste un conflit à arbitrer."""
+    vraie modification locale au même endroit reste un conflit à arbitrer. Épinglé par SHA
+    (`@<sha> # <tag>`), le SHA ne change pas à la promotion : seul le tag du commentaire."""
+    ref = (
+        "{{ _copier_conf.vcs_ref_hash }} # {{ _copier_answers._commit }}"
+        if pinned
+        else "{{ _copier_answers._commit }}"
+    )
     template, project = tmp_path / "modele", tmp_path / "projet"
 
     def git(root: Path, *args: str) -> None:
@@ -384,7 +391,7 @@ def test_promoted_candidate_does_not_conflict_on_kiln_workflow_refs(
         (template / "ci.yml.jinja").write_text(
             "# version de kiln ({{ _copier_answers._commit }})\n"
             "jobs:\n  python:\n    uses: antoine-tena/kiln/.github/workflows/python.yml"
-            "@{{ _copier_answers._commit }}\n" + steps
+            f"@{ref}\n" + steps
         )
         git(template, "add", "-A")
         git(template, "commit", "-qm", tag)
@@ -411,7 +418,8 @@ def test_promoted_candidate_does_not_conflict_on_kiln_workflow_refs(
     ci = (project / "ci.yml").read_text()
     assert ("<<<<<<<" in ci) == bool(local_edit)
     if not local_edit:
-        assert ci.endswith("python.yml@v1.0.1\n  charte: true\n")
+        assert ci.endswith("v1.0.1\n  charte: true\n")
+        assert ("python.yml@v1.0.1" in ci) != pinned
         assert "ci.yml" not in subprocess.check_output(
             ["git", "diff", "--name-only", "--diff-filter=U"], cwd=project, text=True
         )

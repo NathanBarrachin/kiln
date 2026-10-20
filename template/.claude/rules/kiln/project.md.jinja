@@ -38,7 +38,7 @@ The repo is generated and kept current by [kiln](https://github.com/antoine-tena
 {%- endif %}
 - `kiln check`: every check of the stack ({% if python_dirs %}ruff, mypy, pytest{% endif %}
 {%- if backend == 'java' %}{{ ', ' if python_dirs }}Maven{% endif %}
-{%- if frontend in ['nuxt', 'next'] %}, ESLint, type checks{% elif frontend == 'astro' %}, `astro check`{% endif %}), then `charter`.
+{%- if frontend in ['nuxt', 'next'] %}, ESLint, type checks{% elif frontend == 'astro' %}, ESLint, `astro check`{% endif %}), then `charter`.
   Run it before saying a change is done.
 {%- if backend == 'django' and frontend == 'nuxt' %}
 - `kiln contract`: export `openapi.json` from the Django code and regenerate the front's types

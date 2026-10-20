@@ -51,7 +51,8 @@ un dossier ou un module.
 - `scripts/screenshots.py` : dessine les images du README à partir des vraies sorties de kiln
   (et le logo, l'image de partage) ; `scripts/social_preview.py` : l'image de partage en PNG
   (Playwright) ; `scripts/demo_shell.sh` : le shell des démos enregistrées (kiln de ce dossier,
-  sans numéro de version, dans un dossier jetable sur le disque).
+  sans numéro de version, dans un dossier jetable sur le disque) ; `scripts/refresh_images.py` :
+  images de base du modèle épinglées au digest de leur tag (avant chaque candidate).
 - `tests/` : `test_template.py` (rendu du modèle pour chaque stack), `test_cli.py` (la commande :
   accueil, erreurs, bilan, sorties hors terminal, anciens noms), `test_questions.py` (questions de `kiln new`), `test_new.py` (ce que `kiln new` dit à la fin), `test_grid.py` (la grille), `test_score.py` (`kiln score`), `test_fix.py` (`kiln fix` et ses conversions), `test_adopted.py` (repos adoptés), `test_unites.py`,
   `test_ci.py`, `test_flotte.py`, `test_waivers.py` (dérogations), `test_waive.py`, `test_charter_file.py` (`charter file`, hook après une édition), `test_shipping.py` (`kiln version cut` et `promote`), `test_rehearsal.py` (`update --rehearse`), `test_e2e.py` (de bout en bout, `-m e2e` : chaque version depuis v0.3.0 par un outil installé, et le repo-témoin `antoine-tena/kiln-rehearsal`, figé à v0.3.3-rc.2, ne jamais le mettre à jour), `test_deployment.py`, `test_statusline.py` (choix du
@@ -143,7 +144,8 @@ cassant → majeure (rare et planifiée), `feat` → mineure, le reste → corre
 Deux temps, par la skill `/kiln:release` (pas de déploiement : le tag publie, et le tag promu
 publie sur PyPI le paquet `kiln-cli` par `pypi.yml`) :
 1. **Candidate** : branche `release/vX.Y.Z` tirée de `develop`, entrée `## vX.Y.Z — date` en tête
-   de `CHANGELOG.md`, `version = "X.Y.Z"` dans `pyproject.toml`, contrôle complet (les trois
+   de `CHANGELOG.md`, `version = "X.Y.Z"` dans `pyproject.toml`, digests des images du modèle
+   rafraîchis (`uv run python scripts/refresh_images.py`), contrôle complet (les trois
    commandes ci-dessous), branche poussée, **CI de GitHub attendue sur son commit** (macOS et
    tests de bout en bout, qui ne tournent que là : la rc.1 de la v0.4.0 était sortie sur un rouge
    que personne n'avait lu), tag `vX.Y.Z-rc.1` poussé seulement au vert. Les postes au canal `internal` (`kiln set

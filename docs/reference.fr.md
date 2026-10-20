@@ -97,6 +97,11 @@ système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.
 
 ## Commandes
 
+<p align="center">
+  <img src="assets/kiln-home.svg" alt="L'écran d'accueil de kiln : un four en pixel art au-dessus de ses commandes, rangées par projet, quotidien, grille et tous les repos" width="620">
+</p>
+<p align="center"><i><code>kiln</code> seul : toutes les commandes, rangées selon ce que l'on fait.</i></p>
+
 | Commande | Rôle |
 |---|---|
 | `kiln new [dossier]` | Trois questions (ce qu'on construit, l'envergure, la langue de l'équipe ; `--all-questions` pour le questionnaire complet), génération, verrous, installation, premier commit sur `main`, puis `develop` où tout le travail se fait. |
@@ -141,9 +146,9 @@ Options de `new` : `--size`, `--type`, `--backend`, `--frontend`, `--podman`,
 `--all-questions`.
 
 <p align="center">
-  <img src="assets/kiln-rule.svg" alt="kiln grid pinned-actions : le pourquoi de la règle, son thème, sa portée, son niveau, son régime, ses profils, sa détection, sa source et comment y déroger" width="680">
+  <img src="assets/kiln-grid.svg" alt="kiln grid : les règles que kiln défend, par thème, chacune avec son niveau" width="680">
 </p>
-<p align="center"><i><code>kiln grid &lt;ID&gt;</code> : une règle en entier, avec sa source et la façon d'y déroger.</i></p>
+<p align="center"><i><code>kiln grid</code> : les règles que kiln défend aujourd'hui ; <code>kiln grid &lt;ID&gt;</code> en montre une en entier, comme dans le README.</i></p>
 
 ## Envergure
 
@@ -251,6 +256,11 @@ Le travail s'intègre dans `develop` ; `main` ne reçoit que des versions.
   son tag ou modifié, une branche) est refusé par `kiln update`, `kiln new` et `kiln adopt`, qui
   donnent la commande d'installation de la version ; pour essayer le code de kiln sur un repo
   jetable, `KILN_TEMPLATE=<dossier de kiln>`.
+
+<p align="center">
+  <img src="assets/kiln-update.svg" alt="kiln update : un cadre qui liste les nouveautés de chaque version traversée, lues dans le journal de kiln" width="680">
+</p>
+<p align="center"><i>Ce que montre <code>kiln update</code> en traversant une version, lu dans le journal de kiln.</i></p>
 
 ## Faire évoluer le modèle
 

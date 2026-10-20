@@ -93,6 +93,29 @@ def test_a_readme_shows_only_current_images_and_existing_commands(readme: str) -
     assert f"]({reference})" in text, f"{readme} links its reference"
 
 
+def test_pypi_shows_the_readme_with_its_images_and_links() -> None:
+    """PyPI shows README.md away from the repo: the build makes each relative image and link
+    point at the release's tag on GitHub (hatch-fancy-pypi-readme, in `pyproject.toml`)."""
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text())
+    hook = pyproject["tool"]["hatch"]["metadata"]["hooks"]["fancy-pypi-readme"]
+    version = pyproject["project"]["version"]
+    text = "".join((ROOT / part["path"]).read_text(encoding="utf-8") for part in hook["fragments"])
+    for substitution in hook["substitutions"]:
+        text = re.sub(substitution["pattern"], substitution["replacement"], text)
+    text = text.replace("$HFPR_VERSION", version)
+
+    targets = re.findall(r'(?:src|srcset)="([^"]+)"', text) + re.findall(r"\]\(([^)\s]+)\)", text)
+    assert [target for target in targets if not target.startswith(("https://", "#"))] == []
+    tagged = (
+        f"https://raw.githubusercontent.com/antoine-tena/kiln/v{version}/",
+        f"https://github.com/antoine-tena/kiln/blob/v{version}/",
+    )
+    for target in targets:
+        for prefix in tagged:
+            if target.startswith(prefix):
+                assert (ROOT / target.removeprefix(prefix)).exists(), target
+
+
 # The marks of a text written by a language model, which readers (Hacker News first) spot and
 # hold against a project: em dashes, list items opened in bold or with an emoji, sales words.
 SALES_WORDS = (

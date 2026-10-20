@@ -47,7 +47,9 @@ aucune IA et ne demande aucune clé d'API.
   Des compteurs qui ne peuvent que baisser (cliquets) et des seuils de couverture tiennent à
   chaque commit et en CI. Une dérogation demande une raison et une date de fin.
 - `kiln grid` liste les pratiques que kiln défend, chacune avec sa raison, ses sources
-  (vérifiées et datées) et sa façon d'être détectée.
+  (vérifiées et datées) et sa façon d'être détectée. `kiln score` y mesure n'importe quel repo
+  en une seconde environ, sans jeton : une note sur 100, une par pilier, et les écarts à
+  combler d'abord.
 - Des skills pour les worktrees, les fusions, les versions et les relectures ; des hooks qui
   tiennent Claude à l'écart de `main` et `develop` ; une status line qui montre la CI, les
   tickets et la production.

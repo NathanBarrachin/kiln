@@ -44,7 +44,8 @@ kiln itself calls no AI and needs no API key.
   names, file sizes, personal data in logs. Counts that may only go down (ratchets) and coverage
   floors hold at each commit and in CI. A waiver needs a reason and an end date.
 - `kiln grid` lists the practices kiln stands behind, each with its reason, its sources (checked
-  and dated) and how it is detected.
+  and dated) and how it is detected. `kiln score` measures any repo against them in about a
+  second, without a token: a score out of 100, one per pillar, and the gaps to close first.
 - Skills for worktrees, merges, releases and reviews; hooks that keep Claude off `main` and
   `develop`; a status line that shows CI, tickets and production.
 - A private repo's CI runs on your machine (`kiln ci`, its verdict kept as a git note) and spends

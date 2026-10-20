@@ -12,7 +12,7 @@ entries before v0.4.0 quote kiln's former French names.
 - In a repo brought under kiln by `kiln adopt`, `kiln update` moves the references to kiln's workflows to the latest public release, after checking each input against the workflow at that tag; `kiln adopt` does it at adoption, and `kiln status` shows the tag an adopted repo quotes.
 - `kiln new` says when a stack is frozen: Django and Nuxt are complete, the other stacks stay generated and tested, without new grid rules for now.
 - Both READMEs now describe everything kiln offers (every command and option, every `kiln set` key, plugin, skill, hook and reusable workflow), checked by kiln's tests at each change; `kiln version cut` moves the version they quote and refuses a release whose READMEs did not change. Generated repos get the same rule: the README follows each change in its branch.
-- Fixes: `kiln version cut` carries the candidate still open into the next release; a deprecation now fails kiln's tests (an escape in `copier.yml` had slipped through).
+- Fixes: `kiln version cut` carries the candidate still open into the next release; a deprecation now fails kiln's tests (an escape in `copier.yml` had slipped through).; `kiln dev` runs the API of a Java backend that has a front (its jar, rebuilt at each start), and every server it starts receives the `.env` of its folder
 
 ## v0.4.0 — 2026-10-19
 - **Breaking**: kiln speaks English. `kiln update` converts a generated project in one go, and the names of 0.3 are still read until the next minor.

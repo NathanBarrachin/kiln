@@ -2,7 +2,7 @@
 # Sur PyPI, `kiln` est pris : la distribution s'appelle kiln-cli, la commande reste `kiln`.
 name = "kiln-cli"
 version = "0.4.1"
-description = "Repos Claude Code can work in safely, kept up to date."
+description = "Claude Code's workshop: start every new project, and rescue every old one, like a senior engineer would — even if you're not one."
 # README.md, its relative images and links made absolute for PyPI (fancy-pypi-readme, below).
 dynamic = ["readme"]
 license = "MIT"

@@ -4,7 +4,11 @@
 
 # kiln
 
-**Des repos où Claude Code travaille sans risque, tenus à jour.**
+*L'atelier de Claude Code*
+
+**Chaque nouveau projet démarré, et chaque vieux repo repris, comme le ferait un ingénieur expérimenté — même sans l'être soi-même.**
+
+kiln donne à Claude Code de quoi construire des repos de qualité production, remettre les vôtres à ce niveau, et les garder ainsi.
 
 [![PyPI](https://img.shields.io/pypi/v/kiln-cli.svg?color=c2551f)](https://pypi.org/project/kiln-cli/)
 [![CI](https://github.com/antoine-tena/kiln/actions/workflows/kiln.yml/badge.svg?branch=develop)](https://github.com/antoine-tena/kiln/actions/workflows/kiln.yml)
@@ -21,14 +25,20 @@
 Claude Code écrit vite. Un repo a besoin de plus pour rester sain : une stack à jour, des règles
 qu'un agent ne peut pas contourner à force d'arguments, une façon de travailler avec git qui
 résiste à un mauvais après-midi, et quelqu'un pour l'empêcher de vieillir au quatre-vingt-dixième
-jour. kiln fait les quatre, pour chacun de vos repos. Il n'appelle lui-même aucune IA et ne
-demande aucune clé d'API : il écrit des fichiers, lance vos outils et les tient à jour.
+jour. kiln apporte les quatre à un nouveau repo en trois questions, et à celui que vous avez
+déjà, si vieux et si sale soit-il : il pose les règles, liste ce qui n'y est pas, et Claude Code
+le résorbe. Puis il tient chaque repo à jour, version après version. kiln lui-même n'appelle
+aucune IA et ne demande aucune clé d'API.
 
 ## Points forts
 
-- Trois questions (ce que vous construisez, sa taille, la langue de l'équipe), puis un repo
-  complet : code, tests, linters, CI, crochets pre-commit, conteneurs et les consignes que
+- Un nouveau repo en trois questions (ce que vous construisez, sa taille, la langue de
+  l'équipe) : code, tests, linters, CI, crochets pre-commit, conteneurs et les consignes que
   Claude lit en premier.
+- Un repo que vous avez déjà, si vieux soit-il : `kiln adopt` le fait suivre kiln sur une
+  branche de travail, sans toucher à aucun fichier existant. Les règles sont vérifiées après
+  chaque modification de Claude, le passif qu'elles relèvent est listé pour que Claude le
+  résorbe, et `kiln check`, `kiln dev` et `kiln status` le servent comme un repo créé par kiln.
 - `kiln update` rejoue le modèle, prend les mises à jour compatibles des dépendances, convertit
   ce qu'une version a renommé et lance vos contrôles avant que vous ne commitiez. `--rehearse`
   l'essaie d'abord sur un clone jetable, `--all` met à jour chaque repo du dossier de code.
@@ -50,17 +60,28 @@ demande aucune clé d'API : il écrit des fichiers, lance vos outils et les tien
 uv tool install kiln-cli     # la commande est kiln ; uv installe Python 3.14 s'il manque
 ```
 
-Ou pour essayer sans rien installer : `uvx kiln-cli new mon-app`. macOS, Linux et Windows par
-WSL ; [pnpm](https://pnpm.io/) pour les fronts JavaScript, [podman](https://podman.io/) pour
-les conteneurs.
+Ou pour essayer sans rien installer : `uvx kiln-cli new mon-app` pour un nouveau repo,
+`uvx kiln-cli adopt` dans un repo que vous avez déjà. macOS, Linux et Windows par WSL ;
+[pnpm](https://pnpm.io/) pour les fronts JavaScript, [podman](https://podman.io/) pour les
+conteneurs.
 
 ## Démarrage
+
+Un nouveau repo :
 
 ```console
 $ kiln new mon-app            # trois questions, puis un dépôt GitHub privé (--no-github : local)
 $ cd mon-app && kiln dev      # les serveurs de la stack, sorties préfixées par service
 $ kiln check                  # ruff, mypy, pytest, ESLint, types, puis charter
 $ claude                      # Claude Code, avec les règles, skills et hooks de kiln
+```
+
+Un repo que vous avez déjà, sur une branche de travail :
+
+```console
+$ git switch -c chore/kiln-adopt
+$ kiln adopt                  # les règles et un backlog, aucun fichier touché ; puis le passif
+$ claude                      # Claude Code le résorbe, avec les règles, skills et hooks de kiln
 ```
 
 ## Ce que vous obtenez
@@ -98,7 +119,9 @@ et macOS, y compris une mise à jour depuis chaque version depuis la v0.3.0, par
 installé. Elle est promue quand la candidate suivante est prête, puis répétée sur un clone de
 chaque repo avant que `kiln update --all` la fusionne, un worktree par repo. Les repos citent les
 workflows de kiln à la version exacte qu'ils suivent : rien ne leur arrive entre deux versions,
-et `kiln update` montre les nouveautés de chaque version qu'il traverse.
+et `kiln update` montre les nouveautés de chaque version qu'il traverse. Un repo repris par
+`kiln adopt` suit les workflows de kiln à la dernière version, que `kiln update` fait avancer
+aussi.
 
 ## La grille
 
@@ -150,7 +173,9 @@ kiln fait tourner chaque jour une poignée de vrais repos, dont un en production
 mainteneur l'écrit avec Claude Code, sous les règles mêmes qu'il donne à vos repos. Il numérote
 ses versions comme Claude Code : en `0.x`, chaque version monte le correctif, les changements
 cassants viennent en tête du [journal](CHANGELOG.md) et `kiln update` les convertit ; la mineure
-marque une étape. Le semver strict commence à la 1.0.
+marque une étape. Le semver strict commence à la 1.0. La suite est pour les repos que vous avez
+déjà : n'importe quel repo Django ou Nuxt noté face à la grille en quelques secondes, puis mis à
+niveau par script partout où un script le peut (v0.5.0).
 
 ## Contribuer
 

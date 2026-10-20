@@ -95,7 +95,7 @@
 <line x1="782.2" y1="73.0" x2="778.0" y2="73.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="782.2" y1="73.0" x2="786.4" y2="73.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <path d="M786.4,73.0 Q790.6,73.0 790.6,82.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="91.0" x2="43.0" y2="82.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="91.0" x2="43.0" y2="100.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="55.6" y="95.5" textLength="294.0" fill="#f79628" font-weight="bold">What's new in kiln: v0.4.0 → v0.4.1</text>
+<text x="55.6" y="95.5" textLength="294.0" fill="#f79628" font-weight="bold">What's new in kiln: v0.4.1 → v0.4.2</text>
 <line x1="790.6" y1="91.0" x2="790.6" y2="82.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="91.0" x2="790.6" y2="100.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="109.0" x2="47.2" y2="109.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="109.0" x2="43.0" y2="100.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="109.0" x2="43.0" y2="118.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="51.4" y1="109.0" x2="47.2" y2="109.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="51.4" y1="109.0" x2="55.6" y2="109.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
@@ -188,138 +188,114 @@
 <line x1="782.2" y1="109.0" x2="778.0" y2="109.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="782.2" y1="109.0" x2="786.4" y2="109.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="790.6" y1="109.0" x2="786.4" y2="109.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="109.0" x2="790.6" y2="100.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="109.0" x2="790.6" y2="118.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="127.0" x2="43.0" y2="118.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="127.0" x2="43.0" y2="136.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="55.6" y="131.5" textLength="142.8" font-weight="bold">v0.4.1 2026-10-19</text>
+<text x="55.6" y="131.5" textLength="142.8" font-weight="bold">v0.4.2 2026-10-20</text>
 <line x1="790.6" y1="127.0" x2="790.6" y2="118.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="127.0" x2="790.6" y2="136.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="145.0" x2="43.0" y2="136.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="145.0" x2="43.0" y2="154.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <text x="55.6" y="149.5" textLength="8.4" fill="#f79628">·</text>
-<text x="72.4" y="149.5" textLength="428.4">A private repo's CI runs on the machine: new answer</text>
-<text x="509.2" y="149.5" textLength="75.6" fill="#ffe178">ci_runner</text>
-<text x="593.2" y="149.5" textLength="8.4">(</text>
-<text x="601.6" y="149.5" textLength="42.0" fill="#ffe178">local</text>
-<text x="652.0" y="149.5" textLength="109.2">for a private</text>
+<text x="72.4" y="149.5" textLength="33.6" fill="#ffe178">kiln</text>
+<text x="114.4" y="149.5" textLength="42.0" fill="#ffe178">score</text>
+<text x="156.4" y="149.5" textLength="579.6">: any repo, made by kiln or not, measured against the grid in about a</text>
 <line x1="790.6" y1="145.0" x2="790.6" y2="136.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="145.0" x2="790.6" y2="154.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="163.0" x2="43.0" y2="154.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="163.0" x2="43.0" y2="172.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="167.5" textLength="42.0">repo,</text>
-<text x="122.8" y="167.5" textLength="50.4" fill="#ffe178">github</text>
-<text x="181.6" y="167.5" textLength="453.6">for a public one, picked from the repo's visibility by</text>
-<text x="643.6" y="167.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="685.6" y="167.5" textLength="50.4" fill="#ffe178">update</text>
-<text x="744.4" y="167.5" textLength="33.6">when</text>
+<text x="72.4" y="167.5" textLength="663.6">second, offline and without a token. A score out of 100 and one per pillar, the</text>
 <line x1="790.6" y1="163.0" x2="790.6" y2="154.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="163.0" x2="790.6" y2="172.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="181.0" x2="43.0" y2="172.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="181.0" x2="43.0" y2="190.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="185.5" textLength="100.8">missing). In</text>
-<text x="181.6" y="185.5" textLength="42.0" fill="#ffe178">local</text>
-<text x="223.6" y="185.5" textLength="8.4">,</text>
-<text x="240.4" y="185.5" textLength="50.4" fill="#ffe178">ci.yml</text>
-<text x="299.2" y="185.5" textLength="386.4">has no push trigger (no GitHub minutes spent),</text>
+<text x="72.4" y="185.5" textLength="680.4">three gaps to close first, then each gap with its reason, where it is, its source</text>
 <line x1="790.6" y1="181.0" x2="790.6" y2="172.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="181.0" x2="790.6" y2="190.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="199.0" x2="43.0" y2="190.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="199.0" x2="43.0" y2="208.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="203.5" textLength="92.4" fill="#ffe178">/kiln:merge</text>
-<text x="173.2" y="203.5" textLength="126.0">replays it with</text>
-<text x="307.6" y="203.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="349.6" y="203.5" textLength="16.8" fill="#ffe178">ci</text>
-<text x="366.4" y="203.5" textLength="403.2">, and the status line and the session start read</text>
+<text x="72.4" y="203.5" textLength="697.2">and what closes it; waived rules shown apart, stacks the grid does not cover listed</text>
 <line x1="790.6" y1="199.0" x2="790.6" y2="190.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="199.0" x2="790.6" y2="208.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="217.0" x2="43.0" y2="208.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="217.0" x2="43.0" y2="226.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="221.5" textLength="100.8">its verdict;</text>
-<text x="181.6" y="221.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="223.6" y="221.5" textLength="25.2" fill="#ffe178">set</text>
-<text x="257.2" y="221.5" textLength="134.4" fill="#ffe178">ci_runner=github</text>
-<text x="400.0" y="221.5" textLength="235.2">brings it back on each push.</text>
+<text x="72.4" y="221.5" textLength="92.4">at the end.</text>
+<text x="173.2" y="221.5" textLength="42.0" fill="#ffe178">--all</text>
+<text x="215.2" y="221.5" textLength="8.4">,</text>
+<text x="232.0" y="221.5" textLength="50.4" fill="#ffe178">--json</text>
+<text x="290.8" y="221.5" textLength="92.4">(schema 1),</text>
+<text x="391.6" y="221.5" textLength="58.8" fill="#ffe178">--badge</text>
+<text x="458.8" y="221.5" textLength="109.2">for a README,</text>
+<text x="576.4" y="221.5" textLength="67.2" fill="#ffe178">--online</text>
+<text x="652.0" y="221.5" textLength="75.6">for fresh</text>
 <line x1="790.6" y1="217.0" x2="790.6" y2="208.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="217.0" x2="790.6" y2="226.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="235.0" x2="43.0" y2="226.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="235.0" x2="43.0" y2="244.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="55.6" y="239.5" textLength="8.4" fill="#f79628">·</text>
-<text x="72.4" y="239.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="114.4" y="239.5" textLength="33.6" fill="#ffe178">grid</text>
-<text x="148.0" y="239.5" textLength="621.6">: the practices kiln holds as the best, one small TOML file per rule, each</text>
+<text x="72.4" y="239.5" textLength="151.2">end-of-life dates.</text>
 <line x1="790.6" y1="235.0" x2="790.6" y2="226.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="235.0" x2="790.6" y2="244.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="253.0" x2="43.0" y2="244.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="253.0" x2="43.0" y2="262.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="257.5" textLength="705.6">with its why, its sources checked and dated, its level (adopt, trial, assess, hold),</text>
+<text x="55.6" y="257.5" textLength="8.4" fill="#f79628">·</text>
+<text x="72.4" y="257.5" textLength="697.2">Grid v1: 40 scored rules, up from 6. CI and workflows (token permissions, untrusted</text>
 <line x1="790.6" y1="253.0" x2="790.6" y2="244.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="253.0" x2="790.6" y2="262.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="271.0" x2="43.0" y2="262.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="271.0" x2="43.0" y2="280.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="275.5" textLength="680.4">its regime and how it is detected. Six rules to start (lockfiles, pinned actions,</text>
+<text x="72.4" y="275.5" textLength="142.8">input in scripts,</text>
+<text x="223.6" y="275.5" textLength="159.6" fill="#ffe178">pull_request_target</text>
+<text x="383.2" y="275.5" textLength="369.6">, tests, linter, vulnerability audit, secret</text>
 <line x1="790.6" y1="271.0" x2="790.6" y2="262.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="271.0" x2="790.6" y2="280.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="289.0" x2="43.0" y2="280.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="289.0" x2="43.0" y2="298.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="293.5" textLength="604.8">dependency updates and their cooldown, non-root containers, no committed</text>
-<text x="685.6" y="293.5" textLength="33.6" fill="#ffe178">.env</text>
-<text x="719.2" y="293.5" textLength="50.4">), and</text>
+<text x="72.4" y="293.5" textLength="663.6">scan), containers (images by digest, current Debian, hardened compose services,</text>
 <line x1="790.6" y1="289.0" x2="790.6" y2="280.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="289.0" x2="790.6" y2="298.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="307.0" x2="43.0" y2="298.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="307.0" x2="43.0" y2="316.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="311.5" textLength="428.4">105 assessed drafts drawn from the reference repo (</text>
-<text x="500.8" y="311.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="542.8" y="311.5" textLength="33.6" fill="#ffe178">grid</text>
-<text x="584.8" y="311.5" textLength="58.8" fill="#ffe178">--level</text>
-<text x="652.0" y="311.5" textLength="50.4" fill="#ffe178">assess</text>
-<text x="702.4" y="311.5" textLength="16.8">).</text>
+<text x="72.4" y="311.5" textLength="277.2">health checks), Django settings (</text>
+<text x="349.6" y="311.5" textLength="42.0" fill="#ffe178">DEBUG</text>
+<text x="391.6" y="311.5" textLength="8.4">,</text>
+<text x="408.4" y="311.5" textLength="84.0" fill="#ffe178">SECRET_KEY</text>
+<text x="492.4" y="311.5" textLength="8.4">,</text>
+<text x="509.2" y="311.5" textLength="109.2" fill="#ffe178">ALLOWED_HOSTS</text>
+<text x="618.4" y="311.5" textLength="109.2">), Python and</text>
 <line x1="790.6" y1="307.0" x2="790.6" y2="298.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="307.0" x2="790.6" y2="316.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="325.0" x2="43.0" y2="316.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="325.0" x2="43.0" y2="334.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="55.6" y="329.5" textLength="8.4" fill="#f79628">·</text>
-<text x="72.4" y="329.5" textLength="260.4">In a repo brought under kiln by</text>
-<text x="341.2" y="329.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="383.2" y="329.5" textLength="42.0" fill="#ffe178">adopt</text>
-<text x="425.2" y="329.5" textLength="8.4">,</text>
-<text x="442.0" y="329.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="484.0" y="329.5" textLength="50.4" fill="#ffe178">update</text>
-<text x="542.8" y="329.5" textLength="193.2">moves the references to</text>
+<text x="72.4" y="329.5" textLength="688.8">TypeScript standards, runtimes past their end of life. Each one sourced and dated,</text>
 <line x1="790.6" y1="325.0" x2="790.6" y2="316.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="325.0" x2="790.6" y2="334.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="343.0" x2="43.0" y2="334.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="343.0" x2="43.0" y2="352.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="347.5" textLength="705.6">kiln's workflows to the latest public release, after checking each input against the</text>
+<text x="72.4" y="347.5" textLength="655.2">and run on two real repos for false positives: those that can flag wrongly are</text>
 <line x1="790.6" y1="343.0" x2="790.6" y2="334.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="343.0" x2="790.6" y2="352.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="361.0" x2="43.0" y2="352.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="361.0" x2="43.0" y2="370.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="365.5" textLength="176.4">workflow at that tag;</text>
-<text x="257.2" y="365.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="299.2" y="365.5" textLength="42.0" fill="#ffe178">adopt</text>
-<text x="349.6" y="365.5" textLength="201.6">does it at adoption, and</text>
-<text x="559.6" y="365.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="601.6" y="365.5" textLength="50.4" fill="#ffe178">status</text>
-<text x="660.4" y="365.5" textLength="109.2">shows the tag</text>
+<text x="72.4" y="365.5" textLength="50.4" fill="#ffe178">review</text>
+<text x="131.2" y="365.5" textLength="16.8">or</text>
+<text x="156.4" y="365.5" textLength="58.8" fill="#ffe178">ratchet</text>
+<text x="215.2" y="365.5" textLength="25.2">. A</text>
+<text x="248.8" y="365.5" textLength="134.4" fill="#ffe178">requirements.txt</text>
+<text x="391.6" y="365.5" textLength="386.4">pinned to exact versions now counts as locked.</text>
 <line x1="790.6" y1="361.0" x2="790.6" y2="352.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="361.0" x2="790.6" y2="370.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="379.0" x2="43.0" y2="370.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="379.0" x2="43.0" y2="388.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="383.5" textLength="193.2">an adopted repo quotes.</text>
+<text x="55.6" y="383.5" textLength="8.4" fill="#f79628">·</text>
+<text x="72.4" y="383.5" textLength="33.6" fill="#ffe178">kiln</text>
+<text x="114.4" y="383.5" textLength="25.2" fill="#ffe178">dev</text>
+<text x="148.0" y="383.5" textLength="285.6">runs a Java API next to its front.</text>
 <line x1="790.6" y1="379.0" x2="790.6" y2="370.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="379.0" x2="790.6" y2="388.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="397.0" x2="43.0" y2="388.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="397.0" x2="43.0" y2="406.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <text x="55.6" y="401.5" textLength="8.4" fill="#f79628">·</text>
-<text x="72.4" y="401.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="114.4" y="401.5" textLength="25.2" fill="#ffe178">new</text>
-<text x="148.0" y="401.5" textLength="630.0">says when a stack is frozen: Django and Nuxt are complete, the other stacks</text>
+<text x="72.4" y="401.5" textLength="646.8">The session start no longer calls a CI red when GitHub never started its jobs</text>
 <line x1="790.6" y1="397.0" x2="790.6" y2="388.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="397.0" x2="790.6" y2="406.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="415.0" x2="43.0" y2="406.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="415.0" x2="43.0" y2="424.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="419.5" textLength="487.2">stay generated and tested, without new grid rules for now.</text>
+<text x="72.4" y="419.5" textLength="672.0">(billing, spending limit): it says there is nothing to fix in the code, and that</text>
 <line x1="790.6" y1="415.0" x2="790.6" y2="406.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="415.0" x2="790.6" y2="424.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="433.0" x2="43.0" y2="424.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="433.0" x2="43.0" y2="442.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="55.6" y="437.5" textLength="8.4" fill="#f79628">·</text>
-<text x="72.4" y="437.5" textLength="680.4">Both READMEs now describe everything kiln offers (every command and option, every</text>
+<text x="72.4" y="437.5" textLength="33.6" fill="#ffe178">kiln</text>
+<text x="114.4" y="437.5" textLength="16.8" fill="#ffe178">ci</text>
+<text x="139.6" y="437.5" textLength="478.8">replays it on the machine (#45, thanks @NathanBarrachin).</text>
 <line x1="790.6" y1="433.0" x2="790.6" y2="424.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="433.0" x2="790.6" y2="442.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="451.0" x2="43.0" y2="442.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="451.0" x2="43.0" y2="460.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
+<text x="55.6" y="455.5" textLength="8.4" fill="#f79628">·</text>
 <text x="72.4" y="455.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="114.4" y="455.5" textLength="25.2" fill="#ffe178">set</text>
-<text x="148.0" y="455.5" textLength="630.0">key, plugin, skill, hook and reusable workflow), checked by kiln's tests at</text>
+<text x="114.4" y="455.5" textLength="50.4" fill="#ffe178">update</text>
+<text x="173.2" y="455.5" textLength="579.6">from 0.3 keeps the outline of the instructions it carries over: their</text>
 <line x1="790.6" y1="451.0" x2="790.6" y2="442.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="451.0" x2="790.6" y2="460.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="469.0" x2="43.0" y2="460.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="469.0" x2="43.0" y2="478.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="473.5" textLength="100.8">each change;</text>
-<text x="181.6" y="473.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="223.6" y="473.5" textLength="58.8" fill="#ffe178">version</text>
-<text x="290.8" y="473.5" textLength="25.2" fill="#ffe178">cut</text>
-<text x="324.4" y="473.5" textLength="420.0">moves the version they quote and refuses a release</text>
+<text x="72.4" y="473.5" textLength="680.4">headings sit under the carried-over part, and a line added to a generated section</text>
 <line x1="790.6" y1="469.0" x2="790.6" y2="460.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="469.0" x2="790.6" y2="478.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="487.0" x2="43.0" y2="478.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="487.0" x2="43.0" y2="496.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="491.5" textLength="697.2">whose READMEs did not change. Generated repos get the same rule: the README follows</text>
+<text x="72.4" y="491.5" textLength="411.6">keeps its heading (#46, thanks @NathanBarrachin).</text>
 <line x1="790.6" y1="487.0" x2="790.6" y2="478.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="487.0" x2="790.6" y2="496.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="505.0" x2="43.0" y2="496.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="505.0" x2="43.0" y2="514.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="509.5" textLength="218.4">each change in its branch.</text>
+<text x="55.6" y="509.5" textLength="8.4" fill="#f79628">·</text>
+<text x="72.4" y="509.5" textLength="705.6">Fixes: generation is one line in a terminal like every other step; a long panel line</text>
 <line x1="790.6" y1="505.0" x2="790.6" y2="496.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="505.0" x2="790.6" y2="514.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="523.0" x2="43.0" y2="514.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="523.0" x2="43.0" y2="532.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="55.6" y="527.5" textLength="8.4" fill="#f79628">·</text>
-<text x="72.4" y="527.5" textLength="50.4">Fixes:</text>
-<text x="131.2" y="527.5" textLength="33.6" fill="#ffe178">kiln</text>
-<text x="173.2" y="527.5" textLength="58.8" fill="#ffe178">version</text>
-<text x="240.4" y="527.5" textLength="25.2" fill="#ffe178">cut</text>
-<text x="274.0" y="527.5" textLength="478.8">carries the candidate still open into the next release; a</text>
+<text x="72.4" y="527.5" textLength="520.8">wraps instead of being cut; release notes show code in colour;</text>
+<text x="601.6" y="527.5" textLength="33.6" fill="#ffe178">kiln</text>
+<text x="643.6" y="527.5" textLength="58.8" fill="#ffe178">version</text>
+<text x="710.8" y="527.5" textLength="25.2" fill="#ffe178">cut</text>
 <line x1="790.6" y1="523.0" x2="790.6" y2="514.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="523.0" x2="790.6" y2="532.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="43.0" y1="541.0" x2="43.0" y2="532.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="43.0" y1="541.0" x2="43.0" y2="550.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
-<text x="72.4" y="545.5" textLength="403.2">deprecation now fails kiln's tests (an escape in</text>
-<text x="484.0" y="545.5" textLength="84.0" fill="#ffe178">copier.yml</text>
-<text x="576.4" y="545.5" textLength="176.4">had slipped through).</text>
+<text x="72.4" y="545.5" textLength="361.2">redraws the README's images of the release.</text>
 <line x1="790.6" y1="541.0" x2="790.6" y2="532.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="790.6" y1="541.0" x2="790.6" y2="550.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <path d="M47.2,559.0 Q43.0,559.0 43.0,550.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>
 <line x1="51.4" y1="559.0" x2="47.2" y2="559.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/><line x1="51.4" y1="559.0" x2="55.6" y2="559.0" stroke="#5f5f5c" stroke-width="1.2" fill="none"/>

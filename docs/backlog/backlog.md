@@ -82,7 +82,7 @@ CI on the machine, both READMEs complete and checked. Promoted when `v0.4.2-rc.1
 ### v0.4.2 · Any repo scored against the best, in seconds
 Candidate Sat 24 Oct. The launch hook: `uvx kiln-cli score` on the repo people already have,
 without a token.
-- T-125 · Grid v1: the rules kiln launches with (L)
+- ✅ T-125 · Grid v1: the rules kiln launches with (L)
 - T-46 · `kiln score`: any repo measured against the grid in seconds, no tokens (L)
 - T-157 · Credit #45 and #46 in the notes of v0.4.2 (XS)
 
@@ -203,35 +203,6 @@ In the `v0.4.2` entry of `CHANGELOG.md`: the line of each fix ends with `(#45, t
 red; carried-over instructions keep their outline).
 
 ## 🟠 Important
-
-### T-125 · Grid v1: the rules kiln launches with
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-17
-- **Effort**: L · **Owner**: Claude · **Due**: —
-- **Origin**: vision of 17 October 2026 (the grid, the five pillars, two real repos measured)
-
-What `kiln score` measures on launch day: about fifty rules, each with its sources and its date,
-for the universal, Python, TypeScript, Django and Nuxt scopes.
-- [ ] The 31 reference practices measured on 17 October (tooling, supply chain, containers and
-  operations, tests, application security, observability and delivery); the code standards of
-  the charter that hold beyond one project (file and function sizes, names, typing, modern
-  Python…); the readability rules whose detector is exact (sizes, generic names, a repo map in
-  `CLAUDE.md`); the delegation of versions (Dependabot or Renovate present, with a cooldown).
-- [ ] Levels by the doctrine, the best rather than the newest. On 17 October: Python 3.15
-  `assess` (Django 6.1 stops at 3.14), ty `assess` (beta: mypy stays `adopt`), Vue 3.6 `assess`
-  (release candidate), Node 26 `adopt` only once it is LTS (28 October).
-- [ ] Engine-neutral: a practice is met whatever the tool that meets it (non-root, read-only
-  containers with Docker or Podman alike); no rule takes points for a tool choice (decided by
-  Claude, 17 October 2026: otherwise it is the first Hacker News comment).
-- [ ] One profile at launch, "small structure" (an association, a freelancer, a 50-person
-  company, a university lab): SLO, feature flags and other large-company methods are not
-  counted; T-39 brings the other profiles.
-- [ ] Each draft of T-124 that makes the cut gets its sources and leaves `assess`.
-- [ ] A rule launches `strict` only when it raises no false positive on the reference repo and
-  the university repo (local copies), `review` until then (doctrine 7: an imprecise rule is
-  worse than none; ruff's "ambiguous characters" on the reference repo were French
-  typography).
 
 ### T-46 · `kiln score`: any repo measured against the grid in seconds, no tokens
 - **Type**: improvement
@@ -1123,6 +1094,7 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-20** · T-125 · Grid v1 — 40 scored rules (nine drafts promoted, 25 new), each sourced and dated, with a passing and a failing example, run on local copies of both training repos: rules that can flag wrongly launch `review` or `ratchet`; 1.0 s on the reference repo (feat/grid-v1) · opened 2026-10-17
 - **2026-10-19** · T-143 · Decide the name before the launch — antoine keeps **kiln**, after
   the facts of `docs/vision/nom.md` (Kiln-AI, two agent tools of the same name, `kiln` taken on
   PyPI and npm); the package stays `kiln-cli` · opened 2026-10-18

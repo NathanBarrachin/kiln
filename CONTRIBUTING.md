@@ -80,8 +80,9 @@ uv run pytest -q                 # renders every stack combination, ~20 s on all
 
 ## Code of conduct
 
-Be kind and assume good intent. Harassment or personal attacks are not tolerated; report them
-privately to the maintainer (see [SECURITY.md](SECURITY.md) for how to reach them).
+kiln follows the [Contributor Covenant](CODE_OF_CONDUCT.md). Be kind and assume good intent.
+Harassment or personal attacks are not tolerated; report them privately to the maintainer,
+through [GitHub's private reporting](https://github.com/antoine-tena/kiln/security/advisories/new).
 
 ---
 

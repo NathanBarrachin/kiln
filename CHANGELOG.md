@@ -7,13 +7,9 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 entries before v0.4.0 quote kiln's former French names.
 
 ## v0.4.3 — 2026-10-20
-<!-- draft: rewrite for users, breaking changes first, then delete this line -->
-- A cut stopped by a conflict drafts before it tags
-- Kiln-update.svg redrawn from the v0.4.1 notes
-- Fourteen rules name their converter
-- Converters for Python and containers (T-128)
-- Converters for the supply chain and CI (T-127)
-- Kiln fix, scriptable gaps closed on a branch with proof (T-126)
+- `kiln fix`: every gap a script can close, closed on a work branch `kiln/fix-<date>`, one commit per rule with its why and source. Your checks run before and after each converter; one that turns them red is undone and reported, and a repo without tests is fixed anyway, each commit marked unverified. `--dry-run` shows the plan and the diff, `--rule ID` takes one rule, and the score before and after closes the run.
+- Fourteen converters to start: actions pinned by commit SHA, a 7-day cooldown on updates, Dependabot for every ecosystem found, read-only workflow tokens, gitleaks, a minimal CI, obsolete backports removed, loose `requirements.txt` compiled to exact versions by uv, ruff with its safe fixes, `@ts-expect-error`, images pinned by digest, Debian 13, a non-root user, Node and Python moved off their end of life. Those that reach the network say so first.
+- Fixes: `kiln version cut` no longer tags a release whose cut stopped on a conflict before its changelog entry was drafted; the README's `kiln update` image is drawn from the right notes.
 
 ## v0.4.2 — 2026-10-20
 - `kiln score`: any repo, made by kiln or not, measured against the grid in about a second, offline and without a token. A score out of 100 and one per pillar, the three gaps to close first, then each gap with its reason, where it is, its source and what closes it; waived rules shown apart, stacks the grid does not cover listed at the end. `--all`, `--json` (schema 1), `--badge` for a README, `--online` for fresh end-of-life dates.

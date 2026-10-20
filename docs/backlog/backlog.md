@@ -525,6 +525,10 @@ previews), the PyPI summary and the launch titles.
   to claude-code, django, nuxt), PyPI summary; the social preview (1280×640) redone with the new
   line, uploaded by antoine (no API): https://github.com/antoine-tena/kiln/settings (Social
   preview).
+- [ ] The social preview redrawn with the v0.5.0 promise (`scripts/screenshots.py`, then
+  `scripts/social_preview.py`), then a box in `urgent.md` asking antoine to upload it again
+  (no API takes it): https://github.com/antoine-tena/kiln/settings, "Social preview", "Edit".
+  Today's image was uploaded by antoine on 20 October 2026.
 
 ### T-154 · Show your score: a badge other repos display
 - **Type**: improvement

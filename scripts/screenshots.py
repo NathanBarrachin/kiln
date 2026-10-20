@@ -4,9 +4,10 @@
 
 Each terminal image is the screen kiln prints, rendered in colour (true-colour escape codes
 turned into SVG), for a demo project and without a version number that would date it. The
-diagram is drawn in kiln's palette, in a light and a dark variant. `tests/test_docs.py` fails
-when a committed image no longer matches what this script draws: the README never shows an
-old screen.
+diagram is drawn in kiln's palette, in a light and a dark variant; the logo and the social
+preview draw the banner's kiln pixel by pixel. `tests/test_docs.py` fails when a committed image
+no longer matches what this script draws: the README never shows an old screen. The animated
+demo is recorded apart (`docs/assets/kiln-new.tape`).
 """
 
 import io
@@ -230,13 +231,14 @@ THEMES = (
     Theme("light", "#ffffff", "#faf8f5", "#e2ddd5", "#1c1b19", "#3d3b37", "#7a776f", "#c2551f"),
     Theme("dark", "#0d1117", "#1c1b19", "#3a3833", "#f2efe8", "#d4d0c7", "#9a968c", "#f79628"),
 )
-# Each stage of a release, in order: its name, what it is, and what holds before the next one.
+# Each stage of a release, in order: its name, what it is, and what holds before the next one,
+# in the words of someone who has never seen kiln.
 STAGES = (
-    ("kiln", ("template, grid,", "plugins, workflows"), "checked at each merge"),
-    ("candidate", ("vX.Y.Z-rc.N, on", "the internal channel"), "CI green, end-to-end"),
-    ("release", ("vX.Y.Z on PyPI,", "GitHub Release"), "next candidate ready"),
-    ("rehearsal", ("each repo updated", "on a throwaway clone"), "green on every clone"),
-    ("your repos", ("kiln update applies", "template and deps"), "merged when green"),
+    ("kiln", ("template, rules,", "plugins, workflows"), "checked at each merge"),
+    ("candidate", ("tried first on", "kiln's own repos"), "green on Linux, macOS"),
+    ("release", ("on PyPI and", "GitHub Releases"), "next candidate ready"),
+    ("rehearsal", ("your repo updated", "on a throwaway clone"), "green on every clone"),
+    ("your repos", ("kiln update merges", "template and deps"), "only if checks pass"),
 )
 
 
@@ -287,16 +289,91 @@ def flow_svg(theme: Theme) -> str:
     return "\n".join(shapes)
 
 
+# --- Logo and social preview: the banner's kiln, one square per pixel -----------------------
+
+
+def rgb(color: ui.Color) -> str:
+    return hex_color(color.true_color.split(";"))
+
+
+def pixels(size: int, left: int = 0, top: int = 0) -> list[str]:
+    """The kiln of the banner (`banner.LOGO`), each run of same-coloured pixels one rectangle."""
+    return [
+        f'<rect x="{left + size * found.start()}" y="{top + size * row}" '
+        f'width="{size * len(found.group())}" height="{size}" '
+        f'fill="{rgb(banner.LOGO_COLORS[found.group(1)])}"/>'
+        for row, line in enumerate(banner.LOGO)
+        for found in re.finditer(rf"([^{re.escape(banner.EMPTY)}])\1*", line)
+    ]
+
+
+def logo_svg(size: int = 12) -> str:
+    """On a transparent ground, one image for the light and the dark themes."""
+    width, height = size * len(banner.LOGO[0]), size * len(banner.LOGO)
+    header = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}" shape-rendering="crispEdges" role="img" '
+        'aria-label="kiln: a laughing kiln in pixel art">'
+    )
+    return "\n".join([header, *pixels(size), "</svg>", ""])
+
+
+# What a shared link shows (X, Bluesky, LinkedIn, Slack, Discord, Reddit): the promise in a few
+# big words, readable as a thumbnail. GitHub takes a PNG: `scripts/social_preview.py`.
+PROMISE = (
+    ("Repos Claude Code can", "#f79628"),
+    ("work in safely,", "#f79628"),
+    ("kept up to date.", "#f2efe8"),
+)
+
+
+def social_preview_svg() -> str:
+    width, height, left = 1280, 640, 560
+    text = f'font-family="{FONT}"'
+    shapes = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}" role="img" aria-label="kiln: repos Claude Code can '
+        'work in safely, kept up to date. uvx kiln-cli new my-app">',
+        '<defs><radialGradient id="glow" cx="0.25" cy="0.55" r="0.45">'
+        '<stop offset="0" stop-color="#f79628" stop-opacity="0.22"/>'
+        '<stop offset="1" stop-color="#f79628" stop-opacity="0"/></radialGradient></defs>',
+        f'<rect width="{width}" height="{height}" fill="{BACKGROUND}"/>',
+        f'<rect width="{width}" height="{height}" fill="url(#glow)"/>',
+        '<g shape-rendering="crispEdges">',
+        *pixels(26, left=96, top=200),
+        "</g>",
+        f'<text x="{left}" y="236" {text} font-size="112" font-weight="bold" '
+        'fill="#f2efe8">kiln</text>',
+    ]
+    shapes += [
+        f'<text x="{left}" y="{316 + 54 * row}" {text} font-size="42" fill="{color}">'
+        f"{escape(line)}</text>"
+        for row, (line, color) in enumerate(PROMISE)
+    ]
+    shapes += [
+        f'<text x="{left}" y="514" {text} font-size="30" fill="{PROMPT}">$ '
+        '<tspan fill="#e6e3dc">uvx kiln-cli new my-app</tspan></text>',
+        f'<text x="{left}" y="568" {text} font-size="24" fill="{PROMPT}">'
+        "github.com/antoine-tena/kiln</text>",
+        "</svg>",
+        "",
+    ]
+    return "\n".join(shapes)
+
+
 # --- All images ------------------------------------------------------------------------------
 
 
 def images() -> dict[Path, str]:
-    """Each image of the README and what it must contain today."""
+    """Each image of the README, the reference and the social preview, and what it must contain
+    today."""
     drawn = {
+        ASSETS / "kiln-logo.svg": logo_svg(),
         ASSETS / "kiln-home.svg": svg(home_screen(), "kiln welcome screen: the commands"),
         ASSETS / "kiln-grid.svg": svg(grid_screen(), "kiln grid: the rules kiln stands behind"),
         ASSETS / "kiln-rule.svg": svg(rule_screen(), "kiln grid: one rule, its why and sources"),
         ASSETS / "kiln-update.svg": svg(update_screen(), "kiln update: what is new"),
+        ASSETS / "social-preview.svg": social_preview_svg(),
     }
     drawn |= {ASSETS / f"kiln-flow-{theme.name}.svg": flow_svg(theme) for theme in THEMES}
     return drawn

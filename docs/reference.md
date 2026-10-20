@@ -16,6 +16,11 @@ option, setting, plugin, skill, hook or workflow is missing here.
 
 ## Commands
 
+<p align="center">
+  <img src="assets/kiln-home.svg" alt="kiln's welcome screen: a pixel-art kiln above its commands, grouped by project, day to day, the grid and all repos" width="620">
+</p>
+<p align="center"><i><code>kiln</code> on its own: every command, grouped by what you are doing.</i></p>
+
 | Command | What it does |
 |---|---|
 | `kiln new [dir]` | Questionnaire, generation, lockfiles, install, first commit on `main`, then `develop` where all work happens. Three questions (what you build, size, language), the rest by option: `--name`, `--title`, `--description`, `--type`, `--size`, `--backend`, `--frontend`, `--language`, `--owner`, `--team`, `--podman`, `--vps`, `--goal`, `--prod-url`; `--no-github` (local only), `--no-install`, `--template` (another source), `--all-questions` (the whole questionnaire). |
@@ -39,9 +44,9 @@ option, setting, plugin, skill, hook or workflow is missing here.
 
 
 <p align="center">
-  <img src="assets/kiln-rule.svg" alt="kiln grid pinned-actions: the rule's why, theme, scope, level, regime, profiles, detection, source and how to waive it" width="680">
+  <img src="assets/kiln-grid.svg" alt="kiln grid: the rules kiln stands behind, by theme, each with its level" width="680">
 </p>
-<p align="center"><i><code>kiln grid &lt;ID&gt;</code>: one rule in full, with its source and how to waive it.</i></p>
+<p align="center"><i><code>kiln grid</code>: the rules kiln stands behind today; <code>kiln grid &lt;ID&gt;</code> shows one in full, as in the README.</i></p>
 
 ## Settings
 
@@ -128,3 +133,8 @@ rehearsed on a copy of each repo, so a release never needs an emergency fix. Pro
 that exact tag, and `kiln update` shows what changed in each release it applies (see
 [`CHANGELOG.md`](../CHANGELOG.md)).
 Linux, WSL and macOS are supported.
+
+<p align="center">
+  <img src="assets/kiln-update.svg" alt="kiln update: a framed list of what is new in each release crossed, read from kiln's changelog" width="680">
+</p>
+<p align="center"><i>What <code>kiln update</code> shows as it crosses a release, read from kiln's changelog.</i></p>

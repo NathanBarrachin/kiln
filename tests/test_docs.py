@@ -30,11 +30,45 @@ def screenshots() -> ModuleType:
     return module
 
 
+def recordings() -> dict[Path, Path]:
+    """Each demo recorded by VHS (`docs/assets/*.tape`, replayed by hand) and the image it
+    writes."""
+    found = {}
+    for tape in sorted((ROOT / "docs/assets").glob("*.tape")):
+        output = re.search(r"^Output (\S+)$", tape.read_text(encoding="utf-8"), re.M)
+        assert output, f"{tape.name} writes no image"
+        found[ROOT / output.group(1)] = tape
+    return found
+
+
 def test_every_image_is_what_kiln_shows_today() -> None:
     for path, expected in screenshots().images().items():
         assert path.read_text(encoding="utf-8") == expected, (
             f"{path.name} is out of date: uv run python scripts/screenshots.py"
         )
+
+
+@pytest.mark.parametrize("image", sorted(recordings()), ids=lambda path: path.name)
+def test_a_recorded_demo_types_only_what_kiln_offers(image: Path) -> None:
+    tape = recordings()[image]
+    typed = re.findall(r'^Type "([^"]*)"', tape.read_text(encoding="utf-8"), re.M)
+    labels = offered()
+
+    unknown = []
+    for line in typed:
+        for name, arguments in re.findall(r"\bkiln ([a-z][a-z-]*)([^&|;]*)", line):
+            if f"command {name}" not in labels:
+                unknown.append(f"kiln {name}")
+            unknown += [
+                option
+                for option in re.findall(r"--[a-z][a-z-]*", arguments)
+                if f"option {name} {option}" not in labels
+            ]
+
+    assert unknown == [], f"{tape.name} types {unknown}: replay it (vhs {tape.name})"
+    # Recorded once per release, not at each test: it must at least be there, light enough
+    # to open on a phone.
+    assert image.is_file() and image.stat().st_size < 5_000_000, image.name
 
 
 @pytest.mark.parametrize("readme", READMES)
@@ -44,8 +78,8 @@ def test_a_readme_shows_only_current_images_and_existing_commands(readme: str) -
     text = (ROOT / readme).read_text(encoding="utf-8")
     images = re.findall(r'(?:src|srcset)="(docs/assets/[^"]+)"', text)
     assert images and all((ROOT / image).is_file() for image in images), images
-    drawn = {path.relative_to(ROOT).as_posix() for path in screenshots().images()}
-    assert set(images) <= drawn, "an image the screenshot script does not draw"
+    made = {path.relative_to(ROOT).as_posix() for path in [*screenshots().images(), *recordings()]}
+    assert set(images) <= made, "an image neither drawn by the screenshot script nor recorded"
     commands = next(
         action
         for action in cli.build_parser()._actions
@@ -57,6 +91,55 @@ def test_a_readme_shows_only_current_images_and_existing_commands(readme: str) -
     assert cited <= set(commands), f"{readme} cites kiln {sorted(cited - set(commands))}"
     reference = REFERENCES[READMES.index(readme)]
     assert f"]({reference})" in text, f"{readme} links its reference"
+
+
+def test_pypi_shows_the_readme_with_its_images_and_links() -> None:
+    """PyPI shows README.md away from the repo: the build makes each relative image and link
+    point at the release's tag on GitHub (hatch-fancy-pypi-readme, in `pyproject.toml`)."""
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text())
+    hook = pyproject["tool"]["hatch"]["metadata"]["hooks"]["fancy-pypi-readme"]
+    version = pyproject["project"]["version"]
+    text = "".join((ROOT / part["path"]).read_text(encoding="utf-8") for part in hook["fragments"])
+    for substitution in hook["substitutions"]:
+        text = re.sub(substitution["pattern"], substitution["replacement"], text)
+    text = text.replace("$HFPR_VERSION", version)
+
+    targets = re.findall(r'(?:src|srcset)="([^"]+)"', text) + re.findall(r"\]\(([^)\s]+)\)", text)
+    assert [target for target in targets if not target.startswith(("https://", "#"))] == []
+    tagged = (
+        f"https://raw.githubusercontent.com/antoine-tena/kiln/v{version}/",
+        f"https://github.com/antoine-tena/kiln/blob/v{version}/",
+    )
+    for target in targets:
+        for prefix in tagged:
+            if target.startswith(prefix):
+                assert (ROOT / target.removeprefix(prefix)).exists(), target
+
+
+# The marks of a text written by a language model, which readers (Hacker News first) spot and
+# hold against a project: em dashes, list items opened in bold or with an emoji, sales words.
+SALES_WORDS = (
+    "seamless", "robust", "powerful", "blazing", "production-grade", "best-in-class",
+    "cutting-edge", "game-changer", "supercharge", "effortless", "leverage", "unlock", "empower",
+    "delve", "crucial", "showcase", "elevate", "revolutioni[sz]e", "world-class",
+    "state-of-the-art", "puissant", "révolutionnaire", "incontournable", "sans effort",
+)  # fmt: skip
+
+
+@pytest.mark.parametrize("readme", READMES)
+def test_a_readme_reads_as_written_by_a_person(readme: str) -> None:
+    text = (ROOT / readme).read_text(encoding="utf-8")
+    prose = "\n".join(
+        line for line in re.sub(r"```.*?```", "", text, flags=re.S).splitlines()
+        if not line.startswith("|")  # an em dash marks an empty table cell
+    )  # fmt: skip
+
+    assert "—" not in prose, f"{readme}: an em dash, where a comma or a colon reads better"
+    assert not re.findall(r"^- (?:\*\*|[\U0001F300-\U0001FAFF☀-➿])", prose, re.M), (
+        f"{readme}: a list item opened in bold or with an emoji"
+    )
+    sales = [word for word in SALES_WORDS if re.search(rf"\b{word}\b", prose, re.I)]
+    assert sales == [], f"{readme}: {sales}, a fact says it better"
 
 
 def test_both_readmes_say_the_same_things() -> None:

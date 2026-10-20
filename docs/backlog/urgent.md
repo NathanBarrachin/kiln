@@ -10,4 +10,4 @@ status line counts the open boxes ("urgent N").
 - [ ] Send the university project's team what the 17 October measurement found in its repo, privately, before any number about it is published (T-131) — antoine
 - [ ] Create the GitHub Sponsors profile (T-119): https://github.com/sponsors/accounts — antoine
 - [ ] Delete the old account-wide PyPI token (T-14): https://pypi.org/manage/account/token/ — antoine
-- [ ] Upload the social preview image once T-33 has redone it, before 9 November: https://github.com/antoine-tena/kiln/settings, "Social preview" section, "Edit" button, file `docs/assets/social-preview.png` — antoine
+- [ ] Upload the social preview image now (no API takes it; until then links shared on X, Bluesky, LinkedIn, Slack or Reddit show GitHub's generic card), then again when T-33 redoes it for v0.5.0: https://github.com/antoine-tena/kiln/settings, "Social preview" section, "Edit" button, file `docs/assets/social-preview.png` — antoine

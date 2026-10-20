@@ -128,7 +128,9 @@ One small TOML file per rule, on two axes: its theme (supply chain, containers, 
 scope (universal, a language, a framework, a tool). Each says why, cites sources weighed in a
 fixed order (official docs, security advisories, measured studies, adoption data, blogs) and
 carries a level from Thoughtworks' Technology Radar: adopt, trial, assess, hold. Only adopted
-rules count; 105 drafts drawn from a production repo wait behind `kiln grid --level assess`.
+rules count: 40 of them (supply chain, CI, containers, tests, code standards, Django and Vue
+security), each run on two real repos for false positives; 95 drafts wait behind
+`kiln grid --level assess`.
 Each scored rule ships with a repo that passes it and one that fails it.
 
 ## Compared with Copier and cookiecutter

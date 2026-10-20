@@ -134,8 +134,10 @@ Un petit fichier TOML par règle, sur deux axes : son thème (chaîne d'approvis
 conteneurs, tests…) et sa portée (universelle, un langage, un framework, un outil). Chacune dit
 pourquoi, cite des sources pesées dans un ordre fixe (documentation officielle, alertes de
 sécurité, études mesurées, données d'adoption, blogs) et porte un niveau du Technology Radar de
-Thoughtworks : adopter, essayer, évaluer, abandonner. Seules les règles adoptées comptent ;
-105 brouillons tirés d'un repo en production attendent derrière `kiln grid --level assess`.
+Thoughtworks : adopter, essayer, évaluer, abandonner. Seules les règles adoptées comptent :
+40 (chaîne d'approvisionnement, CI, conteneurs, tests, normes de code, sécurité de Django et de
+Vue), chacune passée sur deux vrais repos pour traquer les faux positifs ; 95 brouillons
+attendent derrière `kiln grid --level assess`.
 Chaque règle notée a un repo qui la respecte et un qui l'enfreint.
 
 ## Comparé à Copier et cookiecutter

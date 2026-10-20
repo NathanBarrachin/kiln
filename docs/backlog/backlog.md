@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-155.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-157.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -668,6 +668,34 @@ actionlint) with a fallback to `develop`. On the first run, check that the versi
 tag's, and that `.kiln` is removed before the project's checks.
 
 ## 🟡 Normal
+
+### T-155 · A Streamlit or Dash front gets a deployment that fits, or none is assumed
+- **Type**: bug
+- **Status**: todo
+- **Opened**: 2026-10-20
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: issue #43 (darnak69, 16 October 2026)
+
+- [ ] `front_deploiement=vercel` refused for Streamlit and Dash (they need a long-running
+  Python server with websockets).
+- [ ] With no deployment set, nothing generated cites `deploy.yml` or `scripts/ops/deploy-*.sh`
+  (comment of `ci.yml`, last step of the `version` skill).
+- [ ] A target that fits: `vps` (podman + Caddy) opened to the front image, with a
+  `/_stcore/health` probe; the Streamlit `Containerfile` gets its health probe and its `uv`
+  image pinned by digest. Closes #43.
+
+### T-156 · Committed trained models tied to the code that made them
+- **Type**: idea
+- **Status**: todo
+- **Opened**: 2026-10-20
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: issue #44 (darnak69, 16 October 2026)
+
+For `backend=data`: a manifest next to each committed model (hash of the training code, seed,
+dataset version, metrics) written by the training command; a check that the hash still matches
+the code, or the commit says why; a test template asserting the committed model's metrics stay
+above the recorded ones. Goes in the grid as a rule with its sources (T-123 doctrine), not
+only in the template. Closes #44.
 
 ### T-153 · `statusline.ci locale`: a French value left in generated repos
 - **Type**: bug

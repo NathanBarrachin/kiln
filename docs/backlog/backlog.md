@@ -84,7 +84,7 @@ Candidate Sat 24 Oct. The launch hook: `uvx kiln-cli score` on the repo people a
 without a token.
 - ✅ T-125 · Grid v1: the rules kiln launches with (L)
 - ✅ T-46 · `kiln score`: any repo measured against the grid in seconds, no tokens (L)
-- T-157 · Credit #45 and #46 in the notes of v0.4.2 (XS)
+- ✅ T-157 · Credit #45 and #46 in the notes of v0.4.2 (XS)
 
 ### v0.4.3 · What a script can fix, fixed by script
 Candidate Mon 26 Oct. The fixes that cost no token, each proven by the repo's own checks.
@@ -190,17 +190,6 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 ---
 
 ## 🔴 Critical
-
-### T-157 · Credit #45 and #46 in the notes of v0.4.2
-- **Type**: task
-- **Status**: todo
-- **Opened**: 2026-10-20
-- **Effort**: XS · **Owner**: Claude · **Due**: v0.4.2 candidate
-- **Origin**: PRs #45 and #46 by NathanBarrachin, merged 2026-10-20
-
-In the `v0.4.2` entry of `CHANGELOG.md`: the line of each fix ends with `(#45, thanks
-@NathanBarrachin)` and `(#46, thanks @NathanBarrachin)` (a CI run GitHub never started is not
-red; carried-over instructions keep their outline).
 
 ## 🟠 Important
 
@@ -1077,6 +1066,7 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-20** · T-157 · #45 and #46 credited in the v0.4.2 notes (release/v0.4.2) · opened 2026-10-20
 - **2026-10-20** · T-46 · `kiln score` — any repo against the 40 scored rules: score out of 100 and per pillar, three gaps first, waivers apart, uncovered stacks listed, `--all`, `--json` (schema 1), `--badge`, `--online`; about 1 s on the reference repo; GitHub settings left to T-158 (feat/kiln-score) · opened 2026-10-16
 - **2026-10-20** · T-125 · Grid v1 — 40 scored rules (nine drafts promoted, 25 new), each sourced and dated, with a passing and a failing example, run on local copies of both training repos: rules that can flag wrongly launch `review` or `ratchet`; 1.0 s on the reference repo (feat/grid-v1) · opened 2026-10-17
 - **2026-10-19** · T-143 · Decide the name before the launch — antoine keeps **kiln**, after

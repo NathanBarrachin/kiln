@@ -91,6 +91,12 @@ services:
     build:
       context: .
       dockerfile: frontend/Containerfile
+{%- if frontend == 'astro' %}
+    # astro preview writes its lock file in .astro/, as the node user: writable like /tmp.
+    tmpfs:
+      - /tmp
+      - /srv/frontend/.astro:mode=1777
+{%- endif %}
 {%- if backend in ['django', 'fastapi'] %}
     environment:
       BACKEND_URL: http://backend:8000

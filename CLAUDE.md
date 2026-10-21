@@ -150,8 +150,11 @@ publie sur PyPI le paquet `kiln-cli` par `pypi.yml`) :
    commandes ci-dessous), branche poussée, **CI de GitHub attendue sur son commit** (macOS et
    tests de bout en bout, qui ne tournent que là : la rc.1 de la v0.4.0 était sortie sur un rouge
    que personne n'avait lu), tag `vX.Y.Z-rc.1` poussé seulement au vert. Les postes au canal `internal` (`kiln set
-   channel=internal`, celui d'antoine) la suivent : `kiln update --all` y fait passer tous les repos
-   générés. Un correctif de la candidate : commit `fix:` sur sa branche, tag `-rc.N+1`.
+   channel=internal`) la suivent : `kiln update --all` y fait passer tous les repos
+   générés. Le poste d'antoine est au canal **`beta`** (son choix du 21 octobre 2026 : en pleine
+   amélioration de kiln, une nouveauté doit servir tout de suite) : l'outil est le checkout
+   `~/code/kiln` installé en éditable, donc `develop` lu en direct, sans version ni mise à jour ;
+   les versions restent ce qui part chez les autres. Un correctif de la candidate : commit `fix:` sur sa branche, tag `-rc.N+1`.
 2. **Promotion**, quand `kiln version` la dit prête, sur des faits (`release.py`) : la CI de
    GitHub de la candidate est verte, **24 heures de rodage** depuis son tag (chaque `-rc.N`
    relance le compte), et **au moins un repo du dossier de code mis à jour vers elle** (`kiln

@@ -18,7 +18,7 @@ from pathlib import Path
 
 from packaging.version import InvalidVersion, Version
 
-from kiln.config import INTERNAL_CHANNEL, load_config
+from kiln.config import BETA_CHANNEL, INTERNAL_CHANNEL, load_config
 
 KILN_GIT_URL = "https://github.com/antoine-tena/kiln"
 # Package name on PyPI; `kiln` before, still there on machines not yet updated.
@@ -61,8 +61,13 @@ def tag_of(ref: str) -> str | None:
 
 
 def follows_candidates() -> bool:
-    """Does this machine follow the candidates (`internal` channel)?"""
-    return load_config().channel == INTERNAL_CHANNEL
+    """Does this machine follow the candidates (`internal` or `beta` channel)?"""
+    return load_config().channel in (INTERNAL_CHANNEL, BETA_CHANNEL)
+
+
+def is_beta() -> bool:
+    """Does this machine run kiln's `develop` (`beta` channel)?"""
+    return load_config().channel == BETA_CHANNEL
 
 
 def latest_release(source: str = KILN_GIT_URL, *, candidates: bool | None = None) -> str | None:
@@ -115,6 +120,16 @@ def upgrade_command(version: str) -> str:
     if install_source() == "pypi" and release is not None and not release.is_prerelease:
         return f'uv tool install --force "{PYPI_NAME}=={release}"'
     return f'uv tool install --force "git+{KILN_GIT_URL}@{version}"'
+
+
+def beta_install_command(code_dir: Path) -> str:
+    """Command that makes the tool kiln's `develop` (`beta` channel): the checkout of the code
+    directory installed editable, read live (each merge into `develop` is there at once),
+    otherwise GitHub's `develop`."""
+    checkout = code_dir / "kiln"
+    if (checkout / "src" / "kiln" / "versions.py").is_file():
+        return f"uv tool install --force --editable {checkout}"
+    return f'uv tool install --force "git+{KILN_GIT_URL}@develop"'
 
 
 def tool_release_tag() -> str | None:

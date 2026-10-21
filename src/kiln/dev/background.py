@@ -20,7 +20,7 @@ from typing import Any
 
 from kiln import ui
 from kiln.dev.foreground import PREFIX_COLORS, service_prefix, stop_all
-from kiln.dev.processes import signal_group, spawn
+from kiln.dev.processes import runs_beyond_front, signal_group, spawn
 from kiln.shell import KilnError, capture, spinner_line
 from kiln.stack import Command
 
@@ -103,10 +103,11 @@ def start(root: Path, commands: list[Command]) -> None:
     for stale in folder.glob("*.json"):
         stale.unlink()
     env = {**os.environ, "PYTHONUNBUFFERED": "1"}
+    full_stack = runs_beyond_front(commands)
     processes = []
     for command in commands:
         with (folder / f"{command.label}.log").open("w", encoding="utf-8") as output:
-            processes.append(spawn(root, command, env, output))
+            processes.append(spawn(root, command, env, output, full_stack=full_stack))
         record = {"pid": processes[-1].pid, "port": DEV_PORTS.get(command.label)}
         (folder / f"{command.label}.json").write_text(json.dumps(record), encoding="utf-8")
     try:

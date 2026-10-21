@@ -4,10 +4,11 @@ A `Procfile.dev` (the format of foreman and of Rails' `bin/dev`) lists one proce
 `name: command`, run in its folder (`backend/`, `frontend/` or the root) through `sh -c`: a Celery
 worker, a scheduler, a CSS watcher. A name taken by the stack (`django`) replaces its server.
 
-Each process gets the `.env` of its folder, then its `.env.dev` (what the full local stack changes,
-such as a production key to blank out: an empty value is kept), the shell's environment winning
-over both, and leads
-its own process group: stopping it stops the children a `sh -c` or `uv run` started.
+Each process gets the `.env` of its folder, then, when a process outside the front runs too, its
+`.env.dev` (what the full local stack changes, such as the API's address or a production key to
+blank out: an empty value is kept), the shell's environment winning over both. A front run alone
+thus keeps its `.env`, which may name a remote API. Each process leads its own process group:
+stopping it stops the children a `sh -c` or `uv run` started.
 """
 
 import contextlib
@@ -34,6 +35,11 @@ def dev_processes(root: Path) -> list[Command]:
         for command in procfile_commands(root, directory):
             by_label[command.label] = command
     return list(by_label.values())
+
+
+def runs_beyond_front(commands: list[Command]) -> bool:
+    """Whether a process outside the front runs: the local stack, databases and `.env.dev`."""
+    return any(command.directory != FRONTEND_DIR for command in commands)
 
 
 def procfile_commands(root: Path, directory: str) -> list[Command]:
@@ -66,17 +72,14 @@ def read_env_file(path: Path) -> dict[str, str]:
 
 
 def spawn(
-    root: Path, command: Command, env: dict[str, str], output: IO[str] | int
+    root: Path, command: Command, env: dict[str, str], output: IO[str] | int, *, full_stack: bool
 ) -> subprocess.Popen[str]:
     directory = root / command.directory
+    dev_env = read_env_file(directory / DEV_ENV_FILE) if full_stack else {}
     return subprocess.Popen(
         list(command.argv),
         cwd=directory,
-        env={
-            **read_env_file(directory / ENV_FILE),
-            **read_env_file(directory / DEV_ENV_FILE),
-            **env,
-        },
+        env={**read_env_file(directory / ENV_FILE), **dev_env, **env},
         stdin=subprocess.DEVNULL,
         stdout=output,
         stderr=subprocess.STDOUT,

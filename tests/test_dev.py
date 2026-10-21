@@ -10,7 +10,7 @@ import pytest
 from kiln import cli
 from kiln.dev import background, run_dev
 from kiln.dev.menu import select
-from kiln.dev.processes import dev_processes, procfile_commands
+from kiln.dev.processes import dev_processes, procfile_commands, runs_beyond_front, spawn
 from kiln.shell import KilnError
 from kiln.stack import Command
 
@@ -127,6 +127,27 @@ def test_a_big_project_asks_and_remembers_the_choice(tmp_path: Path) -> None:
     assert labels(select(PROCESSES, tmp_path, ask=replies(""))) == ["django", "worker"]
     assert labels(select(PROCESSES, tmp_path, ask=replies("3", ""))) == ["django", "worker"]
     assert labels(select(PROCESSES, tmp_path, ask=replies("2"))) == ["django", "nuxt", "worker"]
+
+
+def test_the_front_alone_is_offered_when_there_is_a_backend(tmp_path: Path) -> None:
+    every = [*PROCESSES[::2], Command("nuxt", "frontend", ("true",))]
+    assert labels(select(every, tmp_path, ask=replies("2"))) == ["nuxt"]
+    # The last choice is then the front: it is not offered twice.
+    assert labels(select(every, tmp_path, ask=replies("3", "1 2"))) == ["django", "worker"]
+
+
+def test_the_front_alone_keeps_its_env_and_leaves_the_env_dev(project: Path) -> None:
+    front = project / "frontend"
+    front.mkdir()
+    (front / ".env").write_text("API=https://api.example.org\n", encoding="utf-8")
+    (front / ".env.dev").write_text("API=http://localhost:8000\n", encoding="utf-8")
+    nuxt = Command("nuxt", "frontend", ("sh", "-c", 'printf %s "$API"'))
+    outputs = []
+    for full_stack in (False, True):
+        process = spawn(project, nuxt, {}, subprocess.PIPE, full_stack=full_stack)
+        outputs.append(process.communicate()[0])
+    assert outputs == ["https://api.example.org", "http://localhost:8000"]
+    assert not runs_beyond_front([nuxt])
 
 
 def test_the_choice_survives_the_start_of_the_processes(project: Path) -> None:

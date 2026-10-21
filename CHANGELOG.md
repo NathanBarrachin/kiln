@@ -7,27 +7,17 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 entries before v0.4.0 quote kiln's former French names.
 
 ## v0.4.4 — 2026-10-21
-<!-- draft: rewrite for users, breaking changes first, then delete this line -->
-- Backend tests on the CI job's databases
-- An adopted repo moves to today's names
-- Stop keeps databases other worktrees use
-- Pnpm dependencies as the lockfile says
-- Mypy as the CI runs it, by charter types
-- A venv moved with its repo is reinstalled
-- Background by default, asks what to run
-- A dry run accepts a tree with changes
-- Front deployed by the Vercel CLI
-- Django under podman runs on PostgreSQL
-- -d, status, logs, stop and Procfile.dev
-- Every session asks where errors come from
-- Kiln dev starts the databases first
-- --roadmap hands what needs judgment to Claude, --rule proves a gap closed
-- Kiln install outside a repo sets up kiln for the whole machine
-- Offer the tool update after a command typed outside Claude Code
-- Stacks known by their sources alone named, the score says when it rests on universal rules only
-- A hardened Astro container starts (.astro/ on a tmpfs)
-- Generated repos pass kiln's own grid (T-130)
-- Kiln-update.svg redrawn after merging v0.4.2 back
+- **Breaking**: `kiln dev` runs in the background and gives the terminal back once each server answers; `--foreground` keeps the old interleaved output until Ctrl+C. Nothing to convert: a script that relied on it adds `--foreground`.
+- `kiln dev` runs the code you edit on the machine and what you never edit in podman: the compose's `db`, `postgres` and `redis` are restarted with their data and waited for (health check) before the servers, and before `kiln check` and the migrations of `kiln install`. A folder's `Procfile.dev` adds processes, one `name: command` line (a Celery worker, a scheduler). From three processes on, a terminal asks what to run (everything, as last time, or one by one) and `--only django,nuxt` answers without asking; then kiln offers to follow the logs. `kiln dev status`, `kiln dev logs [service] [-f]` and `kiln dev stop`, which keeps the databases another worktree of the repo still uses. `--containers` finds the compose where it is (`config/local/compose.yml`).
+- A Django project under podman develops on its compose's PostgreSQL, as in production, on a port drawn from its name: two projects never fight over 5432.
+- Every Claude Code session, after `/clear` and compaction too, is reminded to ask whether a failure comes from kiln, even when it shows up elsewhere, and to fix it in kiln or report it with `/kiln:report` ([REPORT-TO-KILN]).
+- `kiln score --roadmap`: the gaps no converter closes, sure ones first, each with its why, its places and its proof; `--write` turns them into backlog tickets, `--rule ID` proves one closed, and the `/kiln:modernize` skill works through them, tests first, one commit per gap. A waiver with paths dismisses a false positive for good.
+- Generated repos pass kiln's own grid: actions and workflows pinned by SHA, Dependabot with its cooldown, read-only workflow tokens, images by digest on Debian 13, non-root hardened compose services, OSV-Scanner for Maven.
+- `kiln install` outside a repo (or `--machine`) sets up kiln for the whole machine: the command, the plugin and its settings. A command typed in a terminal offers the newer release of the machine's channel, at most once a day.
+- `kiln update` moves an adopted repo off kiln's 0.3 names (`charte.toml`, the `charte` command, the old workflows and their inputs), keeping its own rule identifiers.
+- `kiln check` runs as the CI does: Django tests on the CI job's throwaway PostgreSQL and Redis, mypy through `charter types` when the charter declares it, pnpm dependencies installed as the lockfile says, a venv moved with its repo reinstalled.
+- `kiln score` names the stacks it only knows by their sources (.NET, Java, PHP) and says when the score rests on universal rules only.
+- Fixes: a hardened Astro container starts; the status line knows a front deployed by the Vercel CLI; `kiln fix --dry-run` accepts a tree with changes.
 - **After updating**: in a Django project under podman, copy the DATABASE_URL line of backend/.env.example into backend/.env to develop on the compose's PostgreSQL.
 
 ## v0.4.3 — 2026-10-20

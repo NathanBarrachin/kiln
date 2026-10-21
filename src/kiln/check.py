@@ -1,9 +1,22 @@
-"""`kiln check`: runs the stack's checks and the charter, without stopping at the first failure."""
+"""`kiln check`: runs the stack's checks and the charter, without stopping at the first failure.
 
+A Django backend's tests run as in the CI when `ci.yml` has its Django job: against that job's
+throwaway PostgreSQL and Redis, with its variables (`env`), as `kiln ci` replays them; never
+against the machine's `.env`, which may lack what the CI gives, nor a test database another
+session shares. Without such a job, they get the databases of the compose file.
+"""
+
+import os
 from pathlib import Path
+
+import yaml
 
 from kiln import ui
 from kiln.charter import config as charter_config
+from kiln.ci.execution import base_env
+from kiln.ci.jobs import RELAYS, Plan, plan_job
+from kiln.ci.services import running_services
+from kiln.ci.workflow import CI_WORKFLOW, load_jobs
 from kiln.dev.backing import start_backing_services
 from kiln.install import ensure_env_file, moved_from, pnpm_behind, sync_command
 from kiln.shell import KilnError, run, run_status, step
@@ -28,9 +41,41 @@ def run_checks(root: Path) -> list[str]:
             run(sync_command(root / directory / ".venv"), root / directory)
     for command in _check_commands(root, stack):
         step(f"Check: {command.label}")
-        if run_status(list(command.argv), root / command.directory) != 0:
+        if _run_check(root, command) != 0:
             failed_checks.append(command.label)
     return failed_checks
+
+
+def _run_check(root: Path, command: Command) -> int:
+    is_tests = command.label == f"{command.directory} pytest"
+    plan = _ci_django_job(root, command.directory) if is_tests else None
+    if plan is None or plan.services is None:
+        return run_status(list(command.argv), root / command.directory)
+    images = ", ".join(image for image in (plan.services.postgres, plan.services.redis) if image)
+    ui.note(f"as the CI job {plan.job.name}: {images}, its variables")
+    try:
+        with running_services(plan.services, f"kiln-check-{os.getpid()}") as urls:
+            env = base_env({**plan.env, **urls})
+            return run_status(list(command.argv), root / command.directory, env)
+    except KilnError as error:
+        print(error)
+        return 1
+
+
+def _ci_django_job(root: Path, directory: str) -> Plan | None:
+    """The plan of the `ci.yml` job that tests `directory` with kiln's Django workflow."""
+    if not (root / CI_WORKFLOW).exists():
+        return None
+    try:
+        jobs = load_jobs(root)
+    except KilnError, yaml.YAMLError:
+        return None
+    for job in jobs:
+        if job.is_replayable and RELAYS.get(job.kind, job.kind) == "django":
+            plan = plan_job(job)
+            if directory in plan.python_dirs:
+                return plan
+    return None
 
 
 def _check_commands(root: Path, stack: Stack) -> list[Command]:

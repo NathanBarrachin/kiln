@@ -12,7 +12,7 @@ from plumbum import ProcessExecutionError
 
 from kiln import cli, github, ui
 from kiln.banner import LOGO, _project_summary, render_logo
-from kiln.check import _check_commands
+from kiln.check import _check_commands, _ci_django_job
 from kiln.config import UserConfig
 from kiln.deps import _major_bounds
 from kiln.dev import read_env_file, service_prefix
@@ -77,6 +77,26 @@ def test_typing_follows_the_charter_when_it_declares_it(
     assert commands["backend mypy"].argv == ("charter", "types")
     assert commands["backend mypy"].directory == "."
     assert _check_commands(tmp_path / "bare", stack)[2].argv == ("uv", "run", "mypy", ".")
+
+
+def test_backend_tests_take_the_databases_of_the_ci_job(tmp_path: Path) -> None:
+    assert _ci_django_job(tmp_path, "backend") is None  # no ci.yml: the compose's databases
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text(
+        "jobs:\n  quality:\n    uses: antoine-tena/kiln/.github/workflows/charte.yml@v0.3.4\n"
+        "  backend:\n    uses: antoine-tena/kiln/.github/workflows/django.yml@v0.3.4\n"
+        "    with:\n      base: club\n      redis: docker.io/library/redis:8-alpine\n"
+        "      env: |\n        DEBUG=True\n"
+    )
+
+    plan = _ci_django_job(tmp_path, "backend")
+
+    assert plan is not None and plan.services is not None
+    assert plan.services.database == "club"
+    assert plan.services.redis == "docker.io/library/redis:8-alpine"
+    assert dict(plan.env) == {"DEBUG": "True"}
+    assert _ci_django_job(tmp_path, "api") is None
 
 
 def test_java_backend_is_checked_by_the_maven_wrapper() -> None:

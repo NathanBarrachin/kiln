@@ -254,8 +254,9 @@ Le travail s'intègre dans `develop` ; `main` ne reçoit que des versions.
 - **Candidate** (`v0.4.2-rc.1`) : tirée de `develop` sur une branche `release/v0.4.2`, avec son
   entrée en tête de [`CHANGELOG.md`](../CHANGELOG.md). Seuls les postes au canal `internal` la
   suivent (`kiln set channel=internal`).
-- **Promotion** (`v0.4.2`) : dès qu'une candidate plus récente est prête (pas de délai fixe :
-  c'est la suivante prête qui évite le correctif d'urgence), le même commit est tagué et fusionné
+- **Promotion** (`v0.4.2`) : une fois la candidate rodée, sur des faits : CI verte, 24 heures
+  depuis son tag et au moins un repo du poste mis à jour vers elle ; 2 heures sans repo exigé
+  pour une candidate de correctifs seuls. Le même commit est tagué et fusionné
   dans `main`. `kiln version` montre les candidates, leur âge, qui les a adoptées, lesquelles
   sont prêtes et le numéro de la prochaine.
 - **Clients** : ils se mettent à jour à chaque version, correctif compris. Le hook de début de

@@ -116,7 +116,7 @@ backups), a Nuxt front to Vercel.
 
 A kiln release first ships as a candidate, tagged only once its CI is green on Linux and macOS,
 including an update from every release since v0.3.0 through an installed tool. It is promoted
-when the next candidate is ready, then rehearsed on a clone of each repo before
+once it has soaked (24 hours and at least one repo updated to it; 2 hours for fixes only), then rehearsed on a clone of each repo before
 `kiln update --all` merges it, one worktree per repo. Repos quote kiln's workflows at the exact
 release they follow, so nothing reaches them between releases, and `kiln update` shows what is
 new in each release it crosses. A repo brought in by `kiln adopt` follows kiln's workflows at the

@@ -122,7 +122,8 @@ seule, retour arrière automatique, sauvegardes restaurées), un front Nuxt sur 
 
 Une version de kiln sort d'abord en candidate, taguée seulement quand sa CI est verte sous Linux
 et macOS, y compris une mise à jour depuis chaque version depuis la v0.3.0, par un outil
-installé. Elle est promue quand la candidate suivante est prête, puis répétée sur un clone de
+installé. Elle est promue une fois rodée (24 heures, au moins un repo passé dessus ; 2 heures pour une
+candidate de correctifs seuls), puis répétée sur un clone de
 chaque repo avant que `kiln update --all` la fusionne, un worktree par repo. Les repos citent les
 workflows de kiln à la version exacte qu'ils suivent : rien ne leur arrive entre deux versions,
 et `kiln update` montre les nouveautés de chaque version qu'il traverse. Un repo repris par

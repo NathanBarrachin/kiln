@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-161.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-162.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -97,6 +97,7 @@ Candidate Wed 28 Oct. Claude only gets what needs judgment, and kiln's repos sho
 - T-129 · What needs judgment goes to Claude: `kiln score --roadmap` and `/kiln:modernize` (M)
 - T-130 · Generated repos pass the whole grid (M)
 - T-90 · kiln passes its own grid: pinned actions, least privilege, provenance, Scorecard (M)
+- T-161 · Install kiln on the whole machine, in one command (S)
 
 ### v0.4.5 · Never lets it rot, and the grid learns
 Candidate Fri 30 Oct. Updates go down by themselves, gaps come back up with consent.
@@ -192,6 +193,24 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 ## 🔴 Critical
 
 ## 🟠 Important
+
+### T-161 · Install kiln on the whole machine, in one command
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-21
+- **Effort**: S · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 21 October 2026 ("installer kiln dans tout l'ordinateur", for the next release)
+
+Today the pieces are set up one by one: the CLI (`uv tool install kiln-cli`), the marketplace
+and the plugins (`claude plugin install … --scope user`, only suggested by `kiln doctor`), the
+machine config. One command should do it all, so kiln works in every repo and every Claude
+session of the machine, not only in the repo where it was installed.
+- [ ] `kiln install` (or an explicit `--machine` mode) installs the CLI as a uv tool, adds the
+  marketplace and enables the kiln plugins at user scope, records the machine config
+- [ ] Idempotent: rerun, it only fixes what is missing; `kiln doctor` then all green
+- [ ] READMEs: the one-line install for a stranger
+- [ ] Confirm the reading with antoine before coding (CLI + plugins user scope, not adopting
+  every repo of `code_dir`)
 
 ### T-159 · What T-126 to T-128 left: compose hardening, pyproject from requirements, `kiln update`
 - **Type**: improvement

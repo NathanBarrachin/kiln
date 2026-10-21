@@ -1,8 +1,8 @@
 """`kiln dev --containers`: the whole stack in podman, as in production, from its compose file.
 
-The image of production rather than a place to code: what changes needs a new build. With
-`-d`, podman keeps it in the background; a marker in the state folder tells `status`, `logs` and
-`stop` to ask podman.
+The image of production rather than a place to code: what changes needs a new build. Podman
+keeps it in the background (`--foreground`: in the terminal); a marker in the state folder
+tells `status`, `logs` and `stop` to ask podman.
 """
 
 import contextlib

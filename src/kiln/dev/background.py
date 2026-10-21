@@ -1,7 +1,7 @@
-"""`kiln dev -d`: the processes left in the background, then `status`, `logs` and `stop`.
+"""`kiln dev`: the processes left in the background, then `status`, `logs` and `stop`.
 
 Each process writes its output to `<label>.log` and its record (pid, port) to `<label>.json`, in
-`kiln-dev/` of the git folder of the worktree: never committed, one set per worktree. `-d`
+`kiln-dev/` of the git folder of the worktree: never committed, one set per worktree. `kiln dev`
 returns once each server answers on its port (a process without a known port: once it has
 lasted a moment), and stops everything if one of them dies on the way, showing the end of its
 log.
@@ -132,7 +132,7 @@ def _listens(port: int) -> bool:
 def show_status(root: Path) -> None:
     found = records(root)
     if not found:
-        ui.note("nothing runs in the background: kiln dev -d")
+        ui.note("nothing runs in the background: kiln dev")
         return
     width = max(len(label) for label in found)
     for label, record in found.items():
@@ -181,7 +181,7 @@ def _follow(root: Path, prefixes: dict[str, str]) -> None:
             sys.stdout.flush()
             time.sleep(POLL_SECONDS)
     except KeyboardInterrupt:
-        pass
+        print()
     finally:
         for stream in streams.values():
             stream.close()

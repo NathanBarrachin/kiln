@@ -346,7 +346,10 @@ def _add_dev_command(commands: argparse._SubParsersAction[argparse.ArgumentParse
     )
     dev_parser.add_argument("service", nargs="?", help="logs: this process only")
     dev_parser.add_argument(
-        "-d", "--detach", action="store_true", help="leave it running in the background"
+        "--foreground", action="store_true", help="in this terminal, until Ctrl+C"
+    )
+    dev_parser.add_argument(
+        "--only", type=lambda names: names.split(","), help="these processes only (django,nuxt)"
     )
     dev_parser.add_argument("-f", "--follow", action="store_true", help="logs: keep following")
     dev_parser.add_argument("--containers", action="store_true", help="the whole stack in podman")
@@ -355,10 +358,12 @@ def _add_dev_command(commands: argparse._SubParsersAction[argparse.ArgumentParse
 def _check_dev_arguments(arguments: argparse.Namespace) -> None:
     if arguments.action != "logs" and (arguments.service or arguments.follow):
         raise KilnError("a service and --follow go with kiln dev logs")
-    if arguments.action is not None and (arguments.detach or arguments.containers):
-        raise KilnError(
-            f"--detach and --containers start the project, not kiln dev {arguments.action}"
-        )
+    starting = arguments.foreground or arguments.containers or arguments.only
+    if arguments.action is not None and starting:
+        options = "--foreground, --only and --containers"
+        raise KilnError(f"{options} start the project, not kiln dev {arguments.action}")
+    if arguments.containers and arguments.only:
+        raise KilnError("--containers runs the whole stack: no --only")
 
 
 def _add_update_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -529,7 +534,8 @@ def _dispatch_in_repo(arguments: argparse.Namespace, root: Path) -> None:
             root,
             arguments.action,
             in_containers=arguments.containers,
-            detached=arguments.detach,
+            foreground=arguments.foreground,
+            only=arguments.only,
             follow=arguments.follow,
             service=arguments.service,
         )

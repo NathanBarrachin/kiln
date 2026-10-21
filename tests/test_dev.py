@@ -2,13 +2,14 @@
 
 import subprocess
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import pytest
 
 from kiln import cli
 from kiln.dev import background, run_dev
+from kiln.dev.menu import select
 from kiln.dev.processes import dev_processes, procfile_commands
 from kiln.shell import KilnError
 from kiln.stack import Command
@@ -54,15 +55,15 @@ def test_detached_processes_are_read_then_stopped(
         'worker: echo "$GREETING from $(basename $PWD)"; sleep 60\n', encoding="utf-8"
     )
 
-    run_dev(project, detached=True)
+    run_dev(project)
     run_dev(project, "logs")
     pid = background.records(project)["worker"]["pid"]
-    with pytest.raises(KilnError, match="already running"):
-        run_dev(project)
+    run_dev(project)
     run_dev(project, "stop")
 
     output = capsys.readouterr().out
     assert "running" in output
+    assert "already running in the background" in output
     assert "hello from backend" in output
     assert "stopped: worker" in output
     assert not _alive_after_stop(pid)
@@ -75,7 +76,7 @@ def test_a_process_that_dies_at_start_stops_the_others_and_shows_its_log(project
     )
 
     with pytest.raises(KilnError, match="crash stopped at start:\ndatabase refused"):
-        run_dev(project, detached=True)
+        run_dev(project)
 
     assert background.running(project) == []
 
@@ -85,8 +86,10 @@ def test_a_process_that_dies_at_start_stops_the_others_and_shows_its_log(project
     [
         ["dev", "status", "django"],
         ["dev", "-f"],
-        ["dev", "stop", "-d"],
+        ["dev", "stop", "--foreground"],
         ["dev", "logs", "--containers"],
+        ["dev", "status", "--only", "django"],
+        ["dev", "--containers", "--only", "django"],
     ],
 )
 def test_options_go_with_their_action(arguments: list[str]) -> None:
@@ -99,3 +102,45 @@ def _alive_after_stop(pid: int) -> bool:
     while background.is_alive(pid) and time.monotonic() < deadline:
         time.sleep(0.1)
     return background.is_alive(pid)
+
+
+PROCESSES = [Command(label, "backend", ("true",)) for label in ("django", "nuxt", "worker")]
+
+
+def replies(*answers: str) -> Callable[[str], str]:
+    queue = list(answers)
+    return lambda prompt: queue.pop(0)
+
+
+def labels(commands: list[Command]) -> list[str]:
+    return [command.label for command in commands]
+
+
+def test_a_small_project_runs_everything_without_a_question(tmp_path: Path) -> None:
+    assert select(PROCESSES[:2], tmp_path, ask=replies()) == PROCESSES[:2]
+
+
+def test_a_big_project_asks_and_remembers_the_choice(tmp_path: Path) -> None:
+    assert labels(select(PROCESSES, tmp_path, ask=replies(""))) == ["django", "nuxt", "worker"]
+    assert labels(select(PROCESSES, tmp_path, ask=replies("2", "9", "3 1"))) == ["django", "worker"]
+    # Next time, Enter takes the last choice, and its numbers are the default.
+    assert labels(select(PROCESSES, tmp_path, ask=replies(""))) == ["django", "worker"]
+    assert labels(select(PROCESSES, tmp_path, ask=replies("3", ""))) == ["django", "worker"]
+    assert labels(select(PROCESSES, tmp_path, ask=replies("2"))) == ["django", "nuxt", "worker"]
+
+
+def test_the_choice_survives_the_start_of_the_processes(project: Path) -> None:
+    (project / "backend/Procfile.dev").write_text(
+        "api: sleep 60\nworker: sleep 60\nscheduler: sleep 60\n", encoding="utf-8"
+    )
+    run_dev(project, only=["api", "worker"])
+    run_dev(project, "stop")
+
+    chosen = select(dev_processes(project), background.state_dir(project), ask=replies(""))
+    assert labels(chosen) == ["api", "worker"]
+
+
+def test_only_picks_without_a_question_and_refuses_an_unknown_name(tmp_path: Path) -> None:
+    assert labels(select(PROCESSES, tmp_path, only=["nuxt"], ask=replies())) == ["nuxt"]
+    with pytest.raises(KilnError, match="no celery here"):
+        select(PROCESSES, tmp_path, only=["celery"])

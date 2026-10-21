@@ -107,8 +107,9 @@ kiln dev
 {%- endif %}
 {%- if front_url or backend in ['django', 'fastapi', 'data'] %}
 
-`kiln dev -d` laisse tout tourner en arrière-plan : `kiln dev status`, `kiln dev logs [service] -f`,
-`kiln dev stop`. Un processus de plus (un worker, une tâche de fond) se déclare dans le
+`kiln dev` laisse tout tourner en arrière-plan et propose de suivre les journaux ; ensuite
+`kiln dev status`, `kiln dev logs [service] -f`, `kiln dev stop` (`--foreground` : dans le
+terminal, jusqu'à Ctrl+C). Un processus de plus (un worker, une tâche de fond) se déclare dans le
 `Procfile.dev` de son dossier, une ligne `nom: commande`.
 {%- endif %}
 {%- if podman %}
@@ -262,8 +263,9 @@ kiln dev
 {%- endif %}
 {%- if front_url or backend in ['django', 'fastapi', 'data'] %}
 
-`kiln dev -d` leaves it all running in the background: `kiln dev status`,
-`kiln dev logs [service] -f`, `kiln dev stop`. One more process (a worker, a background task)
+`kiln dev` leaves it all running in the background and offers to follow the logs; then
+`kiln dev status`, `kiln dev logs [service] -f`, `kiln dev stop` (`--foreground`: in the
+terminal, until Ctrl+C). One more process (a worker, a background task)
 goes in its folder's `Procfile.dev`, one `name: command` line.
 {%- endif %}
 {%- if podman %}

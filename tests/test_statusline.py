@@ -149,26 +149,46 @@ def context(tokens: int) -> dict[str, Any]:
     return {"context_window_size": 1_000_000, "used_percentage": 25, "current_usage": usage}
 
 
-@pytest.mark.parametrize(("compaction", "gauge"), [("400000", 62.5), ("400k", 62.5), ("", 25.0)])
-def test_context_in_tokens_its_gauge_full_at_the_compaction(
-    compaction: str, gauge: float, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setenv("CLAUDE_CODE_AUTO_COMPACT_WINDOW", compaction)
+AT_400K, AT_900K = {"autoCompactWindow": "400k"}, {"autoCompactWindow": 900000}
 
-    items = session_items(load_script(), {"context_window": context(249_000)})
+
+@pytest.mark.parametrize(
+    ("settings", "gauge"),
+    [
+        ({"settings.json": {"autoCompactWindow": 400000}}, 62.5),
+        ({"settings.json": AT_900K, "settings.local.json": AT_400K}, 62.5),  # le local l'emporte
+        ({"settings.json": {**AT_900K, "modelSettings": {"opus": AT_400K}}}, 62.5),  # /autocompact
+        ({}, 25.0),
+    ],
+)
+def test_context_in_tokens_its_gauge_full_at_the_compaction(
+    settings: dict[str, Any], gauge: float, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.delenv("CLAUDE_CODE_AUTO_COMPACT_WINDOW", raising=False)
+    (tmp_path / "repo" / ".claude").mkdir(parents=True)
+    for name, content in settings.items():
+        (tmp_path / "repo" / ".claude" / name).write_text(json.dumps(content), encoding="utf-8")
+    payload = {
+        "context_window": context(249_000),
+        "workspace": {"project_dir": str(tmp_path / "repo")},
+        "model": {"id": "opus"},
+    }
+
+    items = session_items(load_script(), payload)
 
     assert items["ctx"] == (2, "250k", gauge)  # 250k : chaque message coûte cher
 
 
-def test_a_cold_cache_is_coloured_by_what_rebuilding_it_costs() -> None:
+def test_the_context_turns_red_once_the_cache_is_cold() -> None:
     script = load_script()
-    cold = {"hit_ratio": 0.9, "warm": False}
 
-    def level(tokens: int) -> int:
-        items = session_items(script, {"context_window": context(tokens), "prompt_cache": cold})
-        return int(items["cache cold"][0])
+    def level(warm: bool) -> int:
+        cache = {"hit_ratio": 0.9, "warm": warm}
+        items = session_items(script, {"context_window": context(59_000), "prompt_cache": cache})
+        return int(items["ctx"][0])
 
-    assert (level(59_000), level(319_000)) == (0, 3)  # tout le contexte réécrit au message suivant
+    assert (level(True), level(False)) == (0, 3)  # cache expiré : tout réécrit au message suivant
 
 
 @pytest.mark.parametrize("style", ["plain", "band", "classic", "classic-band"])

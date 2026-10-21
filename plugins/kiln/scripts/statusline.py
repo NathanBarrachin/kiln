@@ -204,15 +204,34 @@ def context_level(tokens: int) -> int:
     return sum(tokens >= limit for limit in CONTEXT_LEVELS)
 
 
-def compaction_point(window: int) -> int:
-    """Where Claude Code compacts: `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (`compact_window` of kiln,
-    `400k` accepted), otherwise the whole window."""
-    raw = os.environ.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW", "").strip().lower()
-    scale = {"k": 1_000, "m": 1_000_000}.get(raw[-1:], 1)
+def window_tokens(raw: object) -> int:
+    """A window as Claude Code writes it (`400000`, `400k`, `1M`); 0 for anything else (`auto`)."""
+    text = str(raw or "").strip().lower()
+    scale = {"k": 1_000, "m": 1_000_000}.get(text[-1:], 1)
     try:
-        point = int(float(raw.rstrip("km")) * scale) if raw else 0
+        return int(float(text.rstrip("km")) * scale)
     except ValueError:
-        point = 0
+        return 0
+
+
+def compaction_point(window: int, project: str, model: str) -> int:
+    """Where Claude Code compacts: `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, otherwise `autoCompactWindow`
+    (kiln's `compact_window`), the local settings over the project's over the user's, in each
+    the model's own (saved by `/autocompact`) first; otherwise the whole window. A launch's
+    `--autocompact` is not seen."""
+    point = window_tokens(os.environ.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW"))
+    names = ("settings.local.json", "settings.json") if project else ()
+    files = [os.path.join(project, ".claude", name) for name in names]
+    for path in [*files, os.path.expanduser("~/.claude/settings.json")]:
+        if point:
+            break
+        try:
+            settings = json.loads(read(path))
+        except OSError, ValueError:
+            continue
+        if isinstance(settings, dict):
+            own = ((settings.get("modelSettings") or {}).get(model) or {}).get("autoCompactWindow")
+            point = window_tokens(own or settings.get("autoCompactWindow"))
     return min(point, window) if point and window else point or window
 
 
@@ -656,17 +675,23 @@ def collect_session(status: Status, d: dict, main: str) -> None:
         head.append(Item(f'"{name}"', role="muted", short=""))
     status.session.append(head)
 
-    # the context in tokens, coloured by what a message costs, its gauge full at the compaction
+    # the context in tokens, coloured by what a message costs, its gauge full at the compaction;
+    # red once the cache has gone cold, the next message writing it all again (Claude Code
+    # redraws the line when the cache expires, an hour after the last message with a subscription)
     cw = d.get("context_window") or {}
-    used = sum(
+    context_tokens = sum(
         (cw.get("current_usage") or {}).get(k, 0) or 0
         for k in ("input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
     )
-    point = compaction_point(int(cw.get("context_window_size") or 0))
-    if used and point:
-        fill = min(100.0, 100 * used / point)
-        amount = f"{used / 1000:.0f}k"
-        status.session.append([Item("ctx", context_level(used), gauge=fill, amount=amount)])
+    project = str((d.get("workspace") or {}).get("project_dir") or "")
+    model_id = str((d.get("model") or {}).get("id") or "")
+    point = compaction_point(int(cw.get("context_window_size") or 0), project, model_id)
+    if context_tokens and point:
+        fill = min(100.0, 100 * context_tokens / point)
+        cold = (d.get("prompt_cache") or {}).get("warm") is False
+        level = 3 if cold else context_level(context_tokens)
+        amount = f"{context_tokens / 1000:.0f}k"
+        status.session.append([Item("ctx", level, gauge=fill, amount=amount)])
     elif cw.get("used_percentage") is not None:
         pct = float(cw["used_percentage"])
         status.session.append([Item("ctx", quota_level(pct), gauge=pct)])
@@ -743,8 +768,7 @@ def collect_session(status: Status, d: dict, main: str) -> None:
     if pc.get("hit_ratio") is not None:
         ratio = 100 * float(pc["hit_ratio"])
         warm = pc.get("warm", True)
-        # a cold cache is written again whole at the next message: coloured by the context's size
-        level = (1 if ratio < 70 else 0) if warm else context_level(used)
+        level = 1 if warm and ratio < 70 else 0  # cold: the context's figure turns red
         status.usage.append([Item(f"cache {ratio:.0f}%" if warm else "cache cold", level)])
     c = d.get("cost") or {}
     if c:

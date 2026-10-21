@@ -56,7 +56,7 @@ Les plugins Claude Code vivent dans [`plugins/`](../plugins/), catalogue `kiln`
   plus enthousiaste) ; `git config kiln.update-check false` pour s'en passer, sorties de commandes condensées par [rtk](https://github.com/rtk-ai/rtk) (`rtk.py`) quand il
   est installé (`mise use -g github:rtk-ai/rtk`, sans `rtk init` : le hook est fourni ici) ; MCP context7 ; status line commune (`plugins/kiln/scripts/statusline.py`,
   en anglais, aux couleurs de kiln), qui montre le contexte en jetons, d'autant plus coloré qu'un message
-  coûte cher, et un cache froid selon ce que coûte sa reconstruction, posée par `kiln install` dans `~/.claude/settings.json` ; son
+  coûte cher, et en rouge une fois le cache expiré (le message suivant réécrit tout), posée par `kiln install` dans `~/.claude/settings.json` ; son
   style se choisit par poste : `kiln set statusline=plain|band|classic|classic-band`,
   `none` (retirée) ou `custom` (kiln ne touche plus à la `statusLine` de l'utilisateur, choix
   automatique s'il en a déjà une) ;

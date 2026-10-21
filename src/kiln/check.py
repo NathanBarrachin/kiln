@@ -15,7 +15,7 @@ from kiln import ui
 from kiln.charter import config as charter_config
 from kiln.ci.execution import base_env
 from kiln.ci.jobs import RELAYS, Plan, plan_job
-from kiln.ci.services import running_services
+from kiln.ci.services import remove_orphan_containers, running_services
 from kiln.ci.workflow import CI_WORKFLOW, load_jobs
 from kiln.dev.backing import start_backing_services
 from kiln.install import ensure_env_file, moved_from, pnpm_behind, sync_command
@@ -53,6 +53,9 @@ def _run_check(root: Path, command: Command) -> int:
         return run_status(list(command.argv), root / command.directory)
     images = ", ".join(image for image in (plan.services.postgres, plan.services.redis) if image)
     ui.note(f"as the CI job {plan.job.name}: {images}, its variables")
+    # Those of a kiln check or kiln ci killed before its cleanup (closed window, SIGKILL).
+    if orphan_count := remove_orphan_containers():
+        ui.note(f"{orphan_count} containers of an interrupted run removed")
     try:
         with running_services(plan.services, f"kiln-check-{os.getpid()}") as urls:
             env = base_env({**plan.env, **urls})

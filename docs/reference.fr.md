@@ -134,6 +134,12 @@ système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.
 modification locale sont marqués dans le fichier (`<<<<<<<`). Relire, commiter, fusionner dans
 `develop` (skill `kiln:merge`, sans PR ni approbation à attendre).
 
+Quand une version de kiln plus récente est sortie sur le canal du poste, une commande tapée dans
+un terminal finit par proposer de l'installer (GitHub interrogé au plus une fois par jour ; après
+un non, la même version revient une semaine plus tard). Pas dans Claude Code, dont le début de
+session pose la question, ni dans `kiln doctor`, ni pour un outil installé depuis un dossier ;
+`KILN_NO_UPDATE_CHECK=1` la coupe.
+
 `new`, `install`, `update` et `status` s'ouvrent sur une bannière : un four en pixel art, la
 version de kiln, la commande, le projet (envergure, stack) et son dossier. Hors terminal ou avec
 `NO_COLOR`, une seule ligne de texte à la place. `kiln` seul (ou `kiln --help`) ouvre l'écran

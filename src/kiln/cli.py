@@ -212,7 +212,17 @@ def _dispatch_score(arguments: argparse.Namespace) -> None:
     if arguments.online:
         score.refresh_end_of_life()
     report = score.score_repo(root)
-    if arguments.json:
+    if arguments.rule or arguments.roadmap:
+        from kiln.grid import roadmap
+
+        if arguments.rule:
+            roadmap.show_rule(report, score.rule_finding(report, arguments.rule), arguments.rule)
+            return
+        if arguments.write:
+            written = roadmap.write_tickets(root, report)
+            print(f"{len(written)} ticket(s) written in {roadmap.BACKLOG}: {', '.join(written)}")
+        roadmap.show_roadmap(report)
+    elif arguments.json:
         print(score.as_json(report))
     elif arguments.badge:
         print(score.badge(report))
@@ -245,6 +255,13 @@ def _add_score_command(commands: argparse._SubParsersAction[argparse.ArgumentPar
     score_parser.add_argument(
         "--online", action="store_true", help="refresh end-of-life dates from endoflife.date"
     )
+    score_parser.add_argument(
+        "--roadmap", action="store_true", help="what needs judgment, for Claude, with its places"
+    )
+    score_parser.add_argument(
+        "--write", action="store_true", help="with --roadmap: the items as backlog tickets"
+    )
+    score_parser.add_argument("--rule", help="one rule only: fails while its gap is open")
 
 
 def _add_fix_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:

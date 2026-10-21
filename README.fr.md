@@ -51,6 +51,8 @@ aucune IA et ne demande aucune clé d'API.
   en une seconde environ, sans jeton : une note sur 100, une par pilier, et les écarts à
   combler d'abord. `kiln fix` comble sur une branche ceux qu'un script peut combler, un
   commit par règle, annulé si vos contrôles passent au rouge.
+  `kiln score --roadmap` confie le reste à Claude Code en une courte liste, fichier et ligne
+  compris, et `/kiln:modernize` la traite, chaque écart prouvé comblé par `kiln score --rule`.
 - Des skills pour les worktrees, les fusions, les versions et les relectures ; des hooks qui
   tiennent Claude à l'écart de `main` et `develop` ; une status line qui montre la CI, les
   tickets et la production.

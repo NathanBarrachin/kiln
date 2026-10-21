@@ -386,5 +386,6 @@ la rejoue sur le poste, depuis le même `ci.yml` :
 `--keep` laisse le worktree pour enquêter. Avec `git config statusline.ci locale`, la status
 line affiche ce verdict pour la branche d'intégration. `kiln ci` ne tourne plus à chaque fusion
 dans `develop` : seulement sur la branche `release/vN` d'une version (skill `kiln:release`), dont
-le verdict vaut pour le commit de fusion dans `main` (mêmes fichiers). Entre deux versions, le
-typage se joue avant chaque push (crochet pre-push de `.pre-commit-config.yaml`).
+le verdict vaut pour le commit de fusion dans `main` (mêmes fichiers). Entre deux versions, seuls
+les linters rapides tournent, sur les fichiers modifiés ; la CI de GitHub (`ci.yml`) ne se
+déclenche que sur les branches `release/**`.

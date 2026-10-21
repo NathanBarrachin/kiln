@@ -95,5 +95,8 @@ def _stop(root: Path) -> None:
         containers.stop(root)
         return
     stopped = background.stop(root)
-    stop_backing_services(root)
+    if background.others_running(root):
+        ui.note("databases kept: another worktree of this repo still uses them")
+    else:
+        stop_backing_services(root)
     ui.success(f"stopped: {', '.join(stopped)}" if stopped else "nothing was running")

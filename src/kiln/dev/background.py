@@ -50,7 +50,23 @@ def state_dir(root: Path) -> Path:
 
 
 def records(root: Path) -> dict[str, dict[str, Any]]:
-    folder = state_dir(root)
+    return _records_in(state_dir(root))
+
+
+def others_running(root: Path) -> bool:
+    """Whether another worktree of the repo still runs processes, on the same databases."""
+    common = Path(capture(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], root))
+    folders = [common / STATE_DIR, *(common / "worktrees").glob(f"*/{STATE_DIR}")]
+    own = state_dir(root).resolve()
+    return any(
+        is_alive(record["pid"])
+        for folder in folders
+        if folder.resolve() != own
+        for record in _records_in(folder).values()
+    )
+
+
+def _records_in(folder: Path) -> dict[str, dict[str, Any]]:
     found = {}
     for path in sorted(folder.glob("*.json")) if folder.is_dir() else ():
         with contextlib.suppress(ValueError, OSError):

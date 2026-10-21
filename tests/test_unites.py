@@ -11,6 +11,7 @@ from packaging.version import Version
 from plumbum import ProcessExecutionError
 
 from kiln import cli, github, ui
+from kiln.backing import backing_services
 from kiln.banner import LOGO, _project_summary, render_logo
 from kiln.config import UserConfig
 from kiln.deps import _major_bounds
@@ -566,3 +567,15 @@ def test_without_gh_the_project_is_created_without_github(
     assert github.can_publish() is False
     assert github.login() is None
     assert "kiln publish" in capsys.readouterr().out
+
+
+def test_backing_services_reads_db_and_redis_of_the_services_only(tmp_path: Path) -> None:
+    compose = tmp_path / "compose.yml"
+    compose.write_text(
+        "x-common: &common\n  tmpfs: /tmp\n"
+        "services:\n  db:\n    image: postgres\n    container_name: demo-db\n"
+        "  redis:\n    image: redis\n  backend:\n    container_name: demo-backend\n"
+        "volumes:\n  db-data:\n",
+        encoding="utf-8",
+    )
+    assert backing_services(compose) == {"db": "demo-db", "redis": None}

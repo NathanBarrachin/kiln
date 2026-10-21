@@ -7,6 +7,9 @@ not buffer (`PYTHONUNBUFFERED`).
 Each server also receives the variables of the `.env` of its folder (`backend/.env`), the
 local, ignored settings of the machine; the shell's environment wins over them.
 
+Before them, the databases of the project's compose file (`db`, `redis`) are started, so that a
+reboot that stopped them does not crash the backend (`kiln.backing`).
+
 With `--containers` (podman project), the whole stack runs in podman (`compose.yaml`).
 """
 
@@ -18,6 +21,7 @@ from pathlib import Path
 from typing import IO
 
 from kiln import ui
+from kiln.backing import start_backing_services
 from kiln.shell import KilnError, require_tools, run, step
 from kiln.stack import Command, load_stack
 
@@ -36,6 +40,7 @@ def run_dev_servers(root: Path, *, in_containers: bool = False) -> None:
     commands = stack.dev_commands()
     if not commands:
         raise KilnError("nothing to run: a command-line tool runs with uv run")
+    start_backing_services(root)
     step(" · ".join(f"{command.label} ({command.directory}/)" for command in commands))
     width = max(len(command.label) for command in commands)
     env = {**os.environ, "PYTHONUNBUFFERED": "1"}

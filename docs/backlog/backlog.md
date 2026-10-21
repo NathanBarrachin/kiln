@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-162.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-163.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -177,6 +177,31 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 ## 🔴 Critical
 
 ## 🟠 Important
+
+### T-162 · Save tokens without limiting Claude
+- **Type**: improvement
+- **Status**: in progress — branch feat/token-savings, since 2026-10-21
+- **Opened**: 2026-10-21
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 21 October 2026: what kiln costs and saves in tokens, measured on three
+  weeks of his sessions; then "I'm afraid of limiting Claude's power"
+
+Every message re-reads the whole context: re-reading is two thirds of the cost, and calls past
+200k tokens weigh two thirds of it. With the 1M window a session almost never compacts (three
+compactions in three weeks, sessions up to 967k). Replayed on those sessions, a `/clear` after
+each merge saves 16 % on the busiest repo, 25 % with a compaction at 400k, without taking
+anything from Claude: same model, same effort, a whole context up to 400k.
+- [ ] Compaction at 400k by default (`compact_window`, `CLAUDE_CODE_AUTO_COMPACT_WINDOW`);
+  1000000 keeps Claude Code's own.
+- [ ] claude.ai connectors off unless asked (`claude_ai_connectors`): about 5,000 tokens of tool
+  names and instructions in every message, for a few calls a week.
+- [ ] Status line: the context in tokens, coloured by what a message costs, its gauge against
+  the compaction point; a cold cache coloured by what rebuilding it costs.
+- [ ] `/kiln:merge` suggests `/clear` before the next ticket.
+- [ ] Skill descriptions at 300 characters at most (they sit in every message), triggers kept.
+
+Turned down, they would limit Claude: a smaller model or a lower effort in skills, screenshots
+read by a subagent, a shorter Bash output, a compaction at 200k.
 
 ### T-159 · What T-126 to T-128 left: compose hardening, pyproject from requirements, `kiln update`
 - **Type**: improvement

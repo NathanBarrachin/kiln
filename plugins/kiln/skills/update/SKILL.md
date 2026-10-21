@@ -15,7 +15,11 @@ Talk to the user in their language.
    or GitHub: `uv tool install --force kiln-cli==…` or `…git+…@<tag>`, preceded by
    `uv tool uninstall kiln` when the tool still has its old name, then kiln's marketplace and the
    `kiln` plugin installed for every repo of the machine; a tool installed from a kiln checkout
-   is replaced by the release, since only a release updates a repo). Run it as is; if it fails
+   is replaced by the release, since only a release updates a repo). On the `beta` channel
+   (`kiln set channel=beta`), the tool is kiln's `develop` instead: the checkout of the code
+   directory installed editable (`uv tool install --force --editable <code_dir>/kiln`, read
+   live, nothing to update after a merge), otherwise GitHub's `develop`; `kiln update` then
+   takes the template at that commit. Run it as is; if it fails
    (no network), stop and say why.
 2. `<reminders> yes tool`, then tell the user to type `/reload-plugins`: the plugin's
    skills and hooks only change on reload.

@@ -648,6 +648,37 @@ def test_a_tool_that_is_not_a_release_updates_no_repo(
     assert template_revision("/un/dossier/local") == "HEAD"
 
 
+@pytest.mark.parametrize(
+    ("recorded", "expected"),
+    [("v0.4.4-16-gf767dbf", "v0.4.4-16-gf767dbf"), ("v0.4.4-16-gf767dbf-dirty", None)],
+)
+def test_on_the_beta_channel_the_template_is_taken_at_the_tool_commit(
+    monkeypatch: pytest.MonkeyPatch, recorded: str, expected: str | None
+) -> None:
+    monkeypatch.setattr(
+        "kiln.versions._installed_distribution", lambda: _FakeDistribution("0.4.4", FOLDER)
+    )
+    monkeypatch.setattr("kiln.versions._recorded_build", lambda: recorded)
+    monkeypatch.setattr("kiln.template.is_beta", lambda: True)
+
+    if expected is None:
+        with pytest.raises(KilnError, match="uncommitted changes"):
+            template_revision(DEFAULT_TEMPLATE_SOURCE)
+    else:
+        assert template_revision(DEFAULT_TEMPLATE_SOURCE) == expected
+
+
+def test_the_beta_channel_installs_the_checkout_of_the_code_directory(tmp_path: Path) -> None:
+    from kiln.machine import apply_machine
+    from kiln.versions import beta_install_command
+
+    assert apply_machine(UserConfig(), ["channel=beta"]).channel == "beta"
+    assert "@develop" in beta_install_command(tmp_path)
+    (tmp_path / "kiln/src/kiln").mkdir(parents=True)
+    (tmp_path / "kiln/src/kiln/versions.py").write_text("")
+    assert beta_install_command(tmp_path) == f"uv tool install --force --editable {tmp_path}/kiln"
+
+
 def test_a_folder_install_is_what_it_was_built_from_not_the_folder_today(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

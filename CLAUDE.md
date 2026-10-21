@@ -206,9 +206,10 @@ sur Hacker News, titre et réponses compris, est écrit à la main par antoine (
 
 ## Contrôles
 
-`uv run pytest -q` (réparti sur tous les cœurs par pytest-xdist : une vingtaine de secondes ;
-`-n 0` pour un seul processus, au débogage), `uv run ruff check`
-et `uv run ruff format --check`. Le crochet pre-commit de kiln (`.pre-commit-config.yaml`, posé par
+À la fusion dans `develop` : `uv run ruff check`, `uv run ruff format --check` et
+`uv run mypy src tests`, au plus les tests des fichiers touchés ; jamais la suite complète.
+`uv run pytest -q` (réparti sur tous les cœurs par pytest-xdist ; `-n 0` pour un seul
+processus, au débogage) tourne en entier à la release (`kiln version cut`), qui joue tout. Le crochet pre-commit de kiln (`.pre-commit-config.yaml`, posé par
 `kiln install`) lance ruff à chaque commit et mypy avant chaque push. Le catalogue étant déclaré en dossier local sur le poste
 d'antoine, les sessions ouvertes appellent les hooks et la status line **dans l'arbre principal**
 (`~/code/kiln/plugins/…`) : un fichier retiré ou renommé casse aussitôt chaque session (hook

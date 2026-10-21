@@ -123,7 +123,7 @@ def test_integration_branch_is_not_counted_as_unmerged(tmp_path: Path) -> None:
 def sample(script: ModuleType) -> object:
     item, status = script.Item, script.Status()
     status.repo = [[item("demo", role="title"), item("⎇ develop")], [item("~2", 1)]]
-    status.session = [[item("Opus", role="strong")], [item("ctx", 0, gauge=34.0)]]
+    status.session = [[item("Opus", role="strong")], [item("ctx", 0, gauge=34.0, amount="136k")]]
     status.tasks = [[item("65 tasks"), item(f"urgent{X}10", 3), item(f"blocked{X}14", short="")]]
     status.env = [
         [item(f"uv{X}8")],
@@ -131,6 +131,44 @@ def sample(script: ModuleType) -> object:
         [item(":3000 :8000")],
     ]
     return status
+
+
+def session_items(script: ModuleType, payload: dict[str, Any]) -> dict[str, tuple[int, str, Any]]:
+    """Session et usage de la status line, par texte : (niveau, quantité, jauge)."""
+    status = script.Status()
+    script.collect_session(status, payload, "")
+    return {i.text: (i.level, i.amount, i.gauge) for g in status.session + status.usage for i in g}
+
+
+def context(tokens: int) -> dict[str, Any]:
+    usage = {
+        "input_tokens": 10,
+        "cache_creation_input_tokens": 990,
+        "cache_read_input_tokens": tokens,
+    }
+    return {"context_window_size": 1_000_000, "used_percentage": 25, "current_usage": usage}
+
+
+@pytest.mark.parametrize(("compaction", "gauge"), [("400000", 62.5), ("400k", 62.5), ("", 25.0)])
+def test_context_in_tokens_its_gauge_full_at_the_compaction(
+    compaction: str, gauge: float, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("CLAUDE_CODE_AUTO_COMPACT_WINDOW", compaction)
+
+    items = session_items(load_script(), {"context_window": context(249_000)})
+
+    assert items["ctx"] == (2, "250k", gauge)  # 250k : chaque message coûte cher
+
+
+def test_a_cold_cache_is_coloured_by_what_rebuilding_it_costs() -> None:
+    script = load_script()
+    cold = {"hit_ratio": 0.9, "warm": False}
+
+    def level(tokens: int) -> int:
+        items = session_items(script, {"context_window": context(tokens), "prompt_cache": cold})
+        return int(items["cache cold"][0])
+
+    assert (level(59_000), level(319_000)) == (0, 3)  # tout le contexte réécrit au message suivant
 
 
 @pytest.mark.parametrize("style", ["plain", "band", "classic", "classic-band"])

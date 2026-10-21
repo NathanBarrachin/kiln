@@ -161,6 +161,7 @@ class Item:
     short: str | None = None
     role: str = ""
     gauge: float | None = None  # percentage: the item is drawn as a gauge
+    amount: str = ""  # shown instead of the gauge's percentage (the context, in tokens)
     reset: str = ""  # a quota's reset, shown when it gets tight
     compact: bool = False
 
@@ -192,6 +193,27 @@ def level_of(group: Group) -> int:
 
 def quota_level(pct: float) -> int:
     return 3 if pct >= 90 else 2 if pct >= 80 else 1 if pct >= 60 else 0
+
+
+# Every message re-reads the whole context: past these sizes, a message costs about two, four and
+# six times a fresh session's (some 50k tokens of instructions and tools).
+CONTEXT_LEVELS = (100_000, 200_000, 300_000)
+
+
+def context_level(tokens: int) -> int:
+    return sum(tokens >= limit for limit in CONTEXT_LEVELS)
+
+
+def compaction_point(window: int) -> int:
+    """Where Claude Code compacts: `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (`compact_window` of kiln,
+    `400k` accepted), otherwise the whole window."""
+    raw = os.environ.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW", "").strip().lower()
+    scale = {"k": 1_000, "m": 1_000_000}.get(raw[-1:], 1)
+    try:
+        point = int(float(raw.rstrip("km")) * scale) if raw else 0
+    except ValueError:
+        point = 0
+    return min(point, window) if point and window else point or window
 
 
 def plural(n: int, word: str) -> str:
@@ -634,16 +656,20 @@ def collect_session(status: Status, d: dict, main: str) -> None:
         head.append(Item(f'"{name}"', role="muted", short=""))
     status.session.append(head)
 
+    # the context in tokens, coloured by what a message costs, its gauge full at the compaction
     cw = d.get("context_window") or {}
-    pct = cw.get("used_percentage")
-    if pct is None and cw.get("context_window_size"):
-        used = sum(
-            (cw.get("current_usage") or {}).get(k, 0) or 0
-            for k in ("input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
-        )
-        pct = 100 * used / cw["context_window_size"]
-    if pct is not None:
-        status.session.append([Item("ctx", quota_level(float(pct)), gauge=float(pct))])
+    used = sum(
+        (cw.get("current_usage") or {}).get(k, 0) or 0
+        for k in ("input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
+    )
+    point = compaction_point(int(cw.get("context_window_size") or 0))
+    if used and point:
+        fill = min(100.0, 100 * used / point)
+        amount = f"{used / 1000:.0f}k"
+        status.session.append([Item("ctx", context_level(used), gauge=fill, amount=amount)])
+    elif cw.get("used_percentage") is not None:
+        pct = float(cw["used_percentage"])
+        status.session.append([Item("ctx", quota_level(pct), gauge=pct)])
 
     # subscription limits (5 h window, week), when Claude Code or agy provides them
     has_limits = False
@@ -717,9 +743,9 @@ def collect_session(status: Status, d: dict, main: str) -> None:
     if pc.get("hit_ratio") is not None:
         ratio = 100 * float(pc["hit_ratio"])
         warm = pc.get("warm", True)
-        status.usage.append(
-            [Item(f"cache {ratio:.0f}%" if warm else "cache cold", 1 if warm and ratio < 70 else 0)]
-        )
+        # a cold cache is written again whole at the next message: coloured by the context's size
+        level = (1 if ratio < 70 else 0) if warm else context_level(used)
+        status.usage.append([Item(f"cache {ratio:.0f}%" if warm else "cache cold", level)])
     c = d.get("cost") or {}
     if c:
         mins = int((c.get("total_duration_ms") or 0) / 60000)
@@ -782,7 +808,8 @@ class Painter:
             filled = round(pct / 100 * 6)
             out += self.text("▰" * filled, LEVEL_COLORS[item.level] if item.level else STONE_LIGHT)
             out += self.text("▱" * (6 - filled) + " ", STONE_DARK)
-        out += self.text(f"{pct:.0f}%", LEVEL_COLORS[item.level], BOLD if item.level else "")
+        figure = item.amount or f"{pct:.0f}%"
+        out += self.text(figure, LEVEL_COLORS[item.level], BOLD if item.level else "")
         if item.reset and item.level and not item.compact:
             out += self.text(f" ↻ {item.reset}", STONE)
         return out

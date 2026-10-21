@@ -142,9 +142,17 @@ def test_java_backend_is_checked_by_the_maven_wrapper() -> None:
     assert stack.maven_dir == "backend"
     assert stack.dev_commands() == []
     assert [(command.label, command.argv) for command in stack.check_commands()] == [
-        ("backend maven", ("./mvnw", "-B", "-q", "verify")),
+        ("backend maven", ("./mvnw", "-B", "-q", "verify", "-DskipTests")),
         ("charter", ("charter",)),
     ]
+    assert stack.check_commands(with_tests=True)[0].argv == ("./mvnw", "-B", "-q", "verify")
+
+
+def test_test_suites_run_only_on_request() -> None:
+    stack = Stack(backend="django", frontend="nuxt", has_podman=False)
+
+    assert "backend pytest" not in [command.label for command in stack.check_commands()]
+    assert "backend pytest" in [command.label for command in stack.check_commands(True)]
 
 
 def test_java_backend_with_a_frontend_serves_its_jar_in_dev() -> None:

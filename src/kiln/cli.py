@@ -112,7 +112,10 @@ def build_parser() -> argparse.ArgumentParser:
     commands.add_parser("publish", help="create the private GitHub repo and protect its branches")
     _add_update_command(commands)
     _add_dev_command(commands)
-    commands.add_parser("check", help="run the project's checks")
+    check_parser = commands.add_parser("check", help="run the project's checks")
+    check_parser.add_argument(
+        "--tests", action="store_true", help="the test suites too (the release runs them)"
+    )
     _add_ci_command(commands)
     commands.add_parser("contract", help="regenerate openapi.json and the frontend types")
     version_parser = commands.add_parser(
@@ -542,7 +545,7 @@ def _dispatch_in_repo(arguments: argparse.Namespace, root: Path) -> None:
     elif command == "check":
         from kiln import check
 
-        check.check_project(root)
+        check.check_project(root, arguments.tests)
     elif command == "ci":
         _dispatch_ci(root, arguments)
     elif command == "contract":

@@ -78,7 +78,7 @@ Un nouveau repo :
 ```console
 $ kiln new mon-app            # trois questions, puis un dépôt GitHub privé (--no-github : local)
 $ cd mon-app && kiln dev      # serveurs en arrière-plan, bases d'abord, journaux proposés
-$ kiln check                  # ruff, mypy, pytest, ESLint, types, puis charter
+$ kiln check                  # ruff, mypy, ESLint, types, puis charter (--tests : les suites)
 $ claude                      # Claude Code, avec les règles, skills et hooks de kiln
 ```
 

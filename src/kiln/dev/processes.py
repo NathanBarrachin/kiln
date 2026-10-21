@@ -4,7 +4,9 @@ A `Procfile.dev` (the format of foreman and of Rails' `bin/dev`) lists one proce
 `name: command`, run in its folder (`backend/`, `frontend/` or the root) through `sh -c`: a Celery
 worker, a scheduler, a CSS watcher. A name taken by the stack (`django`) replaces its server.
 
-Each process gets the `.env` of its folder, the shell's environment winning over it, and leads
+Each process gets the `.env` of its folder, then its `.env.dev` (what the full local stack changes,
+such as a production key to blank out: an empty value is kept), the shell's environment winning
+over both, and leads
 its own process group: stopping it stops the children a `sh -c` or `uv run` started.
 """
 
@@ -19,6 +21,7 @@ from typing import IO
 from kiln.stack import BACKEND_DIR, FRONTEND_DIR, Command, load_stack
 
 ENV_FILE = ".env"
+DEV_ENV_FILE = ".env.dev"
 PROCFILE = "Procfile.dev"
 PROCFILE_DIRS = (BACKEND_DIR, FRONTEND_DIR, ".")
 _PROCFILE_LINE = re.compile(r"^([A-Za-z0-9_-]+):\s*(\S.*)$")
@@ -69,7 +72,11 @@ def spawn(
     return subprocess.Popen(
         list(command.argv),
         cwd=directory,
-        env={**read_env_file(directory / ENV_FILE), **env},
+        env={
+            **read_env_file(directory / ENV_FILE),
+            **read_env_file(directory / DEV_ENV_FILE),
+            **env,
+        },
         stdin=subprocess.DEVNULL,
         stdout=output,
         stderr=subprocess.STDOUT,

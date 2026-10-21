@@ -18,7 +18,7 @@ un dossier ou un module.
   `.copier-answers.yml`), `template.py`, `deps.py`, `github.py`, `rules.py` (règles non
   vérifiées), `statusline.py`, `versions.py` (tags, journal des versions), `frozen.py` (fichiers figés par `kiln-waivers.toml`, épargnés par `update`), `renames.py` (noms d'avant 0.4.0 et leurs noms anglais), `banner.py` (bannière, écran d'accueil), `ui.py` (palette pierre et feu, étapes,
   roue animée, bilan, succès, erreurs), `shell.py`, `config.py` (`~/.config/kiln/config.toml`).
-- `src/kiln/grid/` : la grille (T-123) : `rules/<thème>/<ID>.toml` une règle par fichier, `model.py` (format, listes fermées, validation), `facts.py` (de quoi est fait un repo), `detectors.py` (détecteurs déclaratifs, contrôles Python), `fixers/` (convertisseurs de `kiln fix` : `ci.py`, `python.py`, `containers.py`, `resolve.py` pour les SHA et empreintes en ligne), `fix.py` (`kiln fix`), `show.py` (`kiln grid`), `score.py` (`kiln score`, note d'un repo face à la grille) ; chaque règle a un exemple qui passe et un qui échoue dans `tests/test_grid.py`.
+- `src/kiln/grid/` : la grille (T-123) : `rules/<thème>/<ID>.toml` une règle par fichier, `model.py` (format, listes fermées, validation), `facts.py` (de quoi est fait un repo), `detectors.py` (détecteurs déclaratifs, contrôles Python), `fixers/` (convertisseurs de `kiln fix` : `ci.py`, `python.py`, `containers.py`, `resolve.py` pour les SHA et empreintes en ligne), `fix.py` (`kiln fix`), `show.py` (`kiln grid`), `score.py` (`kiln score`, note d'un repo face à la grille), `roadmap.py` (`kiln score --roadmap`, `--rule`, `--write` : ce qui demande du jugement, pour Claude) ; chaque règle a un exemple qui passe et un qui échoue dans `tests/test_grid.py`.
 - `src/kiln/ci/` : `kiln ci` (CI rejouée sur le poste, verdict en note git) ;
   `src/kiln/charter/` : moteur de `charter` (`bans.py`, `ratchets.py`,
   `python_tools.py`, `waivers.py` : dérogations de `kiln-waivers.toml`).
@@ -29,7 +29,7 @@ un dossier ou un module.
 - `plugins/` : plugins Claude Code, catalogue `.claude-plugin/marketplace.json` (avec
   `renames` : anciens noms `base`, `pile-django`, `pile-nuxt`, `vps-podman`) ; `kiln/` (skills
   `worktree`, `merge`, `release`, `cleanup`, `review` (commits et diff d'une branche avant la
-  fusion, dépôt entier avant une version), `backlog`, `update`, `adopt`, `report` (défaut de kiln
+  fusion, dépôt entier avant une version), `backlog`, `update`, `adopt`, `modernize` (écarts de la feuille de route comblés un à un), `report` (défaut de kiln
   remonté en issue ou PR), `token` (jeton d'un service dans `.<service>/`), `contribution` (PR
   d'un contributeur extérieur), `good-first-issues` ; `hooks/` (dont `reminders.py`, espacement
   des questions de mise à jour, et `first_prompt.py`, logo de kiln et nouveautés au-dessus de la

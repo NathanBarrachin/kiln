@@ -94,7 +94,7 @@ Candidate Mon 26 Oct. The fixes that cost no token, each proven by the repo's ow
 
 ### v0.4.4 · The rest handed to Claude, and kiln passes its own grid
 Candidate Wed 28 Oct. Claude only gets what needs judgment, and kiln's repos show the way.
-- T-129 · What needs judgment goes to Claude: `kiln score --roadmap` and `/kiln:modernize` (M)
+- ✅ T-129 · What needs judgment goes to Claude: `kiln score --roadmap` and `/kiln:modernize` (M)
 - T-130 · Generated repos pass the whole grid (M)
 - T-90 · kiln passes its own grid: pinned actions, least privilege, provenance, Scorecard (M)
 - ✅ T-161 · Install kiln on the whole machine, in one command (S)
@@ -224,31 +224,6 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 Branch protection or rulesets on the integration branch, secret scanning and push protection,
 Dependabot alerts: read through `gh api` when logged in, left out of the count otherwise (never a
 failure for lack of a token).
-
-### T-129 · What needs judgment goes to Claude: `kiln score --roadmap` and `/kiln:modernize`
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-17
-- **Effort**: M · **Owner**: Claude · **Due**: —
-- **Origin**: vision of 17 October 2026 (the roadmap for Claude, step 3; verified by the
-  script, step 4)
-
-Most of an agent's tokens go into exploring a repo to find what to do. The roadmap removes that:
-Claude pays to think, not to search, which is also what a Pro quota can afford.
-- [ ] `kiln score --roadmap`: what no converter closes (split a 3,000-line file, rename with
-  meaning, type strictly, write tests), short, ordered by gain, each item with its location
-  (file and line), its rule and its why; `--write` turns them into tickets of `docs/backlog/`
-  when the repo has one.
-- [ ] `/kiln:modernize`: one item at a time, opening only the places quoted; first a safety net
-  of characterization tests when the code it touches has none (old repos break when modernized
-  blind); the checks, then `kiln score --rule ID` to prove the gap is gone; one commit per item;
-  it stops and asks when a product decision is involved.
-- [ ] Approximate detectors (a generic name, a file doing several things, SQL built from
-  strings) flag candidates marked "to confirm": Claude confirms or dismisses each in one look
-  at the place quoted; a dismissal is remembered, never flagged again, and counted as a false
-  positive of the rule (T-38).
-- [ ] A gap is closed only when it leaves the score and the checks stay green.
-- [ ] Each fix logged (rule, kind of change) for T-137.
 
 ### T-130 · Generated repos pass the whole grid
 - **Type**: improvement
@@ -1040,6 +1015,7 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-21** · T-129 · What needs judgment goes to Claude — `kiln score --roadmap` (sure gaps first, then the smallest, places and proof; approximate ones "to confirm"), `--write` (backlog tickets, once each), `--rule ID` (fails while open), a false positive dismissed by a waiver on its path (grid IDs accepted by the charter), skill `/kiln:modernize` (tests first, one commit per gap, the rule ID in its body for T-137) (feat/roadmap) · opened 2026-10-17
 - **2026-10-21** · T-161 · Install kiln on the whole machine, in one command — `kiln install` outside a repo (or `--machine`): the CLI as a uv tool, the catalogue and `kiln@kiln` at user scope, the machine settings, only what is missing; `kiln doctor` points to it (feat/install-machine) · opened 2026-10-21
 - **2026-10-20** · T-126, T-127, T-128 · `kiln fix` and its first 14 converters — one commit per rule on `kiln/fix-<date>`, checks before and after, red undone, `--dry-run`, `--rule`; supply chain and CI, Python, containers and runtimes; the university copy went from 35 to 61; leftovers in T-159 (feat/kiln-fix) · opened 2026-10-17
 - **2026-10-20** · T-157 · #45 and #46 credited in the v0.4.2 notes (release/v0.4.2) · opened 2026-10-20

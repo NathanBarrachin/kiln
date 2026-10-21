@@ -74,6 +74,7 @@ releases.
 - T-142 · Launch rehearsal: a stranger's first ten minutes, replayed (M)
 - T-53 · Readable by Claude, measured: the A/B test (M) — only if the budget allows; its number
   joins the launch article only if it is net
+- T-145 · A public benchmark: Claude Code with and without kiln (L) — same condition, after T-53
 
 ### v0.5.2 · Launch week: what the rehearsal found
 Candidate Thu 5 Nov: the fixes of T-142, nothing else.
@@ -110,7 +111,6 @@ comes first; these tickets give way to it.
 - T-55 · README in Chinese, Japanese, Spanish and Portuguese (S)
 - T-57 · A tutorial series: bring a Django repo up to date in an afternoon (M)
 - T-58 · A public roadmap on GitHub Projects (M)
-- T-145 · A public benchmark: Claude Code with and without kiln (M)
 - T-12 · Homebrew formula in a tap (S) (blocked: demand)
 
 ### v0.6.0 · Claude closes the gaps alone
@@ -938,16 +938,23 @@ No open tool removes existing code with a proof.
 - **Type**: idea
 - **Status**: todo
 - **Opened**: 2026-10-18
-- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Effort**: L · **Owner**: Claude · **Due**: —
 - **Origin**: vision of 17 October 2026, ideas in reserve ("a public benchmark, Claude Code with
-  and without kiln, that could serve as proof")
+  and without kiln, that could serve as proof"); widened on 21 October 2026 at antoine's
+  request: the tokens kiln saves, shown each session
 
-T-53 measures one hypothesis (small files); this one measures the whole promise.
-- [ ] The same tasks given to headless Claude Code on a repo before and after `kiln fix` and
-  `/kiln:modernize`: red CIs, tokens, rules broken, tasks done; its cost on the Pro quota said
-  before it runs, stopped at the budget.
+T-53 measures one hypothesis (small files); this one measures the whole promise. Only rtk's
+savings are measured live (`rtk gain`); the rest (repo map, skills, charter) can only be
+estimated, and an estimate is credible only from a published A/B run.
+- [ ] The same tasks given to headless Claude Code (`claude -p`, its usage read per run) on
+  local copies of the training repos, with and without kiln, then before and after `kiln fix`
+  and `/kiln:modernize`, several runs each: tokens, turns, red CIs, rules broken, tasks done;
+  its cost on the Pro quota said before it runs, stopped at the budget.
 - [ ] Published with its method and script whatever the result; after T-53, which sets the
-  method.
+  method. If the number is net, it joins the README and the launch (T-03).
+- [ ] Status line: rtk's savings since the session started (measured, cached), and the
+  benchmark's figure marked `≈` with a link to its method; tokens, never dollars (a Pro plan
+  pays no tokens).
 
 ### T-69 · Community grid packs from any git repo
 - **Type**: idea

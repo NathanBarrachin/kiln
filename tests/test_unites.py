@@ -11,11 +11,11 @@ from packaging.version import Version
 from plumbum import ProcessExecutionError
 
 from kiln import cli, github, ui
-from kiln.backing import backing_services
 from kiln.banner import LOGO, _project_summary, render_logo
 from kiln.config import UserConfig
 from kiln.deps import _major_bounds
 from kiln.dev import read_env_file, service_prefix
+from kiln.dev.backing import backing_services
 from kiln.doctor import Level, workstation_findings
 from kiln.install import ensure_env_file
 from kiln.release import Tag, latest_candidates, next_version, promotion_verdict
@@ -572,10 +572,10 @@ def test_without_gh_the_project_is_created_without_github(
 def test_backing_services_reads_db_and_redis_of_the_services_only(tmp_path: Path) -> None:
     compose = tmp_path / "compose.yml"
     compose.write_text(
-        "x-common: &common\n  tmpfs: /tmp\n"
+        "name: demo\nx-common: &common\n  tmpfs: /tmp\n"
         "services:\n  db:\n    image: postgres\n    container_name: demo-db\n"
         "  redis:\n    image: redis\n  backend:\n    container_name: demo-backend\n"
         "volumes:\n  db-data:\n",
         encoding="utf-8",
     )
-    assert backing_services(compose) == {"db": "demo-db", "redis": None}
+    assert backing_services(compose) == {"db": "demo-db", "redis": "demo_redis_1"}

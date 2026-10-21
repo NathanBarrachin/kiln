@@ -10,6 +10,7 @@ from pathlib import Path
 
 from kiln import ui
 from kiln.config import UserConfig, ensure_system, load_config
+from kiln.dev.backing import start_backing_services
 from kiln.shell import KilnError, require_tools, run, step
 from kiln.stack import BACKEND_DIR, MAVEN_WRAPPER, Stack, answers_if_any, load_stack
 from kiln.statusline import apply_statusline_settings, ensure_statusline
@@ -71,6 +72,7 @@ def install_project(root: Path) -> None:
         step("backend: .env")
         ensure_env_file(root / BACKEND_DIR)
     if stack.backend == "django":
+        start_backing_services(root)
         step("backend: migrations")
         run(["uv", "run", "python", "manage.py", "migrate"], root / BACKEND_DIR)
     if stack.pnpm_dir is not None:

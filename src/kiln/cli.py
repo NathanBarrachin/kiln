@@ -111,8 +111,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     commands.add_parser("publish", help="create the private GitHub repo and protect its branches")
     _add_update_command(commands)
-    dev_parser = commands.add_parser("dev", help="run the project locally")
-    dev_parser.add_argument("--containers", action="store_true", help="the whole stack in podman")
+    _add_dev_command(commands)
     commands.add_parser("check", help="run the project's checks")
     _add_ci_command(commands)
     commands.add_parser("contract", help="regenerate openapi.json and the frontend types")
@@ -337,6 +336,31 @@ def _add_ci_command(commands: argparse._SubParsersAction[argparse.ArgumentParser
     ci_parser.add_argument("--status", action="store_true", help="verdict only, no replay")
 
 
+def _add_dev_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+    dev_parser = commands.add_parser("dev", help="run the project locally")
+    dev_parser.add_argument(
+        "action",
+        nargs="?",
+        choices=["status", "logs", "stop"],
+        help="what runs in the background: its state, its output, or stop it",
+    )
+    dev_parser.add_argument("service", nargs="?", help="logs: this process only")
+    dev_parser.add_argument(
+        "-d", "--detach", action="store_true", help="leave it running in the background"
+    )
+    dev_parser.add_argument("-f", "--follow", action="store_true", help="logs: keep following")
+    dev_parser.add_argument("--containers", action="store_true", help="the whole stack in podman")
+
+
+def _check_dev_arguments(arguments: argparse.Namespace) -> None:
+    if arguments.action != "logs" and (arguments.service or arguments.follow):
+        raise KilnError("a service and --follow go with kiln dev logs")
+    if arguments.action is not None and (arguments.detach or arguments.containers):
+        raise KilnError(
+            f"--detach and --containers start the project, not kiln dev {arguments.action}"
+        )
+
+
 def _add_update_command(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     update_parser = commands.add_parser("update", help="update the template and dependencies")
     update_parser.add_argument("--no-template", action="store_true", help="keep the architecture")
@@ -500,7 +524,15 @@ def _dispatch_in_repo(arguments: argparse.Namespace, root: Path) -> None:
     elif command == "dev":
         from kiln import dev
 
-        dev.run_dev_servers(root, in_containers=arguments.containers)
+        _check_dev_arguments(arguments)
+        dev.run_dev(
+            root,
+            arguments.action,
+            in_containers=arguments.containers,
+            detached=arguments.detach,
+            follow=arguments.follow,
+            service=arguments.service,
+        )
     elif command == "check":
         from kiln import check
 

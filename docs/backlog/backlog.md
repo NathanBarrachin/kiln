@@ -46,64 +46,48 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
   25 session-hours a week, about 7 per release, spread over the week (about 5 a day, all
   projects): spent by Friday, it leaves the Saturday and Monday releases without budget. No
   fleet of subagents, no headless run without a budget said beforehand.
-- **Releases**: the `## 🚀 Releases` section at the top places every open ticket in a planned
-  release (`/kiln:backlog plan`); numbers and dates are planned, not promised, until the
-  candidate is cut. One release every two days (`CLAUDE.md`, "Versions"), about 7 session-hours
-  of work each.
-- **Closing a ticket**: remove it from its section and add a line at the top of the "✅ Done"
-  log: `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.
-- **Locations quoted are hints, not addresses.**
-- Overview: `grep -E '^(## |### T-|- \*\*Status)' docs/backlog/backlog.md`.
-- **Good first issues**: keep 3 open on GitHub, reserved for outside contributors (skill
-  `/kiln:good-first-issues`); their tickets have **Owner**: `contributor — #NN`.
-- **The reference repo** is the vision's training ground: a non-profit's production site
-  (Django + Nuxt) adopted by kiln. Read-only from kiln's sessions: anything that writes runs on a
-  local copy (antoine, 17 October 2026).
+- **Releases**: the `## 🚀 Releases
 
----
+A candidate every two days, about 4 of its 7 session-hours planned, the rest margin. v0.4.0 to
+v0.4.4 went out a week ahead of the first plan (v0.4.4 promoted on Wed 21 Oct instead of a
+candidate on Wed 28 Oct): the week won goes to the releases below, and v0.5.0 keeps its date.
+The launch date is fixed (T-03); the version it waits for is v0.5.0.
 
-## 🚀 Releases
+### Shipped: v0.4.0 to v0.4.4
+- v0.4.0 · kiln speaks English: promoted on Mon 19 Oct, the milestone decided by antoine
+  (⚠ breaking, all converted by `kiln update`).
+- v0.4.1 · The grid, as data: `kiln grid`, 105 drafts from the reference repo.
+- v0.4.2 · Any repo scored against the best, in seconds: T-125, T-46, T-157.
+- v0.4.3 · What a script can fix, fixed by script: T-126, T-127, T-128.
+- v0.4.4 · The rest handed to Claude: T-129, T-161, and most of T-130 (the template's gaps
+  closed), promoted on Wed 21 Oct. T-130's proof and T-90 slipped to v0.4.5.
 
-From Tuesday 20 October 2026, when the Pro week starts again: a candidate every two days,
-promoted when the next one is cut. Up to the launch, each release is planned at about 4 of the
-7 session-hours it has: the rest is margin. The launch date is fixed (T-03); the version it
-waits for is v0.5.0.
-
-### v0.4.0 · kiln speaks English
-Promoted on Mon 19 Oct (`v0.4.0-rc.2`, CI green; PyPI and GitHub Release published). The
-milestone decided by antoine. ⚠ breaking: CLI names, `copier.yml` questions, charter rule IDs,
-workflow inputs, plugin and skill names, all converted by `kiln update`.
-
-### v0.4.1 · The grid, as data
-Candidate `v0.4.1-rc.1` cut on Mon 19 Oct (CI green, end-to-end tests included): `kiln grid`,
-105 drafts from the reference repo, adopted repos' workflows at the public tag, private repos'
-CI on the machine, both READMEs complete and checked. Promoted when `v0.4.2-rc.1` is cut.
-
-### v0.4.2 · Any repo scored against the best, in seconds
-Candidate Sat 24 Oct. The launch hook: `uvx kiln-cli score` on the repo people already have,
-without a token.
-- ✅ T-125 · Grid v1: the rules kiln launches with (L)
-- ✅ T-46 · `kiln score`: any repo measured against the grid in seconds, no tokens (L)
-- ✅ T-157 · Credit #45 and #46 in the notes of v0.4.2 (XS)
-
-### v0.4.3 · What a script can fix, fixed by script
-Candidate Mon 26 Oct. The fixes that cost no token, each proven by the repo's own checks.
-- ✅ T-126 · `kiln fix`: every scriptable gap closed on a branch, with proof (M)
-- ✅ T-127 · First converters: supply chain and CI (M)
-- ✅ T-128 · First converters: Python and containers (L)
-
-### v0.4.4 · The rest handed to Claude, and kiln passes its own grid
-Candidate Wed 28 Oct. Claude only gets what needs judgment, and kiln's repos show the way.
-- ✅ T-129 · What needs judgment goes to Claude: `kiln score --roadmap` and `/kiln:modernize` (M)
-- T-130 · Generated repos pass the whole grid (M)
+### v0.4.5 · kiln and its repos at 100 on their own grid
+Candidate Fri 23 Oct. A tool that grades other repos must score 100 itself, visibly, before
+anyone else runs it; T-160 removes the last gap of a fresh repo.
+- T-130 · Generated repos pass the whole grid: the proof left (S)
 - T-90 · kiln passes its own grid: pinned actions, least privilege, provenance, Scorecard (M)
-- ✅ T-161 · Install kiln on the whole machine, in one command (S)
+- T-160 · A front with no backend ships a smoke test (M)
 
-### v0.4.5 · Never lets it rot, and the grid learns
-Candidate Fri 30 Oct. Updates go down by themselves, gaps come back up with consent.
+### v0.4.6 · Every gap seen, wherever the code lives
+Candidate Sun 25 Oct. The score and the fixes reach what they miss today: GitHub settings,
+`backend/` and `frontend/` folders, compose services, loose requirements; the reference repo's
+score proves it in each note.
+- T-159 · What T-126 to T-128 left: compose hardening, pyproject from requirements, `kiln update` (M)
+- T-158 · `kiln score` reads the GitHub settings when `gh` is logged in (S)
+- T-134 · The reference repo's score in every release note (S)
+
+### v0.4.7 · Never lets it rot, and the grid learns
+Candidate Tue 27 Oct. Updates go down by themselves, gaps come back up with consent.
 - T-59 · kiln-bot: the grid's fixes as a weekly pull request (L)
 - T-38 · What the grid does not know, reported with consent (M)
-- T-134 · The reference repo's score in every release note (S)
+
+### v0.4.8 · Data projects done right
+Candidate Thu 29 Oct. The two issues of kiln's first outside reporter (#43, #44) closed before
+the launch: a Streamlit or Dash project deploys where it can run, and its models stay tied to
+their code.
+- T-155 · A Streamlit or Dash front gets a deployment that fits, or none is assumed (M)
+- T-156 · Committed trained models tied to the code that made them (M)
 
 ### v0.5.0 · Public launch: the proof and the page
 Candidate Sun 1 Nov, promoted Tue 3 Nov. Milestone decided by antoine (16 October 2026), its
@@ -237,8 +221,8 @@ Fixing the grid in kiln fixes it everywhere at once; a kiln repo below 100 would
 pitch hollow.
 - [ ] `kiln new` Django + Nuxt, at each size: 100 on the rules that apply; the end-to-end tests
   fail when a template change lowers it.
-- [ ] The template's gaps closed (from the 17 October audit: actions by SHA, cooldown,
-  Debian 13, read-only containers).
+- [x] The template's gaps closed (from the 17 October audit: actions by SHA, cooldown,
+  Debian 13, read-only containers): shipped in v0.4.4.
 - [ ] `kiln update` takes an older generated repo to 100 (the converters of T-126).
 - [ ] The frozen templates (T-133) measured, their score in the docs.
 

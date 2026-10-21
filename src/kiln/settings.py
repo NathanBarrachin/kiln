@@ -39,6 +39,7 @@ SETTABLE_KEYS = (
     "java_package",
     "timezone",
     "serena",
+    "compact_window",
     "deploy",
     "vps_host",
     "api_domain",

@@ -123,7 +123,7 @@ def test_integration_branch_is_not_counted_as_unmerged(tmp_path: Path) -> None:
 def sample(script: ModuleType) -> object:
     item, status = script.Item, script.Status()
     status.repo = [[item("demo", role="title"), item("⎇ develop")], [item("~2", 1)]]
-    status.session = [[item("Opus", role="strong")], [item("ctx", 0, gauge=34.0)]]
+    status.session = [[item("Opus", role="strong")], [item("ctx", 0, gauge=34.0, amount="136k")]]
     status.tasks = [[item("65 tasks"), item(f"urgent{X}10", 3), item(f"blocked{X}14", short="")]]
     status.env = [
         [item(f"uv{X}8")],
@@ -131,6 +131,64 @@ def sample(script: ModuleType) -> object:
         [item(":3000 :8000")],
     ]
     return status
+
+
+def session_items(script: ModuleType, payload: dict[str, Any]) -> dict[str, tuple[int, str, Any]]:
+    """Session et usage de la status line, par texte : (niveau, quantité, jauge)."""
+    status = script.Status()
+    script.collect_session(status, payload, "")
+    return {i.text: (i.level, i.amount, i.gauge) for g in status.session + status.usage for i in g}
+
+
+def context(tokens: int) -> dict[str, Any]:
+    usage = {
+        "input_tokens": 10,
+        "cache_creation_input_tokens": 990,
+        "cache_read_input_tokens": tokens,
+    }
+    return {"context_window_size": 1_000_000, "used_percentage": 25, "current_usage": usage}
+
+
+AT_400K, AT_900K = {"autoCompactWindow": "400k"}, {"autoCompactWindow": 900000}
+
+
+@pytest.mark.parametrize(
+    ("settings", "gauge"),
+    [
+        ({"settings.json": {"autoCompactWindow": 400000}}, 62.5),
+        ({"settings.json": AT_900K, "settings.local.json": AT_400K}, 62.5),  # le local l'emporte
+        ({"settings.json": {**AT_900K, "modelSettings": {"opus": AT_400K}}}, 62.5),  # /autocompact
+        ({}, 25.0),
+    ],
+)
+def test_context_in_tokens_its_gauge_full_at_the_compaction(
+    settings: dict[str, Any], gauge: float, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.delenv("CLAUDE_CODE_AUTO_COMPACT_WINDOW", raising=False)
+    (tmp_path / "repo" / ".claude").mkdir(parents=True)
+    for name, content in settings.items():
+        (tmp_path / "repo" / ".claude" / name).write_text(json.dumps(content), encoding="utf-8")
+    payload = {
+        "context_window": context(249_000),
+        "workspace": {"project_dir": str(tmp_path / "repo")},
+        "model": {"id": "opus"},
+    }
+
+    items = session_items(load_script(), payload)
+
+    assert items["ctx"] == (2, "250k", gauge)  # 250k : chaque message coûte cher
+
+
+def test_the_context_turns_red_once_the_cache_is_cold() -> None:
+    script = load_script()
+
+    def level(warm: bool) -> int:
+        cache = {"hit_ratio": 0.9, "warm": warm}
+        items = session_items(script, {"context_window": context(59_000), "prompt_cache": cache})
+        return int(items["ctx"][0])
+
+    assert (level(True), level(False)) == (0, 3)  # cache expiré : tout réécrit au message suivant
 
 
 @pytest.mark.parametrize("style", ["plain", "band", "classic", "classic-band"])

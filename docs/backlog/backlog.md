@@ -11,7 +11,7 @@ repo scored in seconds against a sourced grid of today's best practices, brought
 script, the rest handed to Claude Code as a short list** (vision of 17 October 2026: "kiln
 keeps a repo up to date with the best of the world, and easy for Claude to read").
 
-**Next free: T-162.**
+**Next free: T-166.**
 
 ---
 
@@ -144,6 +144,88 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 ## 🔴 Critical
 
 ## 🟠 Important
+
+### T-162 · Save tokens without limiting Claude
+- **Type**: improvement
+- **Status**: in progress — branch feat/token-savings, since 2026-10-21
+- **Opened**: 2026-10-21
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 21 October 2026: what kiln costs and saves in tokens, measured on three
+  weeks of his sessions; then "I'm afraid of limiting Claude's power"
+
+Every message re-reads the whole context: re-reading is two thirds of the cost, and calls past
+200k tokens weigh two thirds of it. With the 1M window a session almost never compacts (three
+compactions in three weeks, sessions up to 967k). Replayed on those sessions, a `/clear` after
+each merge saves 16 % on the busiest repo, 25 % with a compaction at 400k, without taking
+anything from Claude: same model, same effort, a whole context up to 400k.
+- [x] Compaction at 400k by default (`compact_window`, the `autoCompactWindow` setting: the
+  `CLAUDE_CODE_AUTO_COMPACT_WINDOW` variable would override `claude --autocompact 1M`, the way to
+  lift it for one big task); 1000000 keeps Claude Code's own. Anthropic gives no figure; Claude
+  Code compacts at about 967k on a 1M model.
+- [x] claude.ai connectors left out of the template: off in the shared settings, no one could
+  turn them back on for themselves (`true` wins from any scope) and `kiln update` would have cut
+  them in every generated repo. A personal choice, in one's own `.claude/settings.local.json`.
+- [x] Status line: the context in tokens, coloured by what a message costs, its gauge against
+  the compaction point, in red once the cache has expired (Claude Code redraws the line then,
+  before the next message writes it all again).
+- [x] `/kiln:merge` suggests `/clear` before the next ticket.
+- [x] Skill descriptions at 300 characters at most (they sit in every message), triggers kept.
+
+Turned down, they would limit Claude: a smaller model or a lower effort in skills, screenshots
+read by a subagent, a shorter Bash output, a compaction at 200k. Turned down by antoine: one
+session at a time, a release a week.
+
+### T-163 · Skills call one kiln command, the backlog first
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-21
+- **Effort**: L · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 21 October 2026, after T-162: "skills should use one command line at most"
+
+A skill that runs git, gh and file reads step by step pays each step in tokens and leaves every
+output in the conversation, re-read by each later message; a kiln command does the mechanics in
+one call and answers in a few lines. The backlog first: one full read costs about 20k tokens
+here and 36k in the reference repo, and Claude read it nearly 500 times in three weeks.
+- [ ] `kiln backlog next`, `show T-NN`, `add`, `start`, `done`: one ticket in or out, never the
+  whole file; `/kiln:backlog` calls them and nothing else.
+- [ ] Then the mechanical skills, one command each (`merge`, `cleanup`, `worktree`, `update`);
+  a skill keeps only what needs judgment.
+- [ ] `test_plugins.py`: one shell command per skill at most, the skills that need judgment over
+  several commands (`review`, `release`, `contribution`) listed with their reason.
+
+### T-164 · French docs brought up to date at the candidate
+- **Type**: improvement
+- **Status**: todo
+- **Opened**: 2026-10-21
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: antoine, 21 October 2026, after T-162: the docs in two languages, kept up to date in
+  every branch, make about a quarter of kiln's file edits
+
+Branches update the English docs only (`README.md`, `docs/reference.md`); the candidate
+(`/kiln:release`, before `-rc.1`) translates in one pass what changed since the last version
+into `README.fr.md` and `docs/reference.fr.md`.
+- [ ] `test_docs.py`: the checks between the two languages run at the release only (`kiln
+  version cut`), the English ones on every merge.
+- [ ] `/kiln:release`: the translation step, from the English diff since the last tag.
+- [ ] `CLAUDE.md` ("a change updates the docs in its branch"): English in the branch, French at
+  the candidate.
+
+### T-165 · Write less code, measured: a ladder before writing
+- **Type**: idea
+- **Status**: todo
+- **Opened**: 2026-10-21
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: the most-starred token savers, 21 October 2026: ponytail (a skill, about 45 % fewer
+  tokens and more risky logic tested, by its maintainer's own benchmark)
+
+Before writing, Claude climbs a ladder and stops at the first rung that works: does this code
+need to exist, does the repo already have it, the standard library, an installed dependency, a
+few lines; never cut: validation at the boundaries, security, data loss, accessibility, a test
+for each risky logic. Same pillar as T-138 and T-139, which remove code that exists; this one
+keeps it from being written.
+- [ ] A few lines in `template/.claude/rules/kiln/` (they are read at every message).
+- [ ] Measured before it stays, with T-53's method: the same tasks with and without, tokens,
+  lines written, tests, bugs caught; dropped if it does not win.
 
 ### T-159 · What T-126 to T-128 left: compose hardening, pyproject from requirements, `kiln update`
 - **Type**: improvement

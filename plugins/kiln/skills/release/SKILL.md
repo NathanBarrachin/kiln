@@ -1,6 +1,6 @@
 ---
 name: release
-description: Ship a release - a release/vN branch from develop, full checks (CI, migrations, contract, settings), the release announcement (what's-new window, email), merge into main tagged vN, deployment, merge back into develop. Use when the user asks to release, ship or deploy a version to production, or for an urgent production fix.
+description: Ship a release: a release/vN branch from develop, full checks (CI, migrations, contract, settings), the announcement (what's-new window, email), main merged and tagged vN, deployment, back into develop. Use when the user asks to release, ship or deploy a version, or for an urgent production fix.
 argument-hint: "[vN] [develop commit]"
 ---
 

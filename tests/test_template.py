@@ -249,6 +249,22 @@ def test_team_gets_kiln_marketplace_and_plugin(tmp_path: Path) -> None:
     assert settings["enabledPlugins"] == {"kiln@kiln": True}
 
 
+def test_sessions_compact_at_400k_without_claude_ai_connectors(tmp_path: Path) -> None:
+    settings = json.loads(
+        (generate(tmp_path / "demo") / ".claude/settings.json").read_text(encoding="utf-8")
+    )
+    assert settings["env"]["CLAUDE_CODE_AUTO_COMPACT_WINDOW"] == "400000"
+    assert settings["disableClaudeAiConnectors"] is True
+
+
+def test_claude_codes_own_defaults_stay_one_setting_away(tmp_path: Path) -> None:
+    project_dir = generate(tmp_path / "demo", compact_window=1000000, claude_ai_connectors=True)
+
+    settings = json.loads((project_dir / ".claude/settings.json").read_text(encoding="utf-8"))
+    assert "CLAUDE_CODE_AUTO_COMPACT_WINDOW" not in settings["env"]
+    assert "disableClaudeAiConnectors" not in settings
+
+
 @pytest.fixture(scope="module")
 def released(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, str]:
     """kiln's template as a release would hand it over: a clone tagged v9.9.9, and its SHA."""

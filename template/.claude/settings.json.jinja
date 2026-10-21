@@ -13,7 +13,13 @@
     "KILN_API_HEALTH": "{{ prod_health_url or 'https://' ~ api_domain ~ '/api/health' }}",
     "KILN_PROD_DOC": "docs/operations/production.md"
 {%- endif %}
+{%- if compact_window < 1000000 %},
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "{{ compact_window }}"
+{%- endif %}
   },
+{%- if not claude_ai_connectors %}
+  "disableClaudeAiConnectors": true,
+{%- endif %}
 {#- kiln's marketplace, on GitHub (public repository), at `main`, the state of its latest release:
     Claude Code offers it with its plugins to whoever opens the repo, then updates them in the
     background at each launch (autoUpdate, off by default for a third-party marketplace). A

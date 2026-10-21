@@ -150,11 +150,15 @@ def latest_candidates(tags: list[Tag]) -> list[Tag]:
     return [latest[final] for final in sorted(latest)]
 
 
-def promotion_verdict(candidate: Tag, found: Evidence, now: datetime.datetime) -> tuple[str, bool]:
+def promotion_verdict(
+    candidate: Tag, found: Evidence, now: datetime.datetime, is_urgent: bool = False
+) -> tuple[str, bool]:
     """Ready when its CI is green, its soak is over and, unless it holds fixes only, a repo of
-    the code folder runs it."""
+    the code folder runs it; an urgent promotion (decided by the owner) only needs the CI."""
     if found.ci != github_ci.SUCCESS:
         return f"CI not green ({found.ci}): not promotable", False
+    if is_urgent:
+        return f"urgent: promote to v{candidate.version.base_version}", True
     left = candidate.created + (FIX_SOAK if found.is_fixes_only else SOAK) - now
     if left > datetime.timedelta(0):
         lane = "fixes only, " if found.is_fixes_only else ""

@@ -16,6 +16,7 @@ from pathlib import Path
 import yaml  # brought by copier
 
 from kiln import ui
+from kiln.adopted_names import convert_legacy_names, remaining_mentions
 from kiln.grid.fixers import resolve
 from kiln.shell import KilnError, step
 from kiln.versions import latest_release
@@ -88,7 +89,16 @@ def move_to_release(
 
 
 def update_adopted(root: Path) -> None:
-    """`kiln update` in an adopted repo: only the workflows' tag moves."""
+    """`kiln update` in an adopted repo: its names of kiln 0.3 converted, then the workflows' tag
+    moved."""
+    converted = convert_legacy_names(root)
+    if converted:
+        step("Adopted repo: kiln's names of 0.3 moved to today's")
+        for line in converted:
+            ui.success(line)
+        mentions = remaining_mentions(root)
+        if mentions:
+            ui.note(f"still cited in the repo's own text, to reread: {', '.join(mentions)}")
     step("Adopted repo: kiln's workflows moved to the last public release")
     before = quoted_refs(root)
     changed = move_to_release(root)

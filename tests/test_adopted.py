@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from kiln import adopted, fleet, update
+from kiln import adopted, adopted_names, fleet, update
 from kiln.shell import KilnError
 
 CI = """\
@@ -102,3 +102,62 @@ def test_status_says_when_an_adopted_repo_quotes_an_older_release(repo: Path) ->
     assert fleet.adopted_state(repo, "v0.4.0") == "adopted v0.4.0"
     (repo / ".github/workflows/ci.yml").unlink()
     assert fleet.adopted_state(repo, "v0.4.0") == "adopted"
+
+
+LEGACY_CHARTER = """\
+envergure = "flame"
+
+[interdictions.signaux-django]
+id = "SIGNAUX"
+
+[interdictions.renvois-audit]
+id = "RENVOIS-AUDIT"
+exclus = '(^docs/|^charte\\.toml$)'
+
+[cliquets.taille]
+regle = "taille-fichier"
+id = "TAILLE-FICHIER"
+"""
+LEGACY_HOOKS = """\
+      - id: charte
+        entry: charte
+      - id: typage
+        entry: charte types
+      - id: couverture
+        entry: "charte couverture"
+"""
+LEGACY_CI = """\
+jobs:
+  schema:
+    uses: antoine-tena/kiln/.github/workflows/contrat-api.yml@v0.3.4
+    with:
+      back: backend
+      front: frontend
+  own:
+    runs-on: ubuntu-latest
+    with:
+      back: kept
+"""
+
+
+def test_an_adopted_repo_moves_to_todays_names_keeping_its_rule_ids(tmp_path: Path) -> None:
+    (tmp_path / ".github/workflows").mkdir(parents=True)
+    (tmp_path / ".github/workflows/ci.yml").write_text(LEGACY_CI)
+    (tmp_path / ".pre-commit-config.yaml").write_text(LEGACY_HOOKS)
+    (tmp_path / "charte.toml").write_text(LEGACY_CHARTER)
+
+    done = adopted_names.convert_legacy_names(tmp_path)
+
+    assert len(done) == 3 and not (tmp_path / "charte.toml").exists()
+    charter = (tmp_path / "charter.toml").read_text()
+    assert 'size = "flame"' in charter and "[bans.django-signals]" in charter
+    assert 'rule = "file-size"' in charter and 'id = "TAILLE-FICHIER"' in charter
+    assert "^charter\\.toml$" in charter
+    hooks = (tmp_path / ".pre-commit-config.yaml").read_text()
+    assert "entry: charter\n" in hooks and "entry: charter types" in hooks
+    assert 'entry: "charter coverage"' in hooks and "id: charte\n" in hooks
+    ci = (tmp_path / ".github/workflows/ci.yml").read_text()
+    assert "workflows/api-contract.yml@v0.3.4" in ci
+    assert "      backend: backend\n      frontend: frontend\n" in ci
+    assert "      back: kept\n" in ci
+    assert adopted_names.convert_legacy_names(tmp_path) == []

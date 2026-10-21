@@ -25,7 +25,7 @@ Un projet généré contient :
   push pour un dépôt public (gratuit et illimité), sur le poste par `kiln ci` pour un dépôt privé
   (`ci_runner: local` : aucune minute GitHub, dont le plan gratuit ne donne que 2 000 par mois) ;
   `kiln update` choisit d'après la visibilité du dépôt, `kiln set ci_runner=github` ou `local` change ;
-- le suivi du travail, d'office : `docs/backlog/` (`backlog.md`, `rejected.md`, `urgent.md`,
+- le suivi du travail, d'office : `docs/backlog/` (`backlog.md`, `done.md`, `rejected.md`, `urgent.md`,
   en anglais, skill `kiln:backlog`), que la status line de Claude Code compte ;
 - les réglages de la status line propres au repo (`statusline_ci`, `prod_health_url`), posés en
   `git config statusline.*` par `kiln install`, `kiln new` et `kiln set` ;

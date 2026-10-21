@@ -453,6 +453,8 @@ def test_a_candidate_is_promoted_once_it_has_proved_itself() -> None:
     assert not ready and "kiln update --all" in verdict
     # Fixes only: two hours, no repo required.
     assert promotion_verdict(young, Evidence("success", is_fixes_only=True), now)[1]
+    assert promotion_verdict(young, Evidence("success"), now, is_urgent=True)[1]
+    assert not promotion_verdict(young, Evidence("failure"), now, is_urgent=True)[1]
     # A red or unfinished CI holds the candidate back, whatever else it proved.
     for ci in ("failure", "running", "none"):
         verdict, ready = promotion_verdict(day_old, Evidence(ci, ("club",), True), now)

@@ -129,6 +129,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     version_parser.add_argument("number", nargs="?", help="promote: the version (vX.Y.Z)")
     version_parser.add_argument(
+        "--urgent", action="store_true", help="promote: no soak nor repo, the CI green only"
+    )
+    version_parser.add_argument(
         "--minor", action="store_true", help="the next one is a milestone: bump the minor"
     )
     commands.add_parser("doctor", help="diagnose this machine and the repo, with the fixes")
@@ -198,7 +201,7 @@ def _dispatch_version(arguments: argparse.Namespace, root: Path) -> None:
     elif arguments.action == "promote":
         from kiln import shipping
 
-        shipping.promote(root, arguments.number)
+        shipping.promote(root, arguments.number, arguments.urgent)
     else:
         from kiln import release
 

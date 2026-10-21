@@ -356,7 +356,7 @@ def _last_candidate(version: str, tags: list[Tag]) -> str | None:
 # --- promote -----------------------------------------------------------------------------------
 
 
-def promote(root: Path, wanted: str | None = None) -> None:
+def promote(root: Path, wanted: str | None = None, is_urgent: bool = False) -> None:
     _require_kiln_repo(root)
     tags = read_tags(root)
     adopted = _adoption()
@@ -364,6 +364,7 @@ def promote(root: Path, wanted: str | None = None) -> None:
         latest_candidates(tags),
         wanted,
         lambda tag: evidence(root, tag, tags, adopted),
+        is_urgent,
     )
     version = candidate.version.base_version
     commit = _commit_of(root, candidate.name)
@@ -390,10 +391,13 @@ def promote(root: Path, wanted: str | None = None) -> None:
 
 
 def pick_candidate(
-    candidates: list[Tag], wanted: str | None, evidence_of: Callable[[Tag], Evidence]
+    candidates: list[Tag],
+    wanted: str | None,
+    evidence_of: Callable[[Tag], Evidence],
+    is_urgent: bool = False,
 ) -> Tag:
     """The candidate asked for, or the oldest one ready: CI green, soaked, run by a repo (see
-    `promotion_verdict`)."""
+    `promotion_verdict`); `is_urgent`: the CI alone."""
     now = datetime.datetime.now(datetime.UTC)
     if wanted is not None:
         version = Version(wanted.removeprefix("v"))
@@ -401,12 +405,12 @@ def pick_candidate(
         if not chosen:
             raise KilnError(f"no candidate of v{version} waiting for promotion")
         candidate = chosen[0]
-        verdict, ready = promotion_verdict(candidate, evidence_of(candidate), now)
+        verdict, ready = promotion_verdict(candidate, evidence_of(candidate), now, is_urgent)
         if not ready:
             raise KilnError(f"{candidate.name}: {verdict}")
         return candidate
     for candidate in candidates:
-        if promotion_verdict(candidate, evidence_of(candidate), now)[1]:
+        if promotion_verdict(candidate, evidence_of(candidate), now, is_urgent)[1]:
             return candidate
     raise KilnError(
         "no candidate ready: its CI green, a day of soak (two hours for fixes only) and a repo "

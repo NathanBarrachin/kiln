@@ -18,7 +18,7 @@ from kiln.deps import _major_bounds
 from kiln.dev import read_env_file, service_prefix
 from kiln.dev.backing import backing_services
 from kiln.doctor import Level, workstation_findings
-from kiln.install import ensure_env_file, moved_from, sync_command
+from kiln.install import ensure_env_file, moved_from, pnpm_behind, sync_command
 from kiln.release import Tag, latest_candidates, next_version, promotion_verdict
 from kiln.rules import charter_rules, verified_rules, write_unverified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
@@ -187,6 +187,18 @@ def test_a_venv_in_place_or_absent_is_only_synced(tmp_path: Path) -> None:
     assert moved_from(venv) is None
     assert moved_from(tmp_path / "missing") is None
     assert sync_command(venv) == ["uv", "sync", "--locked"]
+
+
+def test_pnpm_dependencies_behind_their_lockfile_are_seen(tmp_path: Path) -> None:
+    assert pnpm_behind(tmp_path)  # never installed
+    (tmp_path / "pnpm-lock.yaml").write_text("nuxt@4.6.2\n")
+    (tmp_path / "node_modules" / ".pnpm").mkdir(parents=True)
+    installed = tmp_path / "node_modules" / ".pnpm" / "lock.yaml"
+    installed.write_text("nuxt@4.5.2\n")
+    assert pnpm_behind(tmp_path)
+
+    installed.write_text("nuxt@4.6.2\n")
+    assert not pnpm_behind(tmp_path)
 
 
 def test_env_file_gets_a_local_secret_and_is_kept(tmp_path: Path) -> None:

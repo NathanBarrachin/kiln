@@ -15,7 +15,13 @@ from pathlib import Path
 from kiln import ui
 from kiln.charter.config import charter_path
 from kiln.config import UserConfig, config_path, load_config
-from kiln.install import BASE_PLUGIN, SYSTEM_HINTS, kiln_plugin_enabled, moved_from
+from kiln.install import (
+    BASE_PLUGIN,
+    SYSTEM_HINTS,
+    kiln_plugin_enabled,
+    moved_from,
+    pnpm_behind,
+)
 from kiln.shell import INSTALL_HINTS, KilnError
 from kiln.stack import ANSWERS_FILE, BACKEND_DIR, Stack, load_stack, read_answers
 from kiln.versions import installed_version, latest_release, release_version, upgrade_command
@@ -192,8 +198,7 @@ def repo_findings(root: Path, stack: Stack | None) -> list[Finding]:
     for directory in stack.python_dirs:
         findings.append(_venv(root / directory / ".venv", f"{directory} (uv)"))
     if stack.pnpm_dir is not None:
-        modules = root / stack.pnpm_dir / "node_modules"
-        findings.append(_installed(modules, f"{stack.pnpm_dir} (pnpm)", "pnpm install"))
+        findings.append(_pnpm(root / stack.pnpm_dir, f"{stack.pnpm_dir} (pnpm)"))
     if stack.has_api:
         env_file = root / BACKEND_DIR / ".env"
         findings.append(
@@ -240,6 +245,13 @@ def _venv(venv: Path, label: str) -> Finding:
     return Finding(
         Level.FAIL, label, f"venv created in {created_in}: its tools fail", "kiln install"
     )
+
+
+def _pnpm(directory: Path, label: str) -> Finding:
+    modules = directory / "node_modules"
+    if modules.is_dir() and pnpm_behind(directory):
+        return Finding(Level.WARN, label, "older than pnpm-lock.yaml", "pnpm install")
+    return _installed(modules, label, "pnpm install")
 
 
 def _installed(path: Path, label: str, fix: str) -> Finding:

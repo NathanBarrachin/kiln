@@ -31,6 +31,7 @@ ENV_FILE_MODE = 0o600
 # A venv script starts `#!/…/.venv/bin/python`: the folder it was created in.
 VENV_PYTHON = b"/bin/python"
 VENV_SHEBANG_MAX = 4096
+PNPM_LOCKFILE = "pnpm-lock.yaml"
 
 # Install hints by system (never pip or docker).
 SYSTEM_HINTS: dict[str, dict[str, str]] = {
@@ -185,6 +186,18 @@ def moved_from(venv: Path) -> Path | None:
         same_place = os.path.realpath(created_in) == os.path.realpath(venv)
         return None if same_place else created_in
     return None
+
+
+def pnpm_behind(directory: Path) -> bool:
+    """node_modules missing, or installed from another pnpm-lock.yaml than the folder's (a
+    lockfile merged without `pnpm install`): the checks would run other versions than the CI."""
+    lockfile = directory / PNPM_LOCKFILE
+    installed = directory / "node_modules" / ".pnpm" / "lock.yaml"
+    if not (directory / "node_modules").is_dir():
+        return True
+    if not (lockfile.is_file() and installed.is_file()):
+        return False
+    return lockfile.read_bytes() != installed.read_bytes()
 
 
 def ensure_env_file(backend_dir: Path) -> None:

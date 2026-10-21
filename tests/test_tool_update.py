@@ -23,13 +23,18 @@ def terminal(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> list[str]:
         ran.append(command)
         return subprocess.CompletedProcess(command, 0)
 
-    monkeypatch.setattr(tool_update.subprocess, "run", fake_run)
+    monkeypatch.setattr(subprocess, "run", fake_run)
     return ran
 
 
 def answer(monkeypatch: pytest.MonkeyPatch, reply: str) -> list[str]:
     prompts: list[str] = []
-    monkeypatch.setattr("builtins.input", lambda prompt: prompts.append(prompt) or reply)
+
+    def fake_input(prompt: str) -> str:
+        prompts.append(prompt)
+        return reply
+
+    monkeypatch.setattr("builtins.input", fake_input)
     return prompts
 
 
@@ -58,7 +63,12 @@ def test_a_no_waits_a_week_before_offering_the_same_release(
 
 def test_github_is_asked_once_a_day(monkeypatch: pytest.MonkeyPatch, terminal: list[str]) -> None:
     asked: list[float] = []
-    monkeypatch.setattr(tool_update, "latest_release", lambda: asked.append(1) or "v0.4.1")
+
+    def fake_release() -> str:
+        asked.append(1)
+        return "v0.4.1"
+
+    monkeypatch.setattr(tool_update, "latest_release", fake_release)
 
     for hour in range(5):
         tool_update.offer("status", now=DAY + hour * 3600)

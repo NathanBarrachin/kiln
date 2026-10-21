@@ -17,7 +17,7 @@ from kiln.deps import _major_bounds
 from kiln.dev import read_env_file, service_prefix
 from kiln.dev.backing import backing_services
 from kiln.doctor import Level, workstation_findings
-from kiln.install import ensure_env_file
+from kiln.install import ensure_env_file, moved_from, sync_command
 from kiln.release import Tag, latest_candidates, next_version, promotion_verdict
 from kiln.rules import charter_rules, verified_rules, write_unverified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
@@ -146,6 +146,30 @@ def test_legacy_template_source_is_replaced(tmp_path: Path) -> None:
     replace_legacy_source(tmp_path)
 
     assert "_src_path: https://github.com/antoine-tena/kiln.git" in answers.read_text()
+
+
+def _venv_with_script(venv: Path, created_in: Path) -> None:
+    (venv / "bin").mkdir(parents=True)
+    (venv / "bin" / "ruff").write_bytes(b"\x7fELF binary")
+    (venv / "bin" / "mypy").write_text(f"#!{created_in}/bin/python\nimport mypy\n")
+
+
+def test_a_venv_moved_with_its_repo_is_reinstalled(tmp_path: Path) -> None:
+    venv = tmp_path / "club" / "backend" / ".venv"
+    old_venv = tmp_path / "projects" / "club" / "backend" / ".venv"
+    _venv_with_script(venv, old_venv)
+
+    assert moved_from(venv) == old_venv
+    assert sync_command(venv) == ["uv", "sync", "--locked", "--reinstall"]
+
+
+def test_a_venv_in_place_or_absent_is_only_synced(tmp_path: Path) -> None:
+    venv = tmp_path / "backend" / ".venv"
+    _venv_with_script(venv, venv)
+
+    assert moved_from(venv) is None
+    assert moved_from(tmp_path / "missing") is None
+    assert sync_command(venv) == ["uv", "sync", "--locked"]
 
 
 def test_env_file_gets_a_local_secret_and_is_kept(tmp_path: Path) -> None:

@@ -4,8 +4,8 @@ from pathlib import Path
 
 from kiln import ui
 from kiln.dev.backing import start_backing_services
-from kiln.install import ensure_env_file
-from kiln.shell import KilnError, run_status, step
+from kiln.install import ensure_env_file, moved_from, sync_command
+from kiln.shell import KilnError, run, run_status, step
 from kiln.stack import BACKEND_DIR, load_stack
 
 
@@ -16,6 +16,11 @@ def run_checks(root: Path) -> list[str]:
     # A worktree has no backend/.env (ignored by git): without it, Django does not start.
     if stack.has_api and not (root / BACKEND_DIR / ".env").exists():
         ensure_env_file(root / BACKEND_DIR)
+    # A repo moved since its venv was created: the tools' scripts call the old folder's Python.
+    for directory in stack.python_dirs:
+        if moved_from(root / directory / ".venv") is not None:
+            step(f"{directory}: venv moved, packages reinstalled")
+            run(sync_command(root / directory / ".venv"), root / directory)
     for command in stack.check_commands():
         step(f"Check: {command.label}")
         if run_status(list(command.argv), root / command.directory) != 0:

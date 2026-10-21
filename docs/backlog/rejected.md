@@ -88,3 +88,6 @@ small structures' repos up to date; back once the grid holds.
 - A financial guarantee on merged code: trust sold as an insured product
 
 ## Dropped
+
+- **2026-10-21** · T-05 · Check the first real run of the workflows on GitHub — dropped by
+  antoine; the private probe `antoine-tena/kiln-t05-probe` is left as it is · opened 2026-10-15

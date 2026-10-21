@@ -44,6 +44,8 @@ option, setting, plugin, skill, hook or workflow is missing here.
 | `kiln completion bash` | Print a bash completion script built from the parser; enable it with `eval "$(kiln completion bash)"` in `~/.bashrc`. |
 | `charter` | Check the repo against its `charter.toml` (`--detail`, `--unverified`, `types`, `coverage`, `file <path>`); `charte` is its former name. |
 
+When a newer kiln release is out on the machine's channel, a command typed in a terminal ends by offering to install it (GitHub asked at most once a day; after a no, the same release comes back a week later). Not in Claude Code, whose session start asks instead, not in `kiln doctor`, not for a tool installed from a checkout; `KILN_NO_UPDATE_CHECK=1` turns it off.
+
 
 <p align="center">
   <img src="assets/kiln-grid.svg" alt="kiln grid: the rules kiln stands behind, by theme, each with its level" width="680">

@@ -8,7 +8,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
-from kiln import banner, ui
+from kiln import banner, tool_update, ui
 from kiln.config import load_config
 from kiln.shell import KilnError, repo_root
 from kiln.versions import installed_version
@@ -618,6 +618,7 @@ def main() -> None:
         _recap(arguments, started, succeeded=True)
         if steps:
             ui.panel("Next steps", steps)
+        tool_update.offer(arguments.command)
     except KilnError as error:
         ui.error(str(error))
         sys.exit(EXIT_FAILURE)

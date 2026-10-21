@@ -97,7 +97,7 @@ Candidate Wed 28 Oct. Claude only gets what needs judgment, and kiln's repos sho
 - T-129 · What needs judgment goes to Claude: `kiln score --roadmap` and `/kiln:modernize` (M)
 - T-130 · Generated repos pass the whole grid (M)
 - T-90 · kiln passes its own grid: pinned actions, least privilege, provenance, Scorecard (M)
-- T-161 · Install kiln on the whole machine, in one command (S)
+- ✅ T-161 · Install kiln on the whole machine, in one command (S)
 
 ### v0.4.5 · Never lets it rot, and the grid learns
 Candidate Fri 30 Oct. Updates go down by themselves, gaps come back up with consent.
@@ -193,24 +193,6 @@ build on kiln. From here, strict semver: breaking → major, `feat` → minor.
 ## 🔴 Critical
 
 ## 🟠 Important
-
-### T-161 · Install kiln on the whole machine, in one command
-- **Type**: improvement
-- **Status**: todo
-- **Opened**: 2026-10-21
-- **Effort**: S · **Owner**: Claude · **Due**: —
-- **Origin**: antoine, 21 October 2026 ("installer kiln dans tout l'ordinateur", for the next release)
-
-Today the pieces are set up one by one: the CLI (`uv tool install kiln-cli`), the marketplace
-and the plugins (`claude plugin install … --scope user`, only suggested by `kiln doctor`), the
-machine config. One command should do it all, so kiln works in every repo and every Claude
-session of the machine, not only in the repo where it was installed.
-- [ ] `kiln install` (or an explicit `--machine` mode) installs the CLI as a uv tool, adds the
-  marketplace and enables the kiln plugins at user scope, records the machine config
-- [ ] Idempotent: rerun, it only fixes what is missing; `kiln doctor` then all green
-- [ ] READMEs: the one-line install for a stranger
-- [ ] Confirm the reading with antoine before coding (CLI + plugins user scope, not adopting
-  every repo of `code_dir`)
 
 ### T-159 · What T-126 to T-128 left: compose hardening, pyproject from requirements, `kiln update`
 - **Type**: improvement
@@ -1058,6 +1040,7 @@ An ecosystem is what turns a tool into a project people star and contribute to.
 
 ## ✅ Done
 
+- **2026-10-21** · T-161 · Install kiln on the whole machine, in one command — `kiln install` outside a repo (or `--machine`): the CLI as a uv tool, the catalogue and `kiln@kiln` at user scope, the machine settings, only what is missing; `kiln doctor` points to it (feat/install-machine) · opened 2026-10-21
 - **2026-10-20** · T-126, T-127, T-128 · `kiln fix` and its first 14 converters — one commit per rule on `kiln/fix-<date>`, checks before and after, red undone, `--dry-run`, `--rule`; supply chain and CI, Python, containers and runtimes; the university copy went from 35 to 61; leftovers in T-159 (feat/kiln-fix) · opened 2026-10-17
 - **2026-10-20** · T-157 · #45 and #46 credited in the v0.4.2 notes (release/v0.4.2) · opened 2026-10-20
 - **2026-10-20** · T-46 · `kiln score` — any repo against the 40 scored rules: score out of 100 and per pillar, three gaps first, waivers apart, uncovered stacks listed, `--all`, `--json` (schema 1), `--badge`, `--online`; about 1 s on the reference repo; GitHub settings left to T-158 (feat/kiln-score) · opened 2026-10-16

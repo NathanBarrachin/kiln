@@ -1,5 +1,7 @@
-"""`kiln install`: sets up a machine after the clone, by stack; safe to run again."""
+"""`kiln install`: sets up a machine after the clone, by stack; outside a repo (or with
+`--machine`), sets up kiln for the whole machine. Safe to run again."""
 
+import json
 import os
 import secrets
 import shutil
@@ -11,6 +13,16 @@ from kiln.config import UserConfig, ensure_system, load_config
 from kiln.shell import KilnError, require_tools, run, step
 from kiln.stack import BACKEND_DIR, MAVEN_WRAPPER, Stack, answers_if_any, load_stack
 from kiln.statusline import apply_statusline_settings, ensure_statusline
+from kiln.versions import PYPI_NAME
+
+CLAUDE_DIR = Path.home() / ".claude"
+CLAUDE_SETTINGS = CLAUDE_DIR / "settings.json"
+KNOWN_MARKETPLACES = CLAUDE_DIR / "plugins" / "known_marketplaces.json"
+MARKETPLACE = "kiln"
+MARKETPLACE_SOURCE = "antoine-tena/kiln"
+BASE_PLUGIN = "kiln@kiln"
+# Its name before kiln 0.4, until Claude Code applies the catalogue's renames.
+LEGACY_BASE_PLUGIN = "base@kiln"
 
 SECRET_KEY_VARIABLE = "DJANGO_SECRET_KEY"
 SECRET_KEY_BYTES = 50
@@ -70,6 +82,42 @@ def install_project(root: Path) -> None:
     ensure_statusline(config)
     command_name = answers_if_any(root).get("name", "<command>")
     ui.success(f"Ready. Run the project: {_launch_hint(stack, command_name)}")
+
+
+def install_machine() -> None:
+    """kiln in every repo and every Claude session of the machine: the CLI as a uv tool, the
+    kiln plugin at user scope, the machine settings. Only what is missing is done."""
+    config = ensure_system(load_config())
+    require_tools("uv")
+    if shutil.which("kiln") is None:
+        step("kiln command (uv tool)")
+        run(["uv", "tool", "install", PYPI_NAME], Path.cwd())
+    if shutil.which("claude") is None:
+        ui.note("Claude Code not found: install it, then run kiln install again for the plugins.")
+    else:
+        if MARKETPLACE not in _json_file(KNOWN_MARKETPLACES):
+            step("kiln catalogue of Claude Code plugins")
+            run(["claude", "plugin", "marketplace", "add", MARKETPLACE_SOURCE], Path.cwd())
+        if not kiln_plugin_enabled():
+            step(f"{BASE_PLUGIN} plugin, for every Claude session")
+            run(["claude", "plugin", "install", BASE_PLUGIN, "--scope", "user"], Path.cwd())
+    ensure_statusline(config)
+    ui.success("kiln is set up on this machine. Check it: kiln doctor")
+
+
+def kiln_plugin_enabled() -> bool:
+    plugins = _json_file(CLAUDE_SETTINGS).get("enabledPlugins")
+    return isinstance(plugins, dict) and bool(
+        plugins.get(BASE_PLUGIN) or plugins.get(LEGACY_BASE_PLUGIN)
+    )
+
+
+def _json_file(path: Path) -> dict[str, object]:
+    try:
+        content = json.loads(path.read_text())
+    except OSError, ValueError:
+        return {}
+    return content if isinstance(content, dict) else {}
 
 
 def _launch_hint(stack: Stack, command_name: object) -> str:

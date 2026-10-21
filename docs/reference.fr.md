@@ -69,8 +69,8 @@ Les plugins Claude Code vivent dans [`plugins/`](../plugins/), catalogue `kiln`
   fichier, définition et références d'un symbole), activé par `kiln set serena=true` sur un gros
   repo ; les éditions restent aux outils de Claude Code, où sont branchés les hooks de `kiln`.
 
-Installation : `claude plugin marketplace add antoine-tena/kiln`, puis
-`claude plugin install kiln@kiln`.
+Installation : `kiln install` hors d'un repo, ou à la main `claude plugin marketplace add antoine-tena/kiln`, puis
+`claude plugin install kiln@kiln --scope user`.
 
 Le modèle vit dans [`template/`](../template/), servi par [Copier](https://copier.readthedocs.io) :
 chaque projet garde dans `.copier-answers.yml` ses réponses et la version du modèle dont il
@@ -112,7 +112,7 @@ système du poste (Linux, WSL ou macOS) et le garde dans `~/.config/kiln/config.
 | `kiln new [dossier]` | Trois questions (ce qu'on construit, l'envergure, la langue de l'équipe ; `--all-questions` pour le questionnaire complet), génération, verrous, installation, premier commit sur `main`, puis `develop` où tout le travail se fait. |
 | `kiln adopt` | Fait suivre kiln à un repo existant qu'il n'a pas généré, sur une branche de travail : `charter.toml` (envergure par `--size`, règles valables partout, vérifiées après chaque édition), `docs/backlog/` s'il n'existe pas, puis le passif que la charte relève. Ne touche à aucun fichier existant ; le repo apparaît dans `kiln status` comme adopté, `kiln update` le laisse. |
 | `kiln publish` | Crée le dépôt GitHub privé et protège ses branches, pour un projet généré sans `gh`. |
-| `kiln install` | Prépare un poste après un clone : outils (pre-commit avec pre-commit-uv, podman-compose), dépendances, `backend/.env`, migrations, pre-commit. Relançable. |
+| `kiln install` | Prépare un poste après un clone : outils (pre-commit avec pre-commit-uv, podman-compose), dépendances, `backend/.env`, migrations, pre-commit. Hors d'un repo, ou avec `--machine`, kiln pour tout le poste : la commande `kiln` en outil uv, le catalogue de plugins et le plugin `kiln` au niveau utilisateur (chaque session Claude), les réglages du poste. Relançable : seul ce qui manque est fait. |
 | `kiln dev` | Lance les serveurs de la stack, leurs sorties entrelacées et préfixées par service en couleur (`django │ …`) ; `--containers` : toute la pile dans podman. |
 | `kiln check` | Ruff, mypy et pytest pour chaque projet Python, ESLint et les types côté front, puis la charte. |
 | `kiln ci [commit]` | Rejoue sur le poste la CI du `ci.yml` pour ce commit (défaut `HEAD`) et pose le verdict en note git sur origin, que le script de déploiement accepte comme une CI verte. `--status` : le verdict seul. Voir « CI rejouée sur le poste ». |

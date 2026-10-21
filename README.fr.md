@@ -61,6 +61,7 @@ aucune IA et ne demande aucune clé d'API.
 
 ```sh
 uv tool install kiln-cli     # la commande est kiln ; uv installe Python 3.14 s'il manque
+kiln install                 # hors d'un repo : le plugin Claude Code de kiln dans chaque session
 ```
 
 Ou pour essayer sans rien installer : `uvx kiln-cli new mon-app` pour un nouveau repo,

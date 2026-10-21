@@ -103,7 +103,12 @@ def build_parser() -> argparse.ArgumentParser:
     adopt_parser = commands.add_parser("adopt", help="bring an existing repo under kiln")
     adopt_parser.add_argument("--size", choices=SIZES, help="size of the project (default: ember)")
     adopt_parser.add_argument("--template", help="template source (path or git URL)")
-    commands.add_parser("install", help="set up this machine after a clone")
+    install_parser = commands.add_parser("install", help="set up this machine after a clone")
+    install_parser.add_argument(
+        "--machine",
+        action="store_true",
+        help="kiln for the whole machine (command, Claude plugin, settings), even from a repo",
+    )
     commands.add_parser("publish", help="create the private GitHub repo and protect its branches")
     _add_update_command(commands)
     dev_parser = commands.add_parser("dev", help="run the project locally")
@@ -430,6 +435,10 @@ def dispatch(arguments: argparse.Namespace) -> list[str]:
         _dispatch_version(arguments, repo_root(Path.cwd()))
     elif arguments.command == "status" or (arguments.command == "update" and arguments.all):
         _dispatch_fleet(arguments)
+    elif arguments.command == "install" and (arguments.machine or not _is_in_repo()):
+        from kiln import install
+
+        install.install_machine()
     elif arguments.command == "set" and (arguments.machine or not _is_in_repo()):
         from kiln import machine
 
@@ -522,7 +531,7 @@ def _repo_root_or_hint() -> Path:
         raise KilnError(
             f"{Path.cwd()} is not in a repo: go into one first (cd <repo>).{repos_line} "
             "From here: kiln status, kiln update --all, kiln set (this machine's settings), "
-            "kiln new."
+            "kiln install (kiln for this machine), kiln new."
         ) from None
 
 
@@ -531,7 +540,11 @@ def _show_banner(arguments: argparse.Namespace) -> None:
     action = BANNER_ACTIONS.get(arguments.command)
     if action is None:
         return
-    if arguments.command in ("new", "status", "doctor") or getattr(arguments, "all", False):
+    if (
+        arguments.command in ("new", "status", "doctor")
+        or getattr(arguments, "all", False)
+        or (arguments.command == "install" and (arguments.machine or not _is_in_repo()))
+    ):
         banner.show_banner(action if arguments.command != "update" else "update of the repos")
         return
     banner.show_banner(action, _repo_root_or_hint())

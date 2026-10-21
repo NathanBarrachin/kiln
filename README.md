@@ -56,6 +56,7 @@ kiln itself calls no AI and needs no API key.
 
 ```sh
 uv tool install kiln-cli     # the command is kiln; uv fetches Python 3.14 if needed
+kiln install                 # outside a repo: kiln's Claude Code plugin in every session
 ```
 
 Or try it without installing anything: `uvx kiln-cli new my-app` for a new repo,

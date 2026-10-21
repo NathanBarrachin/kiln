@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import subprocess
 import sys
 import zipfile
@@ -22,7 +23,7 @@ from kiln.install import ensure_env_file, moved_from, pnpm_behind, sync_command
 from kiln.release import Tag, latest_candidates, next_version, promotion_verdict
 from kiln.rules import charter_rules, verified_rules, write_unverified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
-from kiln.shell import KilnError
+from kiln.shell import KilnError, quiet_git
 from kiln.stack import Stack, answers_if_any, load_stack, stack_from_answers
 from kiln.template import DEFAULT_TEMPLATE_SOURCE, template_revision
 from kiln.update import (
@@ -652,3 +653,25 @@ def test_backing_services_reads_db_and_redis_of_the_services_only(tmp_path: Path
         encoding="utf-8",
     )
     assert backing_services(compose) == {"db": "demo-db", "redis": "demo_redis_1"}
+
+
+def test_git_runs_without_background_housekeeping_while_copier_works(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "user.name")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "Kept")
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+
+    def setting(key: str) -> str:
+        found = subprocess.run(
+            ["git", "-C", str(tmp_path), "config", "--get", key], capture_output=True, text=True
+        )
+        return found.stdout.strip()
+
+    with quiet_git():
+        assert (setting("gc.auto"), setting("maintenance.auto")) == ("0", "false")
+        assert setting("user.name") == "Kept"
+    assert setting("gc.auto") == ""
+    assert os.environ["GIT_CONFIG_COUNT"] == "1"
+    assert "GIT_CONFIG_KEY_1" not in os.environ

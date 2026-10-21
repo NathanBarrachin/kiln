@@ -18,7 +18,7 @@ from kiln.contract import generate_api_contract
 from kiln.deps import lock_dependencies, sync_dependencies, update_dependencies
 from kiln.frozen import frozen_files, report_frozen_drift
 from kiln.rules import write_unverified_rules
-from kiln.shell import KilnError, capture, require_tools, run, step
+from kiln.shell import KilnError, capture, quiet_git, require_tools, run, step
 from kiln.stack import ANSWERS_FILE, load_stack, read_answers
 from kiln.template import DEFAULT_TEMPLATE_SOURCE, template_revision
 from kiln.versions import (
@@ -119,19 +119,20 @@ def apply_template(root: Path, answers: Mapping[str, object] | None = None) -> N
     left as they are."""
     previous_answers = migrations.raw_answers(root)
     try:
-        copier.run_update(
-            root,
-            # Under today's names: a project of kiln 0.3 wrote its answers in French.
-            data=migrations.answers_for_update(root, answers or {}),
-            vcs_ref=template_revision(_template_source(root)),
-            use_prereleases=follows_candidates(),
-            exclude=frozen_files(root),
-            defaults=True,
-            skip_answered=True,
-            overwrite=True,
-            conflict="inline",
-            unsafe=False,
-        )
+        with quiet_git():
+            copier.run_update(
+                root,
+                # Under today's names: a project of kiln 0.3 wrote its answers in French.
+                data=migrations.answers_for_update(root, answers or {}),
+                vcs_ref=template_revision(_template_source(root)),
+                use_prereleases=follows_candidates(),
+                exclude=frozen_files(root),
+                defaults=True,
+                skip_answered=True,
+                overwrite=True,
+                conflict="inline",
+                unsafe=False,
+            )
     except UserMessageError as error:
         raise KilnError(f"template update refused: {error}") from error
     except ProcessExecutionError as error:

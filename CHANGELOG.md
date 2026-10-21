@@ -7,6 +7,7 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 entries before v0.4.0 quote kiln's former French names.
 
 ## v0.4.4 — 2026-10-21
+- **Breaking**: `kiln check` no longer runs the test suites (pytest, Maven tests): lint, types and charter only, so a merge stays fast; `kiln check --tests` runs them, and the release runs them all (`kiln ci`). Nothing to convert.
 - **Breaking**: `kiln dev` runs in the background and gives the terminal back once each server answers; `--foreground` keeps the old interleaved output until Ctrl+C. Nothing to convert: a script that relied on it adds `--foreground`.
 - `kiln dev` runs the code you edit on the machine and what you never edit in podman: the compose's `db`, `postgres` and `redis` are restarted with their data and waited for (health check) before the servers, and before `kiln check` and the migrations of `kiln install`. A folder's `Procfile.dev` adds processes, one `name: command` line (a Celery worker, a scheduler). From three processes on, a terminal asks what to run (everything, as last time, or one by one) and `--only django,nuxt` answers without asking; then kiln offers to follow the logs. `kiln dev status`, `kiln dev logs [service] [-f]` and `kiln dev stop`, which keeps the databases another worktree of the repo still uses. `--containers` finds the compose where it is (`config/local/compose.yml`).
 - A Django project under podman develops on its compose's PostgreSQL, as in production, on a port drawn from its name: two projects never fight over 5432.

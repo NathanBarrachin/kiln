@@ -72,7 +72,7 @@ A new repo:
 ```console
 $ kiln new my-app            # three questions, then a private GitHub repo (--no-github: local)
 $ cd my-app && kiln dev      # dev servers in the background, databases first, logs offered
-$ kiln check                 # ruff, mypy, pytest, ESLint, type checks, then charter
+$ kiln check                 # ruff, mypy, ESLint, type checks, then charter (--tests: the suites)
 $ claude                     # Claude Code, with kiln's rules, skills and hooks loaded
 ```
 

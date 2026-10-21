@@ -12,6 +12,7 @@ from plumbum import ProcessExecutionError
 
 from kiln import cli, github, ui
 from kiln.banner import LOGO, _project_summary, render_logo
+from kiln.check import _check_commands
 from kiln.config import UserConfig
 from kiln.deps import _major_bounds
 from kiln.dev import read_env_file, service_prefix
@@ -60,6 +61,22 @@ def test_checks_end_with_charter() -> None:
         "frontend typecheck",
         "charter",
     ]
+
+
+@pytest.mark.parametrize(
+    ("charter_name", "directory_key"), [("charter.toml", "directory"), ("charte.toml", "dossier")]
+)
+def test_typing_follows_the_charter_when_it_declares_it(
+    tmp_path: Path, charter_name: str, directory_key: str
+) -> None:
+    stack = Stack(backend="django", frontend="aucun", has_podman=False)
+    (tmp_path / charter_name).write_text(f'[types]\n{directory_key} = "backend"\n')
+
+    commands = {command.label: command for command in _check_commands(tmp_path, stack)}
+
+    assert commands["backend mypy"].argv == ("charter", "types")
+    assert commands["backend mypy"].directory == "."
+    assert _check_commands(tmp_path / "bare", stack)[2].argv == ("uv", "run", "mypy", ".")
 
 
 def test_java_backend_is_checked_by_the_maven_wrapper() -> None:

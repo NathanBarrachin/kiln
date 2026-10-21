@@ -3,10 +3,11 @@
 from pathlib import Path
 
 from kiln import ui
+from kiln.charter import config as charter_config
 from kiln.dev.backing import start_backing_services
 from kiln.install import ensure_env_file, moved_from, sync_command
 from kiln.shell import KilnError, run, run_status, step
-from kiln.stack import BACKEND_DIR, load_stack
+from kiln.stack import BACKEND_DIR, Command, Stack, load_stack
 
 
 def run_checks(root: Path) -> list[str]:
@@ -21,11 +22,24 @@ def run_checks(root: Path) -> list[str]:
         if moved_from(root / directory / ".venv") is not None:
             step(f"{directory}: venv moved, packages reinstalled")
             run(sync_command(root / directory / ".venv"), root / directory)
-    for command in stack.check_commands():
+    for command in _check_commands(root, stack):
         step(f"Check: {command.label}")
         if run_status(list(command.argv), root / command.directory) != 0:
             failed_checks.append(command.label)
     return failed_checks
+
+
+def _check_commands(root: Path, stack: Stack) -> list[Command]:
+    """The stack's checks; mypy as the CI types, through `charter types`, when the charter
+    declares its packages and environment (`[types]`): a bare `mypy .` knows neither."""
+    types = charter_config.load(root).get("types")
+    typed_directory = types.get("directory", BACKEND_DIR) if isinstance(types, dict) else None
+    return [
+        Command(command.label, ".", ("charter", "types"))
+        if command.label == f"{typed_directory} mypy"
+        else command
+        for command in stack.check_commands()
+    ]
 
 
 def check_project(root: Path) -> None:

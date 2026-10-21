@@ -26,7 +26,7 @@ option, setting, plugin, skill, hook or workflow is missing here.
 | `kiln new [dir]` | Questionnaire, generation, lockfiles, install, first commit on `main`, then `develop` where all work happens. Three questions (what you build, size, language), the rest by option: `--name`, `--title`, `--description`, `--type`, `--size`, `--backend`, `--frontend`, `--language`, `--owner`, `--team`, `--podman`, `--vps`, `--goal`, `--prod-url`; `--no-github` (local only), `--no-install`, `--template` (another source), `--all-questions` (the whole questionnaire). |
 | `kiln adopt` | Bring an existing repo that kiln did not generate under kiln (`--template` for another source), on a work branch: `charter.toml` (size via `--size`, rules that apply anywhere, checked after each edit), `docs/backlog/` if missing, then the existing debt the charter finds. Never touches an existing file. |
 | `kiln publish` | Create the private GitHub repo and protect its branches, for a project generated without `gh`. |
-| `kiln install` | Set up a machine after a clone: tools, dependencies, `.env`, migrations, pre-commit. Re-runnable. |
+| `kiln install` | Set up a machine after a clone: tools, dependencies, `.env`, migrations, pre-commit. Outside a repo, or with `--machine`, kiln for the whole machine: the `kiln` command as a uv tool, the plugin catalogue and the `kiln` plugin at user scope (every Claude session), the machine's settings. Re-runnable: only what is missing is done. |
 | `kiln dev` | Start the stack's dev servers, their output interleaved and prefixed by service in colour (`django │ …`); `--containers` runs everything in podman. |
 | `kiln check` | Ruff, mypy, pytest for each Python project, ESLint and type checks for the front, then `charter`. |
 | `kiln set [key=value…]` | Show or change the repo's settings (see [Settings](#settings)); the repo is re-rendered. Outside a repo, or with `--global`, this machine's settings. |
@@ -112,7 +112,7 @@ podman. See [`.github/workflows/`](../.github/workflows/).
 
 ## Claude Code plugins
 
-kiln is also a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin marketplace:
+kiln is also a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin marketplace; `kiln install`, outside a repo, adds it and enables `kiln` for every session, or by hand:
 
 ```sh
 claude plugin marketplace add antoine-tena/kiln

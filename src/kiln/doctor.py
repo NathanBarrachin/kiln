@@ -6,7 +6,6 @@ changed: each fix is offered, never applied.
 """
 
 import functools
-import json
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -16,16 +15,12 @@ from pathlib import Path
 from kiln import ui
 from kiln.charter.config import charter_path
 from kiln.config import UserConfig, config_path, load_config
-from kiln.install import SYSTEM_HINTS
+from kiln.install import BASE_PLUGIN, SYSTEM_HINTS, kiln_plugin_enabled
 from kiln.shell import INSTALL_HINTS, KilnError
 from kiln.stack import ANSWERS_FILE, BACKEND_DIR, Stack, load_stack, read_answers
 from kiln.versions import installed_version, latest_release, release_version, upgrade_command
 
 PROBE_TIMEOUT = 5
-CLAUDE_SETTINGS = Path.home() / ".claude" / "settings.json"
-BASE_PLUGIN = "kiln@kiln"
-# Its name before kiln 0.4, until Claude Code applies the catalogue's renames.
-LEGACY_BASE_PLUGIN = "base@kiln"
 GITHUB_LOGIN_URL = "https://github.com/login/device"
 LABEL_WIDTH = 16
 
@@ -163,19 +158,13 @@ def _kiln_tool() -> Finding:
 
 
 def _claude_plugin() -> Finding:
-    try:
-        settings = json.loads(CLAUDE_SETTINGS.read_text())
-    except OSError, ValueError:
-        settings = {}
-    plugins = settings.get("enabledPlugins", {})
-    if plugins.get(BASE_PLUGIN) or plugins.get(LEGACY_BASE_PLUGIN):
+    if kiln_plugin_enabled():
         return Finding(Level.OK, "Claude plugin", f"{BASE_PLUGIN} enabled")
     return Finding(
         Level.WARN,
         "Claude plugin",
         f"{BASE_PLUGIN} not enabled on this machine",
-        "claude plugin marketplace add antoine-tena/kiln && "
-        f"claude plugin install {BASE_PLUGIN} --scope user",
+        "kiln install --machine",
     )
 
 

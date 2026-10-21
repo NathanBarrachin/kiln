@@ -194,13 +194,6 @@ compact_window:
   validator: >-
     {% if compact_window < 100000 or compact_window > 1000000 %}Between 100000 and 1000000.{% endif %}
 
-# Connectors of the claude.ai account (Gmail, Drive, Vercel…): their tool names and instructions
-# sit in every message of every session, thousands of tokens for tools a code repo rarely calls.
-claude_ai_connectors:
-  type: bool
-  help: Load the claude.ai connectors (Gmail, Drive, Vercel…) in Claude Code sessions here?
-  default: false
-
 # Production on a server of one's own: `vps` adds config/vps/ (Caddy, production stack, switch
 # with rollback, tested backups), scripts/ops/ and docs/operations/. Django backend only, served
 # by podman. Later with `kiln set deploy=vps`.

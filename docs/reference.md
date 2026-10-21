@@ -67,7 +67,7 @@ is re-rendered, on a work branch):
 | `java_package` | Root package of the Java sources. |
 | `timezone` | Time zone of the project's calendar notions (dates are stored in UTC). |
 | `serena` | Serena for Claude Code (symbol navigation on big codebases). |
-| `compact_window`, `claude_ai_connectors` | Claude Code's sessions: the context size, in tokens, at which a conversation compacts (`400000` by default, as every message re-reads the whole context; `1000000` keeps Claude Code's own; `claude --autocompact 1M` lifts it for one launch), and the claude.ai connectors (off by default: their tools weigh on every message). |
+| `compact_window` | Claude Code's sessions: the context size, in tokens, at which a conversation compacts (`400000` by default, as every message re-reads the whole context; `1000000` keeps Claude Code's own; `claude --autocompact 1M` lifts it for one launch). |
 | `deploy`, `vps_host`, `api_domain`, `site_url`, `deploy_branch`, `frontend_deploy` | Production: a hardened VPS (SSH host, API domain, site address, deployed branch) and the front on Vercel. |
 | `north_star` | The goal that orders the priorities of `docs/backlog/`. |
 | `ci_runner` | Where each push's CI runs: `local` (`kiln ci`, no GitHub minutes, a private repo's default) or `github` (free for a public repo). |

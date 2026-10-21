@@ -40,7 +40,6 @@ SETTABLE_KEYS = (
     "timezone",
     "serena",
     "compact_window",
-    "claude_ai_connectors",
     "deploy",
     "vps_host",
     "api_domain",

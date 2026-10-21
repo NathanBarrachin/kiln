@@ -6,6 +6,30 @@ releases a project crosses; `kiln version cut` drafts the entry of the release i
 `release/vX.Y.Z` branch, rewritten before its first candidate. Names are those of their release:
 entries before v0.4.0 quote kiln's former French names.
 
+## v0.4.4 — 2026-10-21
+<!-- draft: rewrite for users, breaking changes first, then delete this line -->
+- Backend tests on the CI job's databases
+- An adopted repo moves to today's names
+- Stop keeps databases other worktrees use
+- Pnpm dependencies as the lockfile says
+- Mypy as the CI runs it, by charter types
+- A venv moved with its repo is reinstalled
+- Background by default, asks what to run
+- A dry run accepts a tree with changes
+- Front deployed by the Vercel CLI
+- Django under podman runs on PostgreSQL
+- -d, status, logs, stop and Procfile.dev
+- Every session asks where errors come from
+- Kiln dev starts the databases first
+- --roadmap hands what needs judgment to Claude, --rule proves a gap closed
+- Kiln install outside a repo sets up kiln for the whole machine
+- Offer the tool update after a command typed outside Claude Code
+- Stacks known by their sources alone named, the score says when it rests on universal rules only
+- A hardened Astro container starts (.astro/ on a tmpfs)
+- Generated repos pass kiln's own grid (T-130)
+- Kiln-update.svg redrawn after merging v0.4.2 back
+- **After updating**: in a Django project under podman, copy the DATABASE_URL line of backend/.env.example into backend/.env to develop on the compose's PostgreSQL.
+
 ## v0.4.3 — 2026-10-20
 - `kiln fix`: every gap a script can close, closed on a work branch `kiln/fix-<date>`, one commit per rule with its why and source. Your checks run before and after each converter; one that turns them red is undone and reported, and a repo without tests is fixed anyway, each commit marked unverified. `--dry-run` shows the plan and the diff, `--rule ID` takes one rule, and the score before and after closes the run.
 - Fourteen converters to start: actions pinned by commit SHA, a 7-day cooldown on updates, Dependabot for every ecosystem found, read-only workflow tokens, gitleaks, a minimal CI, obsolete backports removed, loose `requirements.txt` compiled to exact versions by uv, ruff with its safe fixes, `@ts-expect-error`, images pinned by digest, Debian 13, a non-root user, Node and Python moved off their end of life. Those that reach the network say so first.

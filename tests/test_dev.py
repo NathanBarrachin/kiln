@@ -144,3 +144,18 @@ def test_only_picks_without_a_question_and_refuses_an_unknown_name(tmp_path: Pat
     assert labels(select(PROCESSES, tmp_path, only=["nuxt"], ask=replies())) == ["nuxt"]
     with pytest.raises(KilnError, match="no celery here"):
         select(PROCESSES, tmp_path, only=["celery"])
+
+
+def test_a_worktree_keeps_the_databases_another_one_still_uses(project: Path) -> None:
+    (project / "backend/Procfile.dev").write_text("api: sleep 60\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(project), "add", "."], check=True)
+    subprocess.run(["git", "-C", str(project), "commit", "-qm", "init"], check=True)
+    other = project.parent / "other-worktree"
+    subprocess.run(["git", "-C", str(project), "worktree", "add", "-q", str(other)], check=True)
+
+    run_dev(project)
+
+    assert background.others_running(other)
+    assert not background.others_running(project)
+    background.stop(project)
+    assert not background.others_running(other)

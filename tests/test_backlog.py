@@ -165,3 +165,30 @@ def test_nothing_to_do_no_ticket(tmp_path: Path) -> None:
     )
     assert add_after_update_ticket(tmp_path / "elsewhere", NOTES, today="d") is None
     assert backlog.read_text() == BACKLOG_WITH_CRITICAL
+
+
+def test_a_hand_kept_tracker_keeps_its_compass_its_numbers_and_its_notes(tmp_path: Path) -> None:
+    legacy = LEGACY.replace(
+        "La boussole est **la démo en ligne**.",
+        (
+            "La production tourne la **v1.1** (voir AF-03).\n\n"
+            "La boussole est la **première sortie**, le 21 novembre."
+        ),
+    ).replace("**Prochain libre : AF-04.**", "le plus grand (**prochain libre : AF-02**).")
+    legacy = legacy.replace("- **État** : bloqué — attend antoine", "- **État** : à faire (AF-01)")
+    (tmp_path / "docs/a-faire").mkdir(parents=True)
+    (tmp_path / "docs/a-faire/a-faire.md").write_text(legacy)
+    (tmp_path / "docs/a-faire/urgent.md").write_text("# Urgent\n\n- [ ] Vérifier AF-01\n")
+    backlog = tmp_path / "docs/backlog"
+    backlog.mkdir(parents=True)
+    (backlog / "backlog.md").write_text(TEMPLATE_BACKLOG)
+
+    assert migrate_legacy_backlog(tmp_path)
+
+    text = (backlog / "backlog.md").read_text()
+    assert "North star: **première sortie**." in text
+    assert "Next free: T-04." in text  # AF-03 is taken: the stale AF-02 is not reused
+    assert "La production tourne la **v1.1** (voir T-03)." in text
+    assert text.index("La production tourne") < text.index("## How to use")
+    assert "- **Status**: todo (T-01)" in text
+    assert "Vérifier T-01" in (backlog / "urgent.md").read_text()

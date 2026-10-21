@@ -99,19 +99,40 @@ def opened(root: Path, path: str) -> dict[str, str]:
 
 def convert_backlog(text: str, template_text: str, dates: dict[str, str]) -> str:
     """`a-faire.md` to `backlog.md`: the template's header and how-to, tickets converted."""
-    next_free = re.search(r"Prochain libre : AF-(\d+)", text)
-    compass = re.search(r"La boussole est \*\*(.+?)\*\*", text, re.S)
+    # The next free number: the one written, unless a ticket already took it.
+    written = re.search(r"prochain libre : AF-(\d+)", text, re.I)
+    listed = text[text.index("## 🔴") :] if "## 🔴" in text else text
+    taken = [int(number) for number in re.findall(r"\bAF-(\d+)\b", listed)]
+    next_free = max(int(written[1]) if written else 0, max(taken, default=0) + 1)
+    compass = re.search(r"La boussole est[^*\n]*\*\*(.+?)\*\*", text, re.S)
     started = re.search(r"Créée le\s+\*\*(.+?)\*\*", text)
     body = text[text.index("## 🔴") :] if "## 🔴" in text else text
     body = convert_tickets(body, dates)
     header = template_text[: template_text.index("## 🔴")] if "## 🔴" in template_text else ""
-    if next_free:
-        header = re.sub(r"Next free: T-\d+", f"Next free: T-{next_free[1]}", header)
+    if taken:
+        header = re.sub(r"Next free: T-\d+", f"Next free: T-{next_free:02d}", header)
     if compass:
         header = re.sub(r"North star: \*\*.*?\*\*", f"North star: **{compass[1]}**", header)
     if started:
         header = re.sub(r"Started on\s+\*\*.*?\*\*", f"Started on\n**{started[1]}**", header)
-    return header + body
+    return _with_legacy_notes(header, text) + body
+
+
+def _with_legacy_notes(header: str, text: str) -> str:
+    """The paragraphs the former introduction added (the state of production…) after the
+    template's own, which replaces its first one and the compass."""
+    intro = text[: text.index("\n---")] if "\n---" in text else ""
+    blocks = [block.strip() for block in intro.split("\n\n") if block.strip()]
+    paragraphs = [block for block in blocks if not block.startswith("#")][1:]
+    notes = [
+        re.sub(r"\bAF-(\d+)\b", r"T-\1", block)
+        for block in paragraphs
+        if not block.startswith("La boussole est")
+    ]
+    if not notes or "\n---" not in header:
+        return header
+    cut = header.index("\n---")
+    return header[:cut].rstrip("\n") + "\n\n" + "\n\n".join(notes) + "\n" + header[cut:]
 
 
 def convert_tickets(text: str, dates: dict[str, str]) -> str:
@@ -129,6 +150,7 @@ def convert_tickets(text: str, dates: dict[str, str]) -> str:
                 if status.startswith(old):
                     status = new + status.removeprefix(old)
             status = re.sub(r"depuis le ", "since ", status)
+            status = re.sub(r"\bAF-(\d+)\b", r"T-\1", status)
             lines += ["- **Type**: task", f"- **Status**: {status}"]
             lines.append(f"- **Opened**: {dates.get(ticket) or '—'}")
             continue
@@ -164,7 +186,7 @@ def convert_urgent(text: str, intro: str) -> str:
     """The checkboxes of `urgent.md` under the template's introduction, in English."""
     lines = text.splitlines()
     first_box = next((i for i, line in enumerate(lines) if line.startswith("- [")), len(lines))
-    boxes = "\n".join(lines[first_box:]).strip("\n")
+    boxes = re.sub(r"\bAF-(\d+)\b", r"T-\1", "\n".join(lines[first_box:]).strip("\n"))
     body = intro.rstrip("\n") + "\n"
     return body + f"\n{boxes}\n" if boxes else body
 

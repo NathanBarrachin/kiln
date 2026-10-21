@@ -1,7 +1,8 @@
 # Done
 
 The closed tickets of kiln, most recent first, one line each:
-`- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.
+`- **2026-10-21** · T-162 · Save tokens without limiting Claude — compaction at 400k by default (`compact_window`, the `autoCompactWindow` setting, `claude --autocompact 1M` lifts it), status line in tokens, red once the cache has expired, `/clear` suggested after a merge, skill descriptions under 300 characters; claude.ai connectors left to each person; turned down: a smaller model or effort, a compaction at 200k, one session at a time, a release a week (feat/token-savings) · opened 2026-10-21
+- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.
 
 - **2026-10-21** · T-129 · What needs judgment goes to Claude — `kiln score --roadmap` (sure gaps first, then the smallest, places and proof; approximate ones "to confirm"), `--write` (backlog tickets, once each), `--rule ID` (fails while open), a false positive dismissed by a waiver on its path (grid IDs accepted by the charter), skill `/kiln:modernize` (tests first, one commit per gap, the rule ID in its body for T-137) (feat/roadmap) · opened 2026-10-17
 - **2026-10-21** · T-161 · Install kiln on the whole machine, in one command — `kiln install` outside a repo (or `--machine`): the CLI as a uv tool, the catalogue and `kiln@kiln` at user scope, the machine settings, only what is missing; `kiln doctor` points to it (feat/install-machine) · opened 2026-10-21

@@ -1,6 +1,6 @@
 ---
 name: backlog
-description: Pick the next ticket from docs/backlog/backlog.md, add a ticket (bug, improvement, idea, task), record a ticket as started or done, or plan which tickets go into the next releases, in a repo that tracks its work this way. Use when the user asks what to do next, wants to note something to do or an idea, after starting or finishing a ticket, or when they ask what the next versions should contain.
+description: Pick the next ticket of docs/backlog/backlog.md, add one (bug, improvement, idea, task), record one as started or done, or plan the next releases. Use when the user asks what to do next, wants to note a task or an idea, after starting or finishing a ticket, or to plan the next versions.
 argument-hint: "[T-NN | new <what> | start T-NN | done T-NN | plan]"
 ---
 

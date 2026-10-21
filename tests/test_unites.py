@@ -1,8 +1,10 @@
+import contextlib
 import datetime
 import json
 import subprocess
 import sys
 import zipfile
+from collections.abc import Iterator
 from pathlib import Path
 
 import copier
@@ -10,9 +12,11 @@ import pytest
 from packaging.version import Version
 from plumbum import ProcessExecutionError
 
-from kiln import cli, github, ui
+from kiln import check, cli, github, ui
 from kiln.banner import LOGO, _project_summary, render_logo
 from kiln.check import _check_commands, _ci_django_job
+from kiln.ci.jobs import Plan, Services
+from kiln.ci.workflow import Job
 from kiln.config import UserConfig
 from kiln.deps import _major_bounds
 from kiln.dev import read_env_file, service_prefix
@@ -30,7 +34,7 @@ from kiln.release import (
 from kiln.rules import charter_rules, verified_rules, write_unverified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
 from kiln.shell import KilnError
-from kiln.stack import Stack, answers_if_any, load_stack, stack_from_answers
+from kiln.stack import Command, Stack, answers_if_any, load_stack, stack_from_answers
 from kiln.template import DEFAULT_TEMPLATE_SOURCE, template_revision
 from kiln.update import (
     apply_template,
@@ -104,6 +108,31 @@ def test_backend_tests_take_the_databases_of_the_ci_job(tmp_path: Path) -> None:
     assert plan.services.redis == "docker.io/library/redis:8-alpine"
     assert dict(plan.env) == {"DEBUG": "True"}
     assert _ci_django_job(tmp_path, "api") is None
+
+
+def test_backend_tests_first_remove_the_containers_of_a_killed_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[str] = []
+    plan = Plan(Job("backend", "django"), (), services=Services("club", "postgres:18", ""))
+    monkeypatch.setattr(check, "_ci_django_job", lambda *_: plan)
+
+    def remove_orphans() -> int:
+        calls.append("orphans")
+        return 2
+
+    monkeypatch.setattr(check, "remove_orphan_containers", remove_orphans)
+
+    @contextlib.contextmanager
+    def services(*_: object) -> Iterator[dict[str, str]]:
+        calls.append("services")
+        yield {}
+
+    monkeypatch.setattr(check, "running_services", services)
+    monkeypatch.setattr(check, "run_status", lambda *_: 0)
+
+    assert check._run_check(tmp_path, Command("backend pytest", "backend", ("pytest",))) == 0
+    assert calls == ["orphans", "services"]
 
 
 def test_java_backend_is_checked_by_the_maven_wrapper() -> None:

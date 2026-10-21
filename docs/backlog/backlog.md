@@ -26,7 +26,7 @@ keeps a repo up to date with the best of the world, and easy for Claude to read"
     Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
 
 - **ID** `T-NN`: stable, never reused, quoted as is in commits and branches (tickets opened
-  before 16 October 2026 were `AF-NN`, same number). **Next free: T-165.**
+  before 16 October 2026 were `AF-NN`, same number). **Next free: T-166.**
 - **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
   better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
   a decision, a check).
@@ -195,9 +195,9 @@ anything from Claude: same model, same effort, a whole context up to 400k.
   `CLAUDE_CODE_AUTO_COMPACT_WINDOW` variable would override `claude --autocompact 1M`, the way to
   lift it for one big task); 1000000 keeps Claude Code's own. Anthropic gives no figure; Claude
   Code compacts at about 967k on a 1M model.
-- [ ] claude.ai connectors: off in the shared settings, no one can turn them back on for
-  themselves (`true` wins from any scope), and `kiln update` turns them off in every generated
-  repo; a personal choice instead, or dropped. Waiting for antoine.
+- [x] claude.ai connectors left out of the template: off in the shared settings, no one could
+  turn them back on for themselves (`true` wins from any scope) and `kiln update` would have cut
+  them in every generated repo. A personal choice, in one's own `.claude/settings.local.json`.
 - [x] Status line: the context in tokens, coloured by what a message costs, its gauge against
   the compaction point, in red once the cache has expired (Claude Code redraws the line then,
   before the next message writes it all again).
@@ -242,6 +242,23 @@ into `README.fr.md` and `docs/reference.fr.md`.
 - [ ] `/kiln:release`: the translation step, from the English diff since the last tag.
 - [ ] `CLAUDE.md` ("a change updates the docs in its branch"): English in the branch, French at
   the candidate.
+
+### T-165 · Write less code, measured: a ladder before writing
+- **Type**: idea
+- **Status**: todo
+- **Opened**: 2026-10-21
+- **Effort**: M · **Owner**: Claude · **Due**: —
+- **Origin**: the most-starred token savers, 21 October 2026: ponytail (a skill, about 45 % fewer
+  tokens and more risky logic tested, by its maintainer's own benchmark)
+
+Before writing, Claude climbs a ladder and stops at the first rung that works: does this code
+need to exist, does the repo already have it, the standard library, an installed dependency, a
+few lines; never cut: validation at the boundaries, security, data loss, accessibility, a test
+for each risky logic. Same pillar as T-138 and T-139, which remove code that exists; this one
+keeps it from being written.
+- [ ] A few lines in `template/.claude/rules/kiln/` (they are read at every message).
+- [ ] Measured before it stays, with T-53's method: the same tasks with and without, tokens,
+  lines written, tests, bugs caught; dropped if it does not win.
 
 ### T-159 · What T-126 to T-128 left: compose hardening, pyproject from requirements, `kiln update`
 - **Type**: improvement

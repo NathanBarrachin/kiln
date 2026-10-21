@@ -91,6 +91,24 @@ def test_typing_follows_the_charter_when_it_declares_it(
     assert _check_commands(tmp_path / "bare", stack)[2].argv == ("uv", "run", "mypy", ".")
 
 
+def test_a_docs_only_change_runs_the_charter_on_its_files_alone(tmp_path: Path) -> None:
+    stack = Stack(backend="django", frontend="nuxt", has_podman=False)
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs/notes.md").write_text("notes\n")
+
+    commands = _check_commands(tmp_path, stack, changed=["docs/notes.md", "docs/gone.md"])
+
+    assert [command.argv for command in commands] == [("charter", "file", "docs/notes.md")]
+
+
+def test_a_backend_change_runs_the_backend_checks_not_the_frontend_ones(tmp_path: Path) -> None:
+    stack = Stack(backend="django", frontend="nuxt", has_podman=False)
+
+    commands = _check_commands(tmp_path, stack, changed=["backend/gone.py"])
+
+    assert {command.directory for command in commands} == {"backend"}
+
+
 def test_backend_tests_take_the_databases_of_the_ci_job(tmp_path: Path) -> None:
     assert _ci_django_job(tmp_path, "backend") is None  # no ci.yml: the compose's databases
     workflows = tmp_path / ".github" / "workflows"

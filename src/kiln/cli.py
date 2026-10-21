@@ -116,6 +116,9 @@ def build_parser() -> argparse.ArgumentParser:
     check_parser.add_argument(
         "--tests", action="store_true", help="the test suites too (the release runs them)"
     )
+    check_parser.add_argument(
+        "--all", action="store_true", help="the whole repo, not only the branch's changes"
+    )
     _add_ci_command(commands)
     commands.add_parser("contract", help="regenerate openapi.json and the frontend types")
     version_parser = commands.add_parser(
@@ -548,7 +551,7 @@ def _dispatch_in_repo(arguments: argparse.Namespace, root: Path) -> None:
     elif command == "check":
         from kiln import check
 
-        check.check_project(root, arguments.tests)
+        check.check_project(root, arguments.tests, arguments.all)
     elif command == "ci":
         _dispatch_ci(root, arguments)
     elif command == "contract":

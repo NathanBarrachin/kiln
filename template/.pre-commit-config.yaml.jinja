@@ -4,8 +4,9 @@
 # pre-commit install). The hook holds for the main tree and every worktree. Replay everything:
 #   pre-commit run --all-files
 # Local hooks call the project's tools (uv) and `charter`, installed with kiln. Typing, too slow
-# for each commit, runs before each push: `develop` no longer gets the full CI, which only runs
-# when a release goes out (skill /kiln:release).
+# for each commit, runs before each push, and only when the pushed commits touch its side; the
+# charter checks the committed files alone. `develop` no longer gets the full CI, which only
+# runs when a release goes out (skill /kiln:release).
 default_install_hook_types: [pre-commit, pre-push]
 default_stages: [pre-commit]
 repos:
@@ -59,7 +60,7 @@ repos:
         entry: {% if backend == 'django' %}charter types{% else %}bash -c 'cd backend && uv run mypy .'{% endif %}
         language: system
         pass_filenames: false
-        always_run: true
+        files: ^backend/.*\.(py|pyi|toml|cfg|ini)$
         stages: [pre-push]
 {% endif %}
 {%- if backend == 'java' %}
@@ -68,7 +69,7 @@ repos:
         entry: bash -c 'cd backend && ./mvnw -q -B -DskipTests compile'
         language: system
         pass_filenames: false
-        always_run: true
+        files: ^backend/
         stages: [pre-push]
 {% endif %}
 {%- if frontend in ['nuxt', 'next', 'astro'] %}
@@ -77,12 +78,10 @@ repos:
         entry: pnpm --dir frontend typecheck
         language: system
         pass_filenames: false
-        always_run: true
+        files: ^frontend/
         stages: [pre-push]
 {% endif %}
       - id: charter
-        name: charter (charter.toml)
-        entry: charter
+        name: charter (charter.toml, committed files)
+        entry: charter file
         language: system
-        pass_filenames: false
-        always_run: true

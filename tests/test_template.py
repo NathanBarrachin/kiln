@@ -117,7 +117,11 @@ def test_backlog_is_always_there(tmp_path: Path) -> None:
     backlog = (project_dir / "docs/backlog/backlog.md").read_text()
     assert "North star: **the demo online**." in backlog
     assert "- **Type**: task" in backlog
-    assert "**Each member writes only their own login**" in backlog
+    assert "**Next free: T-02.**" in backlog
+    assert "Done" not in backlog
+    how_to = (project_dir / "docs/backlog/README.md").read_text()
+    assert "**Each member writes only their own login**" in how_to
+    assert (project_dir / "docs/backlog/done.md").read_text().startswith("# Done")
     assert "docs/backlog/" in (project_dir / "CLAUDE.md").read_text()
     assert not (project_dir / "docs/a-faire").exists()
     urgent = (project_dir / "docs/backlog/urgent.md").read_text()

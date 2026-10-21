@@ -71,7 +71,7 @@ A new repo:
 
 ```console
 $ kiln new my-app            # three questions, then a private GitHub repo (--no-github: local)
-$ cd my-app && kiln dev      # the stack's dev servers, output prefixed by service
+$ cd my-app && kiln dev -d   # dev servers in the background, databases started first
 $ kiln check                 # ruff, mypy, pytest, ESLint, type checks, then charter
 $ claude                     # Claude Code, with kiln's rules, skills and hooks loaded
 ```

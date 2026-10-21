@@ -13,10 +13,12 @@
     "KILN_API_HEALTH": "{{ prod_health_url or 'https://' ~ api_domain ~ '/api/health' }}",
     "KILN_PROD_DOC": "docs/operations/production.md"
 {%- endif %}
-{%- if compact_window < 1000000 %},
-    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "{{ compact_window }}"
-{%- endif %}
   },
+{#- The settings key, not CLAUDE_CODE_AUTO_COMPACT_WINDOW: the variable would override
+    `claude --autocompact`, the way to lift the net for one big task. #}
+{%- if compact_window < 1000000 %}
+  "autoCompactWindow": {{ compact_window }},
+{%- endif %}
 {%- if not claude_ai_connectors %}
   "disableClaudeAiConnectors": true,
 {%- endif %}

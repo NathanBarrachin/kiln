@@ -253,7 +253,8 @@ def test_sessions_compact_at_400k_without_claude_ai_connectors(tmp_path: Path) -
     settings = json.loads(
         (generate(tmp_path / "demo") / ".claude/settings.json").read_text(encoding="utf-8")
     )
-    assert settings["env"]["CLAUDE_CODE_AUTO_COMPACT_WINDOW"] == "400000"
+    assert settings["autoCompactWindow"] == 400000
+    assert "CLAUDE_CODE_AUTO_COMPACT_WINDOW" not in settings["env"]  # it would beat --autocompact
     assert settings["disableClaudeAiConnectors"] is True
 
 
@@ -261,7 +262,7 @@ def test_claude_codes_own_defaults_stay_one_setting_away(tmp_path: Path) -> None
     project_dir = generate(tmp_path / "demo", compact_window=1000000, claude_ai_connectors=True)
 
     settings = json.loads((project_dir / ".claude/settings.json").read_text(encoding="utf-8"))
-    assert "CLAUDE_CODE_AUTO_COMPACT_WINDOW" not in settings["env"]
+    assert "autoCompactWindow" not in settings
     assert "disableClaudeAiConnectors" not in settings
 
 

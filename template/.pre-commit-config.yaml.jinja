@@ -3,11 +3,10 @@
 # Installed once, at the root of the repo: kiln install (or: uv tool install pre-commit &&
 # pre-commit install). The hook holds for the main tree and every worktree. Replay everything:
 #   pre-commit run --all-files
-# Local hooks call the project's tools (uv) and `charter`, installed with kiln. Typing, too slow
-# for each commit, runs before each push, and only when the pushed commits touch its side; the
-# charter checks the committed files alone. `develop` no longer gets the full CI, which only
-# runs when a release goes out (skill /kiln:release).
-default_install_hook_types: [pre-commit, pre-push]
+# Local hooks call the project's tools (uv) and `charter`, installed with kiln: fast linters on
+# the committed files alone. Typing, tests and the CI run only when a release goes out (skill
+# /kiln:release), never at a push to develop.
+default_install_hook_types: [pre-commit]
 default_stages: [pre-commit]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -53,33 +52,6 @@ repos:
         entry: bash -c 'cd frontend && pnpm exec eslint --fix "${@#frontend/}"' --
         language: system
         files: ^frontend/.*\.(vue|ts|tsx|mjs)$
-{% endif %}
-{%- if backend in ['django', 'fastapi', 'data', 'cli'] %}
-      - id: typing-backend
-        name: mypy typing (backend, before push)
-        entry: {% if backend == 'django' %}charter types{% else %}bash -c 'cd backend && uv run mypy .'{% endif %}
-        language: system
-        pass_filenames: false
-        files: ^backend/.*\.(py|pyi|toml|cfg|ini)$
-        stages: [pre-push]
-{% endif %}
-{%- if backend == 'java' %}
-      - id: compile-backend
-        name: Java compilation (backend, before push)
-        entry: bash -c 'cd backend && ./mvnw -q -B -DskipTests compile'
-        language: system
-        pass_filenames: false
-        files: ^backend/
-        stages: [pre-push]
-{% endif %}
-{%- if frontend in ['nuxt', 'next', 'astro'] %}
-      - id: typing-frontend
-        name: TypeScript typing (frontend, before push)
-        entry: pnpm --dir frontend typecheck
-        language: system
-        pass_filenames: false
-        files: ^frontend/
-        stages: [pre-push]
 {% endif %}
       - id: charter
         name: charter (charter.toml, committed files)

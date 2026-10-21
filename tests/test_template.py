@@ -170,14 +170,14 @@ def test_readme_sections_start_on_their_own_line(
     assert all(line.startswith("## ") for line in readme.splitlines() if "## " in line)
 
 
-def test_ci_on_github_runs_for_main_and_develop(tmp_path: Path) -> None:
+def test_ci_on_github_runs_only_on_release_branches(tmp_path: Path) -> None:
     project_dir = generate(tmp_path / "demo", ci_runner="github")
 
     workflow = yaml.safe_load((project_dir / ".github/workflows/ci.yml").read_text())
     # PyYAML reads the `on` key as the boolean True.
     triggers = workflow[True]
-    assert triggers["push"]["branches"] == ["main", "develop"]
-    assert triggers["pull_request"]["branches"] == ["main", "develop"]
+    assert triggers["push"]["branches"] == ["release/**"]
+    assert "pull_request" not in triggers
 
 
 def test_a_local_ci_spends_no_github_minute(tmp_path: Path) -> None:

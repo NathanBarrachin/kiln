@@ -12,10 +12,9 @@ name: CI
 # keeps its parameters here.
 on:
 {%- if ci_runner | default('github') == 'github' %}
+  # Only on the way to main: a release branch. A merge into develop runs fast linters only.
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+    branches: [ "release/**" ]
 {%- else %}
   # The CI of each push runs on the machine (`kiln ci`, verdict kept as a git note): no GitHub
   # minutes. On GitHub, by hand: Actions, CI, Run workflow. Back on each push:

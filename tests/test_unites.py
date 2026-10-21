@@ -19,7 +19,14 @@ from kiln.dev import read_env_file, service_prefix
 from kiln.dev.backing import backing_services
 from kiln.doctor import Level, workstation_findings
 from kiln.install import ensure_env_file, moved_from, pnpm_behind, sync_command
-from kiln.release import Tag, latest_candidates, next_version, promotion_verdict
+from kiln.release import (
+    Evidence,
+    Tag,
+    is_fixes_only,
+    latest_candidates,
+    next_version,
+    promotion_verdict,
+)
 from kiln.rules import charter_rules, verified_rules, write_unverified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
 from kiln.shell import KilnError
@@ -394,19 +401,34 @@ def test_next_version_bumps_the_patch_in_0x_even_when_breaking() -> None:
     assert next_version(Version("1.2.3"), ["fix: x\n\nBREAKING CHANGE: y"]) == "2.0.0"
 
 
-def test_a_candidate_is_promoted_as_soon_as_the_next_is_ready() -> None:
+def test_a_candidate_is_promoted_once_it_has_proved_itself() -> None:
     now = datetime.datetime(2026, 11, 10, tzinfo=datetime.UTC)
-    old = Tag("v0.3.0-rc.2", Version("0.3.0rc2"), now - datetime.timedelta(hours=2))
-    young = Tag("v0.3.1-rc.1", Version("0.3.1rc1"), now - datetime.timedelta(hours=1))
+    day_old = Tag("v0.3.0-rc.2", Version("0.3.0rc2"), now - datetime.timedelta(hours=25))
+    young = Tag("v0.3.1-rc.1", Version("0.3.1rc1"), now - datetime.timedelta(hours=3))
+    run_by_a_repo = Evidence("success", ("club",))
 
-    assert promotion_verdict(old, [old, young], "success")[1]
-    assert not promotion_verdict(young, [old, young], "success")[1]
-    assert not promotion_verdict(old, [old], "success")[1]
-    # A red or unfinished CI holds the candidate back, whatever comes after it.
+    assert promotion_verdict(day_old, run_by_a_repo, now)[1]
+    # Nobody waits for a next release any more; a young candidate soaks, whatever follows it.
+    verdict, ready = promotion_verdict(young, run_by_a_repo, now)
+    assert not ready and "soaking (21 h left)" in verdict
+    # Soaked but run by no repo of the machine: it has verified nothing yet.
+    verdict, ready = promotion_verdict(day_old, Evidence("success"), now)
+    assert not ready and "kiln update --all" in verdict
+    # Fixes only: two hours, no repo required.
+    assert promotion_verdict(young, Evidence("success", is_fixes_only=True), now)[1]
+    # A red or unfinished CI holds the candidate back, whatever else it proved.
     for ci in ("failure", "running", "none"):
-        verdict, ready = promotion_verdict(old, [old, young], ci)
+        verdict, ready = promotion_verdict(day_old, Evidence(ci, ("club",), True), now)
         assert not ready and ci in verdict
-    assert latest_candidates([old, young]) == [old, young]
+    assert latest_candidates([day_old, young]) == [day_old, young]
+
+
+def test_fixes_only_means_nothing_added_nor_broken() -> None:
+    assert is_fixes_only(["fix(check): x", "docs: y", "chore(release): v0.4.4"])
+    assert not is_fixes_only(["fix: x", "feat(dev): y"])
+    assert not is_fixes_only(["fix!: x"])
+    assert not is_fixes_only(["fix: x\n\nBREAKING CHANGE: y"])
+    assert not is_fixes_only([])
 
 
 def test_version_flag_prints_the_installed_version(

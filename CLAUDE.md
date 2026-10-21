@@ -73,10 +73,11 @@ dans le repo public que des chiffres agrégés, sans rien qui identifie le proje
 ## Versions
 
 **Pourquoi** (choix d'antoine, 15 octobre 2026) : kiln doit rester stable pour les repos qui en
-dépendent, alors qu'il change beaucoup ; d'où une version qui ne sort que quand la suivante est
-prête ici, en candidate sur ses propres repos (`-rc`, comme Python ou Linux) : pas de délai
-fixe, c'est la suivante prête qui évite le correctif d'urgence (précisé par antoine le
-16 octobre 2026), et le 0.x du semver, prévu pour un début où tout peut casser (comme uv ou ruff), plutôt
+dépendent, alors qu'il change beaucoup ; d'où une version qui tourne d'abord en candidate sur
+ses propres repos (`-rc`, comme Python ou Linux) et ne sort qu'une fois qu'elle a fait ses
+preuves, mesurées et non supposées (amendé par antoine le 21 octobre 2026 : « la suivante
+prête » ne mesurait pas le rodage, retenait les correctifs derrière les nouveautés, et le
+16 octobre avait vu quatre promotions en une journée), et le 0.x du semver, prévu pour un début où tout peut casser (comme uv ou ruff), plutôt
 qu'un quatrième chiffre. Les clients se mettent à jour à chaque version, correctif compris.
 Suivi de ce qui reste : `docs/backlog/backlog.md`.
 
@@ -151,9 +152,13 @@ publie sur PyPI le paquet `kiln-cli` par `pypi.yml`) :
    que personne n'avait lu), tag `vX.Y.Z-rc.1` poussé seulement au vert. Les postes au canal `internal` (`kiln set
    channel=internal`, celui d'antoine) la suivent : `kiln update --all` y fait passer tous les repos
    générés. Un correctif de la candidate : commit `fix:` sur sa branche, tag `-rc.N+1`.
-2. **Promotion**, quand `kiln version` la dit prête (une candidate plus récente existe, sans
-   délai d'attente, et la CI de GitHub de la candidate est verte) : tag `vX.Y.Z` sur le commit exact de sa
-   dernière candidate, fusion dans `main`, reversement dans `develop`, puis `kiln update --all --rehearse` (chaque repo répété sur un clone) et, au vert, `kiln update --all`.
+2. **Promotion**, quand `kiln version` la dit prête, sur des faits (`release.py`) : la CI de
+   GitHub de la candidate est verte, **24 heures de rodage** depuis son tag (chaque `-rc.N`
+   relance le compte), et **au moins un repo du dossier de code mis à jour vers elle** (`kiln
+   update` y a fait passer les contrôles du repo). **Voie rapide** : une candidate qui ne contient
+   que des correctifs depuis la dernière version publique (aucun `feat`, rien de cassant) sort
+   après **2 heures**, sans repo exigé ; une faille de sécurité sort tout de suite. Alors : tag
+   `vX.Y.Z` sur le commit exact de sa dernière candidate, fusion dans `main`, reversement dans `develop`, puis `kiln update --all --rehearse` (chaque repo répété sur un clone) et, au vert, `kiln update --all`.
    Le canal `public` (par défaut) ne voit que ces versions.
 
 Chaque version, correctif compris, finit par `kiln update --all` : les repos générés citent leurs

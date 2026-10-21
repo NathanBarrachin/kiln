@@ -15,7 +15,13 @@ from pathlib import Path
 from kiln import ui
 from kiln.charter.config import charter_path
 from kiln.config import UserConfig, config_path, load_config
-from kiln.install import BASE_PLUGIN, SYSTEM_HINTS, kiln_plugin_enabled
+from kiln.install import (
+    BASE_PLUGIN,
+    SYSTEM_HINTS,
+    kiln_plugin_enabled,
+    moved_from,
+    pnpm_behind,
+)
 from kiln.shell import INSTALL_HINTS, KilnError
 from kiln.stack import ANSWERS_FILE, BACKEND_DIR, Stack, load_stack, read_answers
 from kiln.versions import installed_version, latest_release, release_version, upgrade_command
@@ -190,10 +196,9 @@ def repo_findings(root: Path, stack: Stack | None) -> list[Finding]:
         return findings
     findings.append(_hook(root))
     for directory in stack.python_dirs:
-        findings.append(_installed(root / directory / ".venv", f"{directory} (uv)", "uv sync"))
+        findings.append(_venv(root / directory / ".venv", f"{directory} (uv)"))
     if stack.pnpm_dir is not None:
-        modules = root / stack.pnpm_dir / "node_modules"
-        findings.append(_installed(modules, f"{stack.pnpm_dir} (pnpm)", "pnpm install"))
+        findings.append(_pnpm(root / stack.pnpm_dir, f"{stack.pnpm_dir} (pnpm)"))
     if stack.has_api:
         env_file = root / BACKEND_DIR / ".env"
         findings.append(
@@ -231,6 +236,22 @@ def _hook(root: Path) -> Finding:
     if path.exists():
         return Finding(Level.OK, "pre-commit", "hook installed")
     return Finding(Level.WARN, "pre-commit", "hook missing", "kiln install")
+
+
+def _venv(venv: Path, label: str) -> Finding:
+    created_in = moved_from(venv)
+    if created_in is None:
+        return _installed(venv, label, "uv sync")
+    return Finding(
+        Level.FAIL, label, f"venv created in {created_in}: its tools fail", "kiln install"
+    )
+
+
+def _pnpm(directory: Path, label: str) -> Finding:
+    modules = directory / "node_modules"
+    if modules.is_dir() and pnpm_behind(directory):
+        return Finding(Level.WARN, label, "older than pnpm-lock.yaml", "pnpm install")
+    return _installed(modules, label, "pnpm install")
 
 
 def _installed(path: Path, label: str, fix: str) -> Finding:

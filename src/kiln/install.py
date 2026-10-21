@@ -28,6 +28,10 @@ LEGACY_BASE_PLUGIN = "base@kiln"
 SECRET_KEY_VARIABLE = "DJANGO_SECRET_KEY"
 SECRET_KEY_BYTES = 50
 ENV_FILE_MODE = 0o600
+# A venv script starts `#!/…/.venv/bin/python`: the folder it was created in.
+VENV_PYTHON = b"/bin/python"
+VENV_SHEBANG_MAX = 4096
+PNPM_LOCKFILE = "pnpm-lock.yaml"
 
 # Install hints by system (never pip or docker).
 SYSTEM_HINTS: dict[str, dict[str, str]] = {
@@ -64,7 +68,7 @@ def install_project(root: Path) -> None:
         _ensure_uv_tool("podman-compose")
     for directory in stack.python_dirs:
         step(f"{directory}: Python dependencies")
-        run(["uv", "sync", "--locked"], root / directory)
+        run(sync_command(root / directory / ".venv"), root / directory)
     if stack.maven_dir is not None:
         step(f"{stack.maven_dir}: Maven and dependencies (wrapper)")
         run([MAVEN_WRAPPER, "-B", "-q", "-DskipTests", "package"], root / stack.maven_dir)
@@ -159,6 +163,41 @@ def _ensure_uv_tool(tool: str, *extras: str) -> None:
     step(f"{tool} tool (uv tool)")
     with_options = [option for extra in extras for option in ("--with", extra)]
     run(["uv", "tool", "install", tool, *with_options], Path.cwd())
+
+
+def sync_command(venv: Path) -> list[str]:
+    """`uv sync --locked`, reinstalling every package when the venv was moved: uv sees them
+    installed and would leave their scripts calling the old folder's Python."""
+    command = ["uv", "sync", "--locked"]
+    return [*command, "--reinstall"] if moved_from(venv) is not None else command
+
+
+def moved_from(venv: Path) -> Path | None:
+    """The folder a virtual environment was created in, when the repo has moved since (its
+    scripts then fail to spawn: `uv run mypy`); None when it is in place or cannot tell."""
+    for script in sorted((venv / "bin").glob("*")):
+        if not script.is_file() or script.is_symlink():
+            continue
+        with script.open("rb") as handle:
+            first_line = handle.readline(VENV_SHEBANG_MAX).strip()
+        if not (first_line.startswith(b"#!") and first_line.endswith(VENV_PYTHON)):
+            continue
+        created_in = Path(first_line[2:].decode(errors="replace")).parent.parent
+        same_place = os.path.realpath(created_in) == os.path.realpath(venv)
+        return None if same_place else created_in
+    return None
+
+
+def pnpm_behind(directory: Path) -> bool:
+    """node_modules missing, or installed from another pnpm-lock.yaml than the folder's (a
+    lockfile merged without `pnpm install`): the checks would run other versions than the CI."""
+    lockfile = directory / PNPM_LOCKFILE
+    installed = directory / "node_modules" / ".pnpm" / "lock.yaml"
+    if not (directory / "node_modules").is_dir():
+        return True
+    if not (lockfile.is_file() and installed.is_file()):
+        return False
+    return lockfile.read_bytes() != installed.read_bytes()
 
 
 def ensure_env_file(backend_dir: Path) -> None:

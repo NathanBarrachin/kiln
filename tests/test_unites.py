@@ -12,12 +12,13 @@ from plumbum import ProcessExecutionError
 
 from kiln import cli, github, ui
 from kiln.banner import LOGO, _project_summary, render_logo
+from kiln.check import _check_commands, _ci_django_job
 from kiln.config import UserConfig
 from kiln.deps import _major_bounds
 from kiln.dev import read_env_file, service_prefix
 from kiln.dev.backing import backing_services
 from kiln.doctor import Level, workstation_findings
-from kiln.install import ensure_env_file
+from kiln.install import ensure_env_file, moved_from, pnpm_behind, sync_command
 from kiln.release import Tag, latest_candidates, next_version, promotion_verdict
 from kiln.rules import charter_rules, verified_rules, write_unverified_rules
 from kiln.settings import parse_assignments, remove_replaced_artifacts
@@ -60,6 +61,42 @@ def test_checks_end_with_charter() -> None:
         "frontend typecheck",
         "charter",
     ]
+
+
+@pytest.mark.parametrize(
+    ("charter_name", "directory_key"), [("charter.toml", "directory"), ("charte.toml", "dossier")]
+)
+def test_typing_follows_the_charter_when_it_declares_it(
+    tmp_path: Path, charter_name: str, directory_key: str
+) -> None:
+    stack = Stack(backend="django", frontend="aucun", has_podman=False)
+    (tmp_path / charter_name).write_text(f'[types]\n{directory_key} = "backend"\n')
+
+    commands = {command.label: command for command in _check_commands(tmp_path, stack)}
+
+    assert commands["backend mypy"].argv == ("charter", "types")
+    assert commands["backend mypy"].directory == "."
+    assert _check_commands(tmp_path / "bare", stack)[2].argv == ("uv", "run", "mypy", ".")
+
+
+def test_backend_tests_take_the_databases_of_the_ci_job(tmp_path: Path) -> None:
+    assert _ci_django_job(tmp_path, "backend") is None  # no ci.yml: the compose's databases
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text(
+        "jobs:\n  quality:\n    uses: antoine-tena/kiln/.github/workflows/charte.yml@v0.3.4\n"
+        "  backend:\n    uses: antoine-tena/kiln/.github/workflows/django.yml@v0.3.4\n"
+        "    with:\n      base: club\n      redis: docker.io/library/redis:8-alpine\n"
+        "      env: |\n        DEBUG=True\n"
+    )
+
+    plan = _ci_django_job(tmp_path, "backend")
+
+    assert plan is not None and plan.services is not None
+    assert plan.services.database == "club"
+    assert plan.services.redis == "docker.io/library/redis:8-alpine"
+    assert dict(plan.env) == {"DEBUG": "True"}
+    assert _ci_django_job(tmp_path, "api") is None
 
 
 def test_java_backend_is_checked_by_the_maven_wrapper() -> None:
@@ -146,6 +183,42 @@ def test_legacy_template_source_is_replaced(tmp_path: Path) -> None:
     replace_legacy_source(tmp_path)
 
     assert "_src_path: https://github.com/antoine-tena/kiln.git" in answers.read_text()
+
+
+def _venv_with_script(venv: Path, created_in: Path) -> None:
+    (venv / "bin").mkdir(parents=True)
+    (venv / "bin" / "ruff").write_bytes(b"\x7fELF binary")
+    (venv / "bin" / "mypy").write_text(f"#!{created_in}/bin/python\nimport mypy\n")
+
+
+def test_a_venv_moved_with_its_repo_is_reinstalled(tmp_path: Path) -> None:
+    venv = tmp_path / "club" / "backend" / ".venv"
+    old_venv = tmp_path / "projects" / "club" / "backend" / ".venv"
+    _venv_with_script(venv, old_venv)
+
+    assert moved_from(venv) == old_venv
+    assert sync_command(venv) == ["uv", "sync", "--locked", "--reinstall"]
+
+
+def test_a_venv_in_place_or_absent_is_only_synced(tmp_path: Path) -> None:
+    venv = tmp_path / "backend" / ".venv"
+    _venv_with_script(venv, venv)
+
+    assert moved_from(venv) is None
+    assert moved_from(tmp_path / "missing") is None
+    assert sync_command(venv) == ["uv", "sync", "--locked"]
+
+
+def test_pnpm_dependencies_behind_their_lockfile_are_seen(tmp_path: Path) -> None:
+    assert pnpm_behind(tmp_path)  # never installed
+    (tmp_path / "pnpm-lock.yaml").write_text("nuxt@4.6.2\n")
+    (tmp_path / "node_modules" / ".pnpm").mkdir(parents=True)
+    installed = tmp_path / "node_modules" / ".pnpm" / "lock.yaml"
+    installed.write_text("nuxt@4.5.2\n")
+    assert pnpm_behind(tmp_path)
+
+    installed.write_text("nuxt@4.6.2\n")
+    assert not pnpm_behind(tmp_path)
 
 
 def test_env_file_gets_a_local_secret_and_is_kept(tmp_path: Path) -> None:

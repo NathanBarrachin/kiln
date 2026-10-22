@@ -57,6 +57,27 @@ def test_answers_are_read_without_yaml() -> None:
     assert hook.answer(KILN_ANSWERS, "absent") == ""
 
 
+def test_an_update_merged_on_the_integration_branch_is_not_offered_again(
+    tmp_path: Path,
+) -> None:
+    # A branch cut before a teammate merged `kiln update` into develop (#50).
+    def git(*args: str) -> None:
+        subprocess.run(["git", "-C", str(tmp_path), *args], check=True, capture_output=True)
+
+    git("init", "-q", "-b", "develop")
+    answers = tmp_path / ".copier-answers.yml"
+    answers.write_text(KILN_ANSWERS.replace("8e6427b", "v0.4.4-63-gb2b0bb5"))
+    git("add", ".")
+    git("commit", "-qm", "update")
+    git("update-ref", "refs/remotes/origin/develop", "HEAD")
+    hook = load_hook()
+
+    assert hook.integrated_commit(tmp_path, "e63f9f0") == "v0.4.4-63-gb2b0bb5"
+    assert hook.integrated_commit(tmp_path, "v0.4.5-rc.1") == "v0.4.5-rc.1"
+    git("update-ref", "-d", "refs/remotes/origin/develop")
+    assert hook.integrated_commit(tmp_path, "e63f9f0") == "e63f9f0"
+
+
 def test_releases_order_by_number_not_by_text() -> None:
     hook = load_hook()
 

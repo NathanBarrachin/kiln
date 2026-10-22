@@ -2,8 +2,8 @@
 """One status line for every folder, in kiln's colors (stone and fire).
 
 The style is chosen per machine (`kiln set statusline=…`, read in `~/.config/kiln/config.toml`):
-- `plain` (default): three lines, repo, session (model, gauges, duration), signals sorted by
-  importance (tasks, environment, the machine's RAM and CPU);
+- `plain` (default): three lines, repo, session (model, gauges, duration), then the tasks
+  and the other signals sorted by importance (environment, the machine's RAM and CPU);
 - `band`: the same on a soot band, important signals as solid pills;
 - `classic`: one line per labeled domain (REPO, SESSION, TASKS, ENV, the last one with RAM and
   CPU);
@@ -920,7 +920,8 @@ def render(status: Status, style: str, columns: int) -> list[str]:
         return bg(SOOT) + " " + text + bg(SOOT) + " " * pad + RESET
 
     if style in ("plain", "band"):
-        signals = by_importance(status.tasks + status.env + status.machine)
+        # The tasks keep the head of the line, in every repo; the rest by importance.
+        signals = status.tasks + by_importance(status.env + status.machine)
         rows = (status.repo, status.session + status.usage, signals or EMPTY)
         return [finish(fit(row, painter, inner)) for row in rows]
 

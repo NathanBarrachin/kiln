@@ -33,7 +33,12 @@ from kiln.release import (
     promotion_verdict,
 )
 from kiln.rules import charter_rules, verified_rules, write_unverified_rules
-from kiln.settings import parse_assignments, remove_replaced_artifacts
+from kiln.settings import (
+    parse_assignments,
+    remove_replaced_artifacts,
+    remove_starter_files,
+    stop_on_conflicts,
+)
 from kiln.shell import KilnError, quiet_git
 from kiln.stack import Command, Stack, answers_if_any, load_stack, stack_from_answers
 from kiln.template import DEFAULT_TEMPLATE_SOURCE, template_revision
@@ -210,6 +215,51 @@ def test_team_accepts_a_comma_list() -> None:
     assert parse_assignments(["team=a, b", "podman=true"]) == {"team": ["a", "b"], "podman": True}
     # Names of before kiln 0.4.0 still work.
     assert parse_assignments(["equipe=a", "frontend=aucun"]) == {"team": ["a"], "frontend": "none"}
+
+
+def test_sentence_with_a_colon_stays_text() -> None:
+    sentence = "Covoiturage : proposer un trajet"
+    assert parse_assignments([f"description={sentence}"]) == {"description": sentence}
+
+
+def test_starter_files_go_when_the_front_already_existed(tmp_path: Path) -> None:
+    composables = tmp_path / "frontend/app/composables"
+    composables.mkdir(parents=True)
+    (composables / "useApi.ts").write_text("new\n")
+    (composables / "useHealth.ts").write_text("kept by the project\n")
+
+    remove_starter_files(
+        tmp_path,
+        Stack(backend="java", frontend="nuxt", has_podman=False),
+        Stack(backend="django", frontend="nuxt", has_podman=False),
+        tracked={"frontend/app/composables/useHealth.ts"},
+    )
+
+    assert not (composables / "useApi.ts").exists()
+    assert (composables / "useHealth.ts").exists()
+
+
+def test_starter_files_stay_with_a_new_front(tmp_path: Path) -> None:
+    composables = tmp_path / "frontend/app/composables"
+    composables.mkdir(parents=True)
+    (composables / "useApi.ts").write_text("new\n")
+
+    remove_starter_files(
+        tmp_path,
+        Stack(backend="java", frontend="none", has_podman=False),
+        Stack(backend="django", frontend="nuxt", has_podman=False),
+        tracked=set(),
+    )
+
+    assert (composables / "useApi.ts").exists()
+
+
+def test_conflicts_stop_before_the_locks(tmp_path: Path) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    (tmp_path / "package.json").write_text("<<<<<<< before updating\n{}\n")
+
+    with pytest.raises(KilnError, match=r"package\.json"):
+        stop_on_conflicts(tmp_path)
 
 
 def test_unknown_key_is_refused() -> None:

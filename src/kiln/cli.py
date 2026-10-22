@@ -494,7 +494,9 @@ def dispatch(arguments: argparse.Namespace) -> list[str]:
         from kiln import install
 
         install.install_machine()
-    elif arguments.command == "set" and (arguments.machine or not _is_in_repo()):
+    elif arguments.command == "set" and (
+        arguments.machine or not _is_in_repo() or _machine_keys_only(arguments.assignments)
+    ):
         from kiln import machine
 
         machine.run_machine(arguments.assignments)
@@ -568,6 +570,12 @@ def _dispatch_in_repo(arguments: argparse.Namespace, root: Path) -> None:
             settings.apply_settings(root, arguments.assignments)
         else:
             settings.show_settings(root)
+
+
+def _machine_keys_only(assignments: list[str]) -> bool:
+    from kiln import machine
+
+    return machine.only_machine_keys(assignments)
 
 
 def _is_in_repo() -> bool:

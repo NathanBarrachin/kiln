@@ -49,6 +49,15 @@ def show_machine(config: UserConfig) -> None:
     ui.note("A repo's settings: go into the repo, then kiln set.")
 
 
+def only_machine_keys(assignments: list[str]) -> bool:
+    """Keys that only exist for the machine (`statusline=…`, `channel=…`): `kiln set` in a repo
+    applies them to the machine rather than refusing them."""
+    from kiln.settings import SETTABLE_KEYS
+
+    keys = [renames.MACHINE_KEYS.get(k, k) for k, _, _ in (a.partition("=") for a in assignments)]
+    return bool(keys) and all(k in MACHINE_KEYS and k not in SETTABLE_KEYS for k in keys)
+
+
 def apply_machine(config: UserConfig, assignments: list[str]) -> UserConfig:
     """The new machine settings, once each `key=value` is checked."""
     updated = config

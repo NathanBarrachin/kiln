@@ -392,7 +392,21 @@ def kiln_repo(cwd: str) -> tuple[Path, str] | None:
     commit = answer(answers, "_commit")
     if not commit or not any(m in answer(answers, "_src_path") for m in KILN_SOURCE_MARKERS):
         return None
-    return root, commit
+    return root, integrated_commit(root, commit)
+
+
+def integrated_commit(root: Path, commit: str) -> str:
+    """The template commit of the integration branch when it is ahead of the checked-out
+    branch's: a branch cut before a teammate merged `kiln update` is not late (#50)."""
+    branch = integration_branch(root)
+    if branch is None:
+        return commit
+    shown = run("git", "-C", str(root), "show", f"origin/{branch}:{ANSWERS_FILE}")
+    merged = answer(shown.stdout, "_commit") if shown.returncode == 0 else ""
+    merged_key, own_key = release_key(merged), release_key(commit)
+    if merged_key is not None and (own_key is None or merged_key > own_key):
+        return merged
+    return commit
 
 
 def remove_legacy_link(root: Path) -> None:

@@ -66,8 +66,9 @@ uv tool install kiln-cli     # la commande est kiln ; uv installe Python 3.14 s'
 kiln install                 # hors d'un repo : le plugin Claude Code de kiln dans chaque session
 ```
 
-Ou pour essayer sans rien installer : `uvx kiln-cli new mon-app` pour un nouveau repo,
-`uvx kiln-cli adopt` dans un repo que vous avez déjà. macOS, Linux et Windows par WSL ;
+Avec Homebrew : `brew install antoine-tena/kiln/kiln`. Ou pour essayer sans rien installer :
+`uvx kiln-cli new mon-app` pour un nouveau repo, `uvx kiln-cli adopt` dans un repo que vous
+avez déjà. macOS, Linux et Windows par WSL ;
 [pnpm](https://pnpm.io/) pour les fronts JavaScript, [podman](https://podman.io/) pour les
 conteneurs.
 

@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 
 from kiln.config import UserConfig
-from kiln.machine import apply_machine
+from kiln.machine import apply_machine, only_machine_keys
 from kiln.shell import KilnError
 from kiln.statusline import (
     REFRESH_SECONDS,
@@ -50,6 +50,15 @@ def home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def settings(home: Path) -> dict[str, Any]:
     loaded: dict[str, Any] = json.loads((home / ".claude" / "settings.json").read_text())
     return loaded
+
+
+def test_machine_keys_set_in_a_repo_go_to_the_machine() -> None:
+    # `kiln set statusline=custom` in a repo was refused: only repo keys were known there (#47).
+    assert only_machine_keys(["statusline=custom"])
+    assert only_machine_keys(["channel=beta", "statusline=band"])
+    assert not only_machine_keys(["team=a"])  # a repo key as well: the repo's
+    assert not only_machine_keys(["statusline=band", "name=x"])
+    assert not only_machine_keys([])
 
 
 def test_statusline_choice_is_checked() -> None:

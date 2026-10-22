@@ -493,6 +493,33 @@ def test_doctor_blocks_on_a_tool_the_repo_needs(monkeypatch: pytest.MonkeyPatch)
     assert findings["podman"].level is Level.WARN
 
 
+def test_doctor_sees_a_stub_that_only_says_the_tool_is_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # macOS has /usr/bin/java without a JDK: found, but `java -version` fails (#49).
+    monkeypatch.setattr("kiln.doctor.shutil.which", lambda name: f"/usr/bin/{name}")
+    monkeypatch.setattr("kiln.doctor._latest_release", lambda: None)
+    stub = subprocess.CompletedProcess(["java"], 1, "", "Unable to locate a Java Runtime.\n")
+    monkeypatch.setattr("kiln.doctor._completed", lambda command, cwd=None: stub)
+
+    findings = {f.label: f for f in workstation_findings(UserConfig(system="macos"), None)}
+
+    assert findings["java"].level is Level.WARN
+    assert "Unable to locate a Java Runtime" in findings["java"].detail
+    assert findings["java"].fix == "brew install openjdk@25"
+
+
+def test_doctor_without_a_chosen_system_detects_it(monkeypatch: pytest.MonkeyPatch) -> None:
+    # A repo adopted with uvx never asked for the system: macOS was told to use apt (#48).
+    monkeypatch.setattr("kiln.doctor.shutil.which", lambda name: None)
+    monkeypatch.setattr("kiln.doctor._latest_release", lambda: None)
+    monkeypatch.setattr("kiln.doctor.detect_system", lambda: "macos")
+
+    findings = {f.label: f for f in workstation_findings(UserConfig(), None)}
+
+    assert findings["podman"].fix.startswith("brew install podman")
+
+
 def test_dev_prefixes_line_up_outside_a_terminal() -> None:
     assert service_prefix("nuxt", 6, ui.FIRE) == "nuxt   │ "
 

@@ -61,8 +61,9 @@ uv tool install kiln-cli     # the command is kiln; uv fetches Python 3.14 if ne
 kiln install                 # outside a repo: kiln's Claude Code plugin in every session
 ```
 
-Or try it without installing anything: `uvx kiln-cli new my-app` for a new repo,
-`uvx kiln-cli adopt` in one you already have. macOS, Linux and Windows through WSL;
+With Homebrew: `brew install antoine-tena/kiln/kiln`. Or try it without installing anything:
+`uvx kiln-cli new my-app` for a new repo, `uvx kiln-cli adopt` in one you already have. macOS,
+Linux and Windows through WSL;
 [pnpm](https://pnpm.io/) for JavaScript fronts, [podman](https://podman.io/) for containers.
 
 ## Quick start

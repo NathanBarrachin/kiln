@@ -142,7 +142,9 @@ minor only moves for a milestone. Strict semver starts at 1.0. Each release is f
 (`v0.4.2-rc.1`) used on the author's own repos; it is promoted to `main` (`v0.4.2`) only once
 it has soaked (24 hours since its tag and at least one repo updated to it; 2 hours, no repo
 required, for a candidate of fixes only), its CI green (macOS and end-to-end tests included) and its update
-rehearsed on a copy of each repo, so a release never needs an emergency fix. Projects are generated and updated from the latest release, pin kiln's workflows to
+rehearsed on a copy of each repo, so a release never needs an emergency fix. A promoted release
+reaches PyPI (`uv tool install kiln-cli`) and the Homebrew tap (`brew install
+antoine-tena/kiln/kiln`, then `brew upgrade kiln`). Projects are generated and updated from the latest release, pin kiln's workflows to
 that exact tag, and `kiln update` shows what changed in each release it applies (see
 [`CHANGELOG.md`](../CHANGELOG.md)).
 Linux, WSL and macOS are supported.

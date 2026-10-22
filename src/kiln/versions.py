@@ -11,6 +11,7 @@ The `public` channel, the default, only sees promoted releases. Each release has
 import json
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from importlib import resources
 from importlib.metadata import Distribution, PackageNotFoundError, distribution
@@ -28,6 +29,8 @@ CHANGELOG_FILE = "CHANGELOG.md"
 # Written into the package by `hatch_build.py`: what a copy of a checkout was built from.
 BUILD_INFO_FILE = "_build.json"
 DIRTY_SUFFIX = "-dirty"
+# Folder where Homebrew installs its formulas: a tool under it came from the tap.
+HOMEBREW_CELLAR = "Cellar"
 # `v0.4.0`, `v0.4.0-rc.2`, and what `git describe` appends (`v0.4.0-3-gabc1234`).
 RELEASE_TAG = re.compile(r"^v(\d+\.\d+\.\d+(?:-rc\.\d+)?)(?:-(\d+)-g([0-9a-f]+))?$")
 RELEASE_HEADING = re.compile(r"^## (v\d+\.\d+\.\d+)(?:\s+[-—·]\s+(.+))?$")
@@ -105,7 +108,10 @@ def _installed_distribution() -> Distribution | None:
 
 
 def install_source() -> str:
-    """Where the tool comes from: `pypi`, `git` (a GitHub revision) or `folder` (a checkout)."""
+    """Where the tool comes from: `pypi`, `homebrew` (the tap's formula, T-12), `git` (a GitHub
+    revision) or `folder` (a checkout)."""
+    if HOMEBREW_CELLAR in Path(sys.prefix).resolve().parts:
+        return "homebrew"
     dist = _installed_distribution()
     direct_url = (dist.read_text("direct_url.json") or "") if dist else ""
     if not direct_url:
@@ -117,7 +123,10 @@ def upgrade_command(version: str) -> str:
     """Command that installs version `vX.Y.Z` of the tool, the way it was installed: PyPI only
     has promoted releases, a candidate goes through GitHub."""
     release = release_version(version)
-    if install_source() == "pypi" and release is not None and not release.is_prerelease:
+    source = install_source()
+    if source == "homebrew" and release is not None and not release.is_prerelease:
+        return "brew upgrade kiln"
+    if source == "pypi" and release is not None and not release.is_prerelease:
         return f'uv tool install --force "{PYPI_NAME}=={release}"'
     return f'uv tool install --force "git+{KILN_GIT_URL}@{version}"'
 

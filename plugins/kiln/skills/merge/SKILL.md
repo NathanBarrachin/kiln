@@ -34,6 +34,8 @@ step 4. Talk to the user in their language.
      succeeds: every commit of the branch, so each of its files, is in the published
      integration branch;
    - the worktree is clean (`git -C <wt> status --porcelain` empty).
+   If the session was moved into the worktree (`EnterWorktree`), leave it first with
+   `ExitWorktree` (`action: "keep"`): a session cannot stay in a folder that disappears.
    Then `git worktree remove .claude/worktrees/<name>` (never `--force`), `git branch -d
    <branch>` (never `-D`) and, if it exists on GitHub (`git ls-remote --heads origin <branch>`),
    `git push origin --delete <branch>`. If a check fails: delete nothing, say which one and why.

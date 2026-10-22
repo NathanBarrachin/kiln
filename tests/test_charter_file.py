@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from kiln.charter.cli import check_file
+from kiln.charter.cli import check_file, main
 from kiln.charter.config import load
 from kiln.charter.repo import Repo
 
@@ -69,6 +69,17 @@ def test_another_file_ignores_the_rest_of_the_repo(repo: Path) -> None:
     # is the edited file's business.
     assert run(repo, "backend/clean.py") == 0
     assert run(repo, "backend/app/migrations/0002_late.py") == 0
+
+
+def test_the_commit_hook_passes_several_files(repo: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # pre-commit gives every staged file at once (#51): one failing file fails them all.
+    monkeypatch.chdir(repo)
+    monkeypatch.setattr(
+        sys, "argv", ["charter", "file", "backend/clean.py", "backend/app/migrations/0002_late.py"]
+    )
+    assert main() == 0
+    monkeypatch.setattr(sys, "argv", ["charter", "file", "backend/clean.py", "backend/printer.py"])
+    assert main() == 1
 
 
 def test_a_waived_or_ignored_file_is_not_checked(repo: Path) -> None:

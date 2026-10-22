@@ -12,7 +12,12 @@ import pytest
 from kiln.config import UserConfig
 from kiln.machine import apply_machine
 from kiln.shell import KilnError
-from kiln.statusline import apply_statusline_choice, is_kiln_statusline
+from kiln.statusline import (
+    REFRESH_SECONDS,
+    apply_statusline_choice,
+    ensure_statusline,
+    is_kiln_statusline,
+)
 
 SCRIPT = Path(__file__).parent.parent / "plugins" / "kiln" / "scripts" / "statusline.py"
 OWN = {"type": "command", "command": "~/bin/ma-ligne.sh"}
@@ -92,6 +97,32 @@ def test_switching_styles_keeps_the_kiln_command(home: Path) -> None:
     apply_statusline_choice("band")
 
     assert "$HOME" in settings(home)["statusLine"]["command"]  # écrite à la main, gardée
+
+
+def test_the_kiln_statusline_reruns_on_a_timer(home: Path) -> None:
+    # Claude Code ne relance le script qu'à ses événements : sans minuteur, git et la CI
+    # lus en arrière-plan attendent le message suivant.
+    (home / ".claude" / "settings.json").write_text(
+        json.dumps(
+            {"statusLine": {"command": 'python3 "$HOME/kiln/plugins/kiln/scripts/statusline.py"'}}
+        )
+    )
+
+    apply_statusline_choice("plain")
+
+    assert settings(home)["statusLine"]["refreshInterval"] == REFRESH_SECONDS
+
+
+def test_a_set_up_machine_gets_the_timer_at_install(home: Path) -> None:
+    (home / ".claude" / "settings.json").write_text(
+        json.dumps(
+            {"statusLine": {"command": 'python3 "$HOME/kiln/plugins/base/scripts/statusline.py"'}}
+        )
+    )
+
+    ensure_statusline(UserConfig(statusline="plain"))
+
+    assert settings(home)["statusLine"]["refreshInterval"] == REFRESH_SECONDS
 
 
 def test_secret_scan_ignores_rendered_examples(tmp_path: Path) -> None:

@@ -26,6 +26,10 @@ from kiln.stack import answers_if_any
 SCRIPT = Path("plugins") / "kiln" / "scripts" / "statusline.py"
 # Its path before kiln 0.4 (plugin `base`), still recognized.
 LEGACY_SCRIPT = Path("plugins") / "base" / "scripts" / "statusline.py"
+# Claude Code reruns the script only on its own events (a new message…): without a timer, the
+# values refreshed in the background (git, CI, tasks) wait for the next one. A render costs
+# about 0.15 s.
+REFRESH_SECONDS = 5
 
 
 def apply_statusline_settings(root: Path) -> None:
@@ -79,9 +83,17 @@ def apply_statusline_choice(choice: str, settings_path: Path | None = None) -> s
         message = f"statusLine removed from {path}{previous}."
     elif choice in STATUSLINE_STYLES:
         if is_kiln_statusline(current):
-            return f"kiln status line, {choice} style."
-        settings["statusLine"] = {"type": "command", "command": f'python3 "{kiln_script()}"'}
-        message = f"kiln status line, {choice} style, set in {path}{previous}."
+            if current.get("refreshInterval"):
+                return f"kiln status line, {choice} style."
+            current["refreshInterval"] = REFRESH_SECONDS
+            message = f"kiln status line, {choice} style, refreshed every {REFRESH_SECONDS} s."
+        else:
+            settings["statusLine"] = {
+                "type": "command",
+                "command": f'python3 "{kiln_script()}"',
+                "refreshInterval": REFRESH_SECONDS,
+            }
+            message = f"kiln status line, {choice} style, set in {path}{previous}."
     else:
         raise KilnError(f"unknown statusline: {choice}")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -92,11 +104,14 @@ def apply_statusline_choice(choice: str, settings_path: Path | None = None) -> s
 def ensure_statusline(config: UserConfig) -> UserConfig:
     """At the first `kiln install`: the default style, or `custom` when the user already has a
     status line of their own; the choice is kept in the machine settings."""
-    if config.statusline is not None:
-        return config
     path = claude_settings_path()
     settings = json.loads(path.read_text()) if path.exists() else {}
     current = settings.get("statusLine")
+    if config.statusline is not None:
+        # a kiln status line set before its timer gets it
+        if is_kiln_statusline(current) and not current.get("refreshInterval"):
+            print(apply_statusline_choice(str(config.statusline)))
+        return config
     own = current is not None and not is_kiln_statusline(current)
     updated = replace(config, statusline=CUSTOM_STATUSLINE if own else DEFAULT_STATUSLINE)
     print(apply_statusline_choice(str(updated.statusline)))

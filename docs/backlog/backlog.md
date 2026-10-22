@@ -110,7 +110,6 @@ comes first; these tickets give way to it.
 - T-55 · README in Chinese, Japanese, Spanish and Portuguese (S)
 - T-57 · A tutorial series: bring a Django repo up to date in an afternoon (M)
 - T-58 · A public roadmap on GitHub Projects (M)
-- T-12 · Homebrew formula in a tap (S) (blocked: demand)
 
 ### v0.6.0 · Claude closes the gaps alone
 Milestone decided by antoine (16 October 2026: Claude does the work in the repo), its content
@@ -951,20 +950,6 @@ zsh is the default shell on macOS: most newcomers there get no completion today.
 - [ ] Each problem `kiln doctor` finds and can fix safely (pre-commit missing, plugin not
   installed, outdated kiln) is fixed after one confirmation; the others keep their command and
   direct link.
-
-### T-12 · Homebrew formula in an `antoine-tena/homebrew-kiln` tap
-- **Type**: improvement
-- **Status**: blocked — waiting for demand (an issue asking for it) or homebrew-core notability
-- **Opened**: 2026-10-16
-- **Effort**: S · **Owner**: Claude · **Due**: —
-- **Origin**: distribution, 16 October 2026
-
-`brew install antoine-tena/kiln/kiln` for macOS and Linux, formula updated on each promotion.
-Not now (antoine, 16 October 2026): kiln needs uv anyway, so `uv tool install kiln-cli` and
-`uvx kiln-cli` cover its users, and a formula lists about 30 dependencies to keep up to date.
-The tap https://github.com/antoine-tena/homebrew-kiln is created to keep the name (README only,
-issues off). The official homebrew-core requires an already known project.
-
 ### T-138 · Less code to carry, measured first: the compressor's dry run
 - **Type**: idea
 - **Status**: todo

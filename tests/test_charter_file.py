@@ -48,6 +48,13 @@ def run(repo: Path, relative: str) -> int:
     return check_file(Repo(repo, load(repo)), str(repo / relative))
 
 
+def test_a_generated_file_is_known_before_it_is_added(repo: Path) -> None:
+    # `kiln contract` writes openapi.json and api.d.ts: exempt before the `git add`.
+    (repo / ".gitattributes").write_text("backend/clean.py linguist-generated=true\n")
+
+    assert "backend/clean.py" in Repo(repo, load(repo)).generated
+
+
 def test_the_edited_file_breaking_a_ban_fails(
     repo: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

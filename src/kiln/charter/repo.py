@@ -23,11 +23,28 @@ class Repo:
         # Path fragments that every rule ignores (e.g. "/migrations/").
         self.excluded: list[str] = list(config.get("exclude", []))
         # Generated files: their list lives in `.gitattributes` (attribute linguist-generated).
-        self.generated = set(self.git("ls-files", "--", ":(attr:linguist-generated=true)").split())
+        self.generated = self.generated_files()
         # Patterns waived for the rule being checked (`kiln-waivers.toml`).
         self.waived: list[str] = []
         # The one file checked after an edit (`charter file`), None for the whole repo.
         self.only: str | None = None
+
+    def generated_files(self) -> set[str]:
+        """Files `.gitattributes` marks linguist-generated, new ones included: `kiln contract`
+        writes openapi.json before anyone adds it. A pathspec `:(attr:…)` would miss a new
+        file in a new folder (git does not walk into an untracked folder for it)."""
+        files = self.git("ls-files", "-z", "--cached", "--others", "--exclude-standard")
+        attributes = subprocess.run(
+            ["git", "check-attr", "-z", "--stdin", "linguist-generated"],
+            cwd=self.root,
+            input=files,
+            capture_output=True,
+            text=True,
+            check=False,
+        ).stdout.split("\0")
+        # check-attr -z answers path, attribute, value for each path.
+        triples = zip(attributes[::3], attributes[2::3], strict=False)
+        return {path for path, value in triples if value == "true"}
 
     def git(self, *args: str) -> str:
         return subprocess.run(

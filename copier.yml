@@ -242,6 +242,8 @@ frontend_deploy:
     "Vercel": vercel
   default: none
   when: "{{ frontend == 'nuxt' }}"
+  validator: >-
+    {% if frontend_deploy == 'vercel' and frontend in ['streamlit', 'dash'] %}Vercel cannot host a Streamlit or Dash app: it needs a long-running Python server with websockets.{% endif %}
 
 # Work tracking, in every repo: docs/backlog/ (skill kiln:backlog).
 north_star:

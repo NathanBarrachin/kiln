@@ -416,3 +416,16 @@ def test_a_language_per_use(tmp_path: Path) -> None:
 
     project_rules = (project_dir / ".claude/rules/kiln/project.md").read_text()
     assert "English" in project_rules.split("Commit messages:", 1)[1][:12]
+
+
+@pytest.mark.parametrize("frontend", ["streamlit", "dash"])
+def test_vercel_is_refused_for_a_python_front(tmp_path: Path, frontend: str) -> None:
+    with pytest.raises(ValueError, match="Vercel cannot host"):
+        generate(tmp_path / "demo", backend="data", frontend=frontend, frontend_deploy="vercel")
+
+
+def test_no_deployment_cites_no_deploy_workflow(tmp_path: Path) -> None:
+    project_dir = generate(tmp_path / "demo", backend="data", frontend="streamlit")
+
+    assert "deploy.yml" not in (project_dir / ".github/workflows/ci.yml").read_text()
+    assert not (project_dir / "scripts").exists()

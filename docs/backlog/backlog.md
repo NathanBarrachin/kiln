@@ -587,18 +587,18 @@ drop the exemption.
 
 ### T-155 · A Streamlit or Dash front gets a deployment that fits, or none is assumed
 - **Type**: bug
-- **Status**: todo
+- **Status**: in progress
 - **Opened**: 2026-10-20
 - **Effort**: M · **Owner**: Claude · **Due**: —
 - **Origin**: issue #43 (darnak69, 16 October 2026)
 
-- [ ] `front_deploiement=vercel` refused for Streamlit and Dash (they need a long-running
+- [x] `frontend_deploy=vercel` refused for Streamlit and Dash (they need a long-running
   Python server with websockets).
-- [ ] With no deployment set, nothing generated cites `deploy.yml` or `scripts/ops/deploy-*.sh`
-  (comment of `ci.yml`, last step of the `version` skill).
+- [x] With no deployment set, nothing generated cites `deploy.yml` or `scripts/ops/deploy-*.sh`
+  (comment of `ci.yml`; the `release` skill ends at the tag when nothing deploys).
 - [ ] A target that fits: `vps` (podman + Caddy) opened to the front image, with a
-  `/_stcore/health` probe; the Streamlit `Containerfile` gets its health probe and its `uv`
-  image pinned by digest. Closes #43.
+  `/_stcore/health` probe (already in `compose.yaml`; the `uv` image is already pinned by
+  digest). Closes #43.
 
 ### T-156 · Committed trained models tied to the code that made them
 - **Type**: idea

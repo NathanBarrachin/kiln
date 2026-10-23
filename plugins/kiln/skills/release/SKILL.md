@@ -88,6 +88,8 @@ The project's commands (often `scripts/ops/deploy-backend.sh --dry-run`, then wi
 `deploy-frontend.sh`), the API before the front. Then check: the script's smoke test, production
 logs for a few minutes (the project's diagnosis skill if any), the announcement visible. If
 something breaks: back to the previous release through the project's procedure, and say so.
+No deployment configured (no `scripts/ops/deploy-*.sh`, nothing in `CLAUDE.md`): the release ends
+at the tag on `main`; say so and skip to the next step.
 
 ## 9. Merge back and tidy
 ```bash

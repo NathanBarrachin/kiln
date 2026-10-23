@@ -1,5 +1,6 @@
 """`kiln dev`: the Procfile.dev, the background (`-d`, status, logs, stop) and its arguments."""
 
+import socket
 import subprocess
 import time
 from collections.abc import Callable, Iterator
@@ -180,3 +181,15 @@ def test_a_worktree_keeps_the_databases_another_one_still_uses(project: Path) ->
     assert not background.others_running(project)
     background.stop(project)
     assert not background.others_running(other)
+
+
+@pytest.mark.parametrize(("family", "host"), background.LOOPBACKS)
+def test_a_server_is_seen_on_either_loopback(family: socket.AddressFamily, host: str) -> None:
+    try:
+        server = socket.socket(family)
+        server.bind((host, 0))
+    except OSError:
+        pytest.skip(f"no {host} on this machine")
+    with server:
+        server.listen()
+        assert background._listens(server.getsockname()[1])

@@ -58,7 +58,9 @@ class Repo:
         patterns = [patterns] if isinstance(patterns, str) else patterns
         if self.only is not None:
             return self._only_if_matched(patterns, excluded=excluded)
-        waived = [f":(exclude){pattern}" for pattern in self.waived] if patterns else []
+        waived = [f":(exclude){pattern}" for pattern in self.waived]
+        # A pathspec of excludes alone is read against the current directory, not the root.
+        patterns = patterns or ([":/"] if waived else [])
         listed = self.git(
             "ls-files", "--cached", "--others", "--exclude-standard", "--", *patterns, *waived
         ).split()

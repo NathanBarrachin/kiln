@@ -42,7 +42,11 @@ SETTLE_SECONDS = 3
 POLL_SECONDS = 0.25
 STOP_SECONDS = 10
 TAIL_LINES = 40
-LOOPBACK = "127.0.0.1"
+# Both loopbacks: a server bound to `localhost` may listen on IPv6 only (Nuxt on macOS).
+LOOPBACKS = (
+    (socket.AF_INET, "127.0.0.1"),
+    (socket.AF_INET6, "::1"),
+)
 
 
 def state_dir(root: Path) -> Path:
@@ -141,9 +145,16 @@ def _is_ready(port: int | None, elapsed: float) -> bool:
 
 
 def _listens(port: int) -> bool:
-    with socket.socket() as probe:
-        probe.settimeout(POLL_SECONDS)
-        return probe.connect_ex((LOOPBACK, port)) == 0
+    return any(_answers(family, host, port) for family, host in LOOPBACKS)
+
+
+def _answers(family: socket.AddressFamily, host: str, port: int) -> bool:
+    try:
+        with socket.socket(family) as probe:
+            probe.settimeout(POLL_SECONDS)
+            return probe.connect_ex((host, port)) == 0
+    except OSError:  # no IPv6 on this machine
+        return False
 
 
 def show_status(root: Path) -> None:
